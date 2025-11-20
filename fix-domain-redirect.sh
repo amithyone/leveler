@@ -1,163 +1,163 @@
 #!/bin/bash
 
 # Fix Domain Redirect Issue - levelercc.com redirecting to biggestlogs.com
-# Run this on your server
+# Run this on your server to diagnose and fix the redirect
 
 set -e
 
 echo "========================================="
-echo "Fixing Domain Redirect Issue"
+echo "Fixing levelercc.com Redirect Issue"
 echo "========================================="
 echo ""
 
-# Step 1: Check current web server configuration
-echo "Step 1: Checking web server configuration..."
-
+# Step 1: Check which web server is running
+echo "Step 1: Detecting web server..."
 if systemctl is-active --quiet apache2; then
-    echo "Apache detected"
-    echo ""
-    echo "Checking Apache virtual hosts..."
-    echo "--- Active sites ---"
+    WEB_SERVER="apache"
+    echo "✓ Apache detected"
+elif systemctl is-active --quiet nginx; then
+    WEB_SERVER="nginx"
+    echo "✓ Nginx detected"
+else
+    echo "✗ No web server detected!"
+    exit 1
+fi
+
+echo ""
+echo "Step 2: Checking current configuration..."
+
+if [ "$WEB_SERVER" = "apache" ]; then
+    echo "--- Checking Apache enabled sites ---"
     ls -la /etc/apache2/sites-enabled/
     echo ""
     echo "--- Checking for biggestlogs references ---"
     grep -r "biggestlogs" /etc/apache2/sites-enabled/ 2>/dev/null || echo "No biggestlogs found in enabled sites"
     echo ""
-    echo "--- Checking default site ---"
-    if [ -f /etc/apache2/sites-enabled/000-default.conf ]; then
-        echo "WARNING: Default site is still enabled!"
-        cat /etc/apache2/sites-enabled/000-default.conf | grep -i "ServerName\|ServerAlias\|Redirect" || echo "No redirects found"
-    fi
+    echo "--- Checking for redirects ---"
+    grep -r "Redirect\|RewriteRule.*biggestlogs" /etc/apache2/sites-enabled/ 2>/dev/null || echo "No redirects to biggestlogs found"
     
-elif systemctl is-active --quiet nginx; then
-    echo "Nginx detected"
-    echo ""
-    echo "Checking Nginx server blocks..."
-    echo "--- Active sites ---"
+elif [ "$WEB_SERVER" = "nginx" ]; then
+    echo "--- Checking Nginx enabled sites ---"
     ls -la /etc/nginx/sites-enabled/
     echo ""
     echo "--- Checking for biggestlogs references ---"
     grep -r "biggestlogs" /etc/nginx/sites-enabled/ 2>/dev/null || echo "No biggestlogs found in enabled sites"
     echo ""
-    echo "--- Checking default site ---"
-    if [ -f /etc/nginx/sites-enabled/default ]; then
-        echo "WARNING: Default site is still enabled!"
-        cat /etc/nginx/sites-enabled/default | grep -i "server_name\|return\|rewrite" || echo "No redirects found"
-    fi
+    echo "--- Checking for redirects ---"
+    grep -r "return.*301\|rewrite.*biggestlogs" /etc/nginx/sites-enabled/ 2>/dev/null || echo "No redirects to biggestlogs found"
 fi
 
-# Step 2: Check DNS
 echo ""
-echo "Step 2: Checking DNS resolution..."
-echo "Resolving levelercc.com:"
-nslookup levelercc.com || dig levelercc.com
-echo ""
-echo "Resolving www.levelercc.com:"
-nslookup www.levelercc.com || dig www.levelercc.com
+echo "Step 3: Ensuring levelercc.com configuration is active..."
 
-# Step 3: Pull latest code and update configuration
-echo ""
-echo "Step 3: Updating configuration..."
 cd /var/www/leveler
 git pull origin main
 
-# Step 4: Disable default sites and enable leveler site
-echo ""
-echo "Step 4: Configuring web server..."
-
-if systemctl is-active --quiet apache2; then
-    echo "Configuring Apache..."
+if [ "$WEB_SERVER" = "apache" ]; then
+    echo "--- Configuring Apache for levelercc.com ---"
     
-    # Disable default site
-    sudo a2dissite 000-default.conf 2>/dev/null || true
-    
-    # Copy and enable leveler configuration
+    # Copy configuration
     sudo cp apache-leveler.conf /etc/apache2/sites-available/leveler.conf
     
-    # Make sure ServerName is correct
-    sudo sed -i 's/ServerName.*/ServerName levelercc.com/' /etc/apache2/sites-available/leveler.conf
-    sudo sed -i 's/ServerAlias.*/ServerAlias www.levelercc.com/' /etc/apache2/sites-available/leveler.conf
+    # Disable any default site that might be catching all requests
+    sudo a2dissite 000-default.conf 2>/dev/null || true
+    sudo a2dissite default-ssl.conf 2>/dev/null || true
     
     # Enable leveler site
     sudo a2ensite leveler.conf
     
-    # Test configuration
-    echo "Testing Apache configuration..."
+    # Ensure leveler.conf has higher priority (lower number = higher priority)
+    # Check if there are other sites that might be catching requests
+    echo "--- Checking site priorities ---"
+    ls -la /etc/apache2/sites-enabled/ | grep -E "\.conf$"
+    
+    # Test and reload
     if sudo apache2ctl configtest; then
-        echo "✓ Configuration is valid"
         sudo systemctl reload apache2
         echo "✓ Apache reloaded"
     else
-        echo "✗ Configuration test failed!"
+        echo "✗ Apache configuration test failed!"
         exit 1
     fi
     
-elif systemctl is-active --quiet nginx; then
-    echo "Configuring Nginx..."
+elif [ "$WEB_SERVER" = "nginx" ]; then
+    echo "--- Configuring Nginx for levelercc.com ---"
+    
+    # Copy configuration
+    sudo cp nginx-leveler.conf /etc/nginx/sites-available/leveler
     
     # Remove default site
     sudo rm -f /etc/nginx/sites-enabled/default
     
-    # Copy and enable leveler configuration
-    sudo cp nginx-leveler.conf /etc/nginx/sites-available/leveler
-    
-    # Make sure server_name is correct
-    sudo sed -i 's/server_name.*/server_name levelercc.com www.levelercc.com;/' /etc/nginx/sites-available/leveler
-    
     # Enable leveler site
     sudo ln -sf /etc/nginx/sites-available/leveler /etc/nginx/sites-enabled/
     
-    # Test configuration
-    echo "Testing Nginx configuration..."
+    # Check for other sites that might be catching requests
+    echo "--- Checking enabled sites ---"
+    ls -la /etc/nginx/sites-enabled/
+    
+    # Test and reload
     if sudo nginx -t; then
-        echo "✓ Configuration is valid"
         sudo systemctl reload nginx
         echo "✓ Nginx reloaded"
     else
-        echo "✗ Configuration test failed!"
+        echo "✗ Nginx configuration test failed!"
         exit 1
     fi
 fi
 
-# Step 5: Update .env
 echo ""
-echo "Step 5: Updating .env file..."
-if [ -f .env ]; then
-    sed -i 's|APP_URL=.*|APP_URL=https://levelercc.com|g' .env
-    echo "✓ APP_URL updated to https://levelercc.com"
+echo "Step 4: Checking DNS resolution..."
+echo "--- Testing DNS ---"
+nslookup levelercc.com || echo "DNS lookup failed"
+echo ""
+host levelercc.com || echo "Host command failed"
+
+echo ""
+echo "Step 5: Verifying document root..."
+if [ -d "/var/www/leveler/public" ]; then
+    echo "✓ Document root exists: /var/www/leveler/public"
+    ls -la /var/www/leveler/public/index.php || echo "⚠ index.php not found!"
 else
-    echo "WARNING: .env file not found!"
+    echo "✗ Document root not found!"
 fi
 
-# Step 6: Clear Laravel caches
 echo ""
-echo "Step 6: Clearing Laravel caches..."
-php artisan config:clear
-php artisan cache:clear
-php artisan route:clear
-php artisan view:clear
-php artisan config:cache
-echo "✓ Caches cleared and rebuilt"
+echo "Step 6: Setting permissions..."
+sudo chown -R www-data:www-data /var/www/leveler
+sudo chmod -R 755 /var/www/leveler
+sudo chmod -R 775 /var/www/leveler/storage
+sudo chmod -R 775 /var/www/leveler/bootstrap/cache
+echo "✓ Permissions set"
 
-# Step 7: Test the site
 echo ""
-echo "Step 7: Testing site..."
-echo "Testing HTTP response..."
-curl -I http://levelercc.com 2>&1 | head -20 || echo "Could not connect to levelercc.com"
-echo ""
-echo "Testing localhost..."
-curl -I http://localhost 2>&1 | head -20 || echo "Could not connect to localhost"
+echo "Step 7: Testing local access..."
+curl -I http://localhost -H "Host: levelercc.com" 2>/dev/null | head -5 || echo "Local test failed"
 
 echo ""
 echo "========================================="
-echo "Domain redirect fix complete!"
+echo "Diagnostic Complete"
 echo "========================================="
 echo ""
 echo "IMPORTANT: If levelercc.com still redirects to biggestlogs.com:"
-echo "1. Check your domain registrar's DNS settings"
-echo "2. Verify DNS is pointing to: 75.119.139.18"
-echo "3. Wait for DNS propagation (can take up to 48 hours)"
-echo "4. Check if there's a redirect at the domain registrar level"
-echo "5. Verify no other virtual host is catching the request"
 echo ""
-
+echo "1. Check DNS records:"
+echo "   - Run: nslookup levelercc.com"
+echo "   - Should point to: 75.119.139.18"
+echo "   - If it points elsewhere, update DNS at your registrar"
+echo ""
+echo "2. Check for other virtual hosts catching the domain:"
+if [ "$WEB_SERVER" = "apache" ]; then
+    echo "   - Run: sudo grep -r 'ServerName.*levelercc\|ServerAlias.*levelercc' /etc/apache2/sites-enabled/"
+    echo "   - Only leveler.conf should have levelercc.com"
+elif [ "$WEB_SERVER" = "nginx" ]; then
+    echo "   - Run: sudo grep -r 'server_name.*levelercc' /etc/nginx/sites-enabled/"
+    echo "   - Only leveler should have levelercc.com"
+fi
+echo ""
+echo "3. Check domain registrar for redirects:"
+echo "   - Some registrars have 'domain parking' or redirect features"
+echo "   - Disable any redirects at the registrar level"
+echo ""
+echo "4. Clear browser cache and try again"
+echo ""

@@ -17,4 +17,52 @@ yarn-error.log
 /.idea
 /.vscode
 
+# Logs and cache files
+/storage/logs/*.log
+/storage/framework/cache/*
+/storage/framework/sessions/*
+/storage/framework/views/*
 
+# Temporary files
+*.bat
+*.ps1
+*.sh
+*.txt
+*.md
+*.zip
+*.sql
+!README.md
+!DEPLOYMENT.md
+!DOMAIN_SETUP.md
+!CREATE_ADMIN.md
+!SERVER_FIXES.md
+!PayVibe-Integration-Guide.md
+
+# Test files
+test-*.php
+extract-*.php
+delete-*.sql
+
+# Configuration files
+product-info.json
+whatsapp_extractor_bookmarklet.txt
+
+# Server-specific files
+connect-*.bat
+fix-*.bat
+install-*.bat
+run-*.bat
+QUICK_*.bat
+APPLY_*.bat
+FIX_*.bat
+INSTALL_*.bat
+DO_IT_*.txt
+RUN_*.bat
+setup-*.bat
+depart-*.bat
+upload-*.bat
+check-*.bat
+start-*.bat
+verify-*.bat
+final-*.bat
+SSH_*.bat

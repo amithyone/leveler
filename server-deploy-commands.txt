@@ -1,0 +1,54 @@
+# Commands to run on server 75.119.139.18
+# Copy and paste these commands one by one into your SSH session
+
+# 1. Navigate to /var/www
+cd /var/www
+
+# 2. Clone repository (or update if exists)
+if [ -d "leveler" ]; then
+    cd leveler
+    git pull origin main
+else
+    git clone https://github.com/amithyone/leveler.git
+    cd leveler
+fi
+
+# 3. Install Composer dependencies
+composer install --no-dev --optimize-autoloader
+
+# 4. Copy environment file
+cp .env.example .env
+
+# 5. Generate application key
+php artisan key:generate
+
+# 6. Set permissions
+chown -R www-data:www-data /var/www/leveler
+chmod -R 755 /var/www/leveler
+chmod -R 775 /var/www/leveler/storage
+chmod -R 775 /var/www/leveler/bootstrap/cache
+
+# 7. Create storage link
+php artisan storage:link
+
+# 8. Edit .env file (you'll need to do this manually)
+# nano .env
+# Set your database credentials and other settings
+
+# 9. Run migrations
+php artisan migrate --force
+
+# 10. Seed database (optional)
+php artisan db:seed
+
+# 11. Clear and cache
+php artisan config:clear
+php artisan cache:clear
+php artisan route:clear
+php artisan view:clear
+php artisan config:cache
+php artisan route:cache
+php artisan view:cache
+
+# Done! Your application should now be deployed at /var/www/leveler
+

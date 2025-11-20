@@ -11,6 +11,7 @@ class Trainee extends Authenticatable
     use HasFactory, Notifiable;
 
     protected $fillable = [
+        'user_id',
         'surname',
         'first_name',
         'middle_name',
@@ -260,6 +261,14 @@ class Trainee extends Authenticatable
         $remaining = $totalRequired - $totalPaid;
         
         return max(0, $remaining);
+    }
+
+    /**
+     * Get the user associated with this trainee
+     */
+    public function user()
+    {
+        return $this->belongsTo(User::class);
     }
 }
 

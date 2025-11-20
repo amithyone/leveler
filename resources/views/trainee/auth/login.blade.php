@@ -40,10 +40,10 @@
                 @csrf
 
                 <div class="form-group">
-                    <label for="username">
-                        <i class="fas fa-user"></i> Username
+                    <label for="email">
+                        <i class="fas fa-envelope"></i> Email Address
                     </label>
-                    <input type="text" id="username" name="username" value="{{ old('username') }}" required autofocus placeholder="Enter your username">
+                    <input type="email" id="email" name="email" value="{{ old('email') }}" required autofocus placeholder="Enter your email address">
                 </div>
 
                 <div class="form-group">

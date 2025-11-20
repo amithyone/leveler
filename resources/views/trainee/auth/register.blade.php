@@ -76,19 +76,19 @@
                 </div>
 
                 <div class="form-group">
+                    <label for="email">
+                        <i class="fas fa-envelope"></i> Email Address <span class="required">*</span>
+                    </label>
+                    <input type="email" id="email" name="email" value="{{ old('email') }}" required placeholder="Enter your email address">
+                    <small class="form-text">You'll use this email to log in</small>
+                </div>
+
+                <div class="form-group">
                     <label for="phone_number">
                         <i class="fas fa-phone"></i> Phone Number <span class="required">*</span>
                     </label>
                     <input type="tel" id="phone_number" name="phone_number" value="{{ old('phone_number') }}" required placeholder="e.g., 2348061234567">
                     <small class="form-text">Include country code (e.g., 234 for Nigeria)</small>
-                </div>
-
-                <div class="form-group">
-                    <label for="username">
-                        <i class="fas fa-at"></i> Username (Optional)
-                    </label>
-                    <input type="text" id="username" name="username" value="{{ old('username') }}" placeholder="Leave empty for auto-generation">
-                    <small class="form-text">If left empty, a username will be automatically generated for you</small>
                 </div>
 
                 <div class="form-row">
@@ -108,7 +108,7 @@
                 </div>
 
                 <div class="form-info">
-                    <p><i class="fas fa-info-circle"></i> After registration, you'll need to make a payment to activate your account and gain access to courses.</p>
+                    <p><i class="fas fa-info-circle"></i> After registration, you'll become a user. Select a course and make a payment to become a trainee and gain access to courses.</p>
                 </div>
 
                 <button type="submit" class="btn btn-primary btn-block">

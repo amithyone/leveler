@@ -50,4 +50,20 @@ class User extends Authenticatable
     {
         return $this->role === 'admin';
     }
+
+    /**
+     * Get the trainee record associated with this user
+     */
+    public function trainee()
+    {
+        return $this->hasOne(Trainee::class);
+    }
+
+    /**
+     * Check if user is a trainee
+     */
+    public function isTrainee(): bool
+    {
+        return $this->trainee !== null;
+    }
 }

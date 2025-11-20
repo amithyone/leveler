@@ -3,9 +3,11 @@
 namespace App\Http\Controllers\Trainee;
 
 use App\Http\Controllers\Controller;
+use App\Models\User;
 use App\Models\Trainee;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 
 class TraineeRegisterController extends Controller
@@ -19,7 +21,8 @@ class TraineeRegisterController extends Controller
     }
 
     /**
-     * Handle a trainee registration request.
+     * Handle a user registration request.
+     * Creates a User account. They become a Trainee when they enroll in a course.
      */
     public function register(Request $request)
     {
@@ -28,44 +31,43 @@ class TraineeRegisterController extends Controller
             'first_name' => 'required|string|max:255',
             'middle_name' => 'nullable|string|max:255',
             'gender' => 'required|in:M,F',
-            'phone_number' => 'required|string|max:20|unique:trainees,phone_number',
-            'username' => 'nullable|string|unique:trainees,username|max:255',
+            'phone_number' => 'required|string|max:20',
+            'email' => 'required|string|email|max:255|unique:users,email',
             'password' => 'required|string|min:6|confirmed',
         ]);
 
-        // Generate username if not provided
-        $username = $request->username;
-        if (empty($username)) {
-            $username = $this->generateUsername();
-        }
+        // Create user account
+        $fullName = strtoupper($request->surname . ' ' . $request->first_name . ($request->middle_name ? ' ' . $request->middle_name : ''));
+        
+        $user = User::create([
+            'name' => $fullName,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
+            'role' => 'user', // Regular user, not admin
+        ]);
 
-        // Generate password if not provided (but we require it in registration)
-        $password = $request->password;
-
-        // Create trainee account (status will be Inactive until payment is made)
-        $trainee = Trainee::create([
+        // Store additional info in session for when they become a trainee
+        $request->session()->put('registration_data', [
             'surname' => strtoupper($request->surname),
             'first_name' => strtoupper($request->first_name),
             'middle_name' => $request->middle_name ? strtoupper($request->middle_name) : null,
             'gender' => $request->gender,
             'phone_number' => $request->phone_number,
-            'username' => $username,
-            'password' => $password, // Store as plain text (as per existing system)
-            'status' => 'Inactive', // Inactive until payment is made
         ]);
 
-        // Automatically log in the trainee
-        Auth::guard('trainee')->login($trainee);
+        // Automatically log in the user
+        Auth::login($user);
         $request->session()->regenerate();
 
         return redirect()->route('trainee.dashboard')
-            ->with('success', 'Registration successful! Please make a payment to activate your account and gain access to courses.');
+            ->with('success', 'Registration successful! Select a course and make a payment to become a trainee and gain access to courses.');
     }
 
     /**
      * Generate a unique username (format: BCD/XXXXXX)
+     * Used when creating trainee record from user
      */
-    private function generateUsername()
+    public static function generateUsername()
     {
         $lastTrainee = Trainee::orderBy('id', 'desc')->first();
         $nextNumber = $lastTrainee ? (int) substr($lastTrainee->username, 4) + 1 : 1;

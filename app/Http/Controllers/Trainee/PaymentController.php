@@ -4,7 +4,10 @@ namespace App\Http\Controllers\Trainee;
 
 use App\Http\Controllers\Controller;
 use App\Models\Payment;
+use App\Models\User;
+use App\Models\Trainee;
 use App\Services\PayVibeService;
+use App\Helpers\TraineeHelper;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -20,7 +23,15 @@ class PaymentController extends Controller
 
     public function index()
     {
-        $trainee = Auth::guard('trainee')->user();
+        $user = Auth::user();
+        
+        // Get or create trainee
+        $trainee = TraineeHelper::getCurrentTrainee();
+        
+        if (!$trainee) {
+            return redirect()->route('trainee.payments.create')
+                ->with('info', 'Please select a course package to become a trainee.');
+        }
         
         $payments = Payment::where('trainee_id', $trainee->id)
             ->orderBy('payment_date', 'desc')
@@ -42,7 +53,7 @@ class PaymentController extends Controller
             $trainee->save();
         }
 
-        return view('trainee.payments.index', compact('payments', 'totalPaid', 'totalPending'));
+        return view('trainee.payments.index', compact('payments', 'totalPaid', 'totalPending', 'trainee'));
     }
 
     /**
@@ -67,7 +78,11 @@ class PaymentController extends Controller
         ]);
 
         try {
-            $trainee = Auth::guard('trainee')->user();
+            $user = Auth::user();
+            
+            // Get or create trainee when they enroll
+            $trainee = TraineeHelper::getOrCreateTrainee($user);
+            
             $packageType = $request->package_type;
             $courseAccessCount = $request->course_access_count;
             $isInstallment = $request->has('is_installment') && $request->is_installment;
@@ -186,7 +201,13 @@ class PaymentController extends Controller
      */
     public function checkStatus($paymentId)
     {
-        $trainee = Auth::guard('trainee')->user();
+        $user = Auth::user();
+        $trainee = TraineeHelper::getCurrentTrainee();
+        
+        if (!$trainee) {
+            return response()->json(['error' => 'Trainee record not found'], 404);
+        }
+        
         $payment = Payment::where('id', $paymentId)
             ->where('trainee_id', $trainee->id)
             ->firstOrFail();

@@ -140,10 +140,10 @@ Route::prefix('trainee')->name('trainee.')->group(function () {
         Route::post('/login', [TraineeAuthController::class, 'login']);
     });
 
-    Route::post('/logout', [TraineeAuthController::class, 'logout'])->middleware('auth.trainee')->name('logout');
+    Route::post('/logout', [TraineeAuthController::class, 'logout'])->middleware('auth')->name('logout');
 
-    // Protected Trainee Routes
-    Route::middleware('auth.trainee')->group(function () {
+    // Protected Trainee Routes - Users can access, they become trainees when they enroll
+    Route::middleware('auth')->group(function () {
         Route::get('/dashboard', [TraineeDashboardController::class, 'index'])->name('dashboard');
         
         // Courses

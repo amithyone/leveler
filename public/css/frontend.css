@@ -82,6 +82,46 @@ body {
     box-shadow: 0 4px 8px rgba(102, 126, 234, 0.3);
 }
 
+.nav-portal-btn {
+    padding: 8px 16px;
+    background: linear-gradient(135deg, #6B46C1 0%, #9333EA 100%);
+    color: white !important;
+    border-radius: 6px;
+    transition: all 0.3s;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.nav-portal-btn:hover {
+    opacity: 0.9;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(107, 70, 193, 0.3);
+}
+
+.nav-portal-btn i {
+    font-size: 14px;
+}
+
+.nav-logout-btn {
+    padding: 8px 16px;
+    background-color: #dc3545;
+    color: white !important;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.3s;
+    font-family: inherit;
+    font-size: inherit;
+}
+
+.nav-logout-btn:hover {
+    background-color: #c82333;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(220, 53, 69, 0.3);
+}
+
 .mobile-menu-toggle {
     display: none;
     background: none;
@@ -89,6 +129,8 @@ body {
     font-size: 24px;
     cursor: pointer;
     color: #333;
+    padding: 5px;
+    z-index: 1001;
 }
 
 /* Hero Section */
@@ -649,26 +691,51 @@ section {
         display: block;
     }
 
-    .nav-menu {
-        position: fixed;
-        flex-direction: column;
-        gap: 15px;
+    .navbar .container {
+        position: relative;
     }
 
-    .nav-login-btn,
-    .nav-register-btn {
-        display: block;
-        text-align: center;
-        margin-top: 10px;
-    }
+    .nav-menu {
+        position: fixed;
         top: 70px;
         left: -100%;
         width: 100%;
         background-color: white;
         flex-direction: column;
         padding: 20px;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        transition: left 0.3s;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        transition: left 0.3s ease;
+        z-index: 999;
+        max-height: calc(100vh - 70px);
+        overflow-y: auto;
+        gap: 0;
+    }
+
+    .nav-menu li {
+        width: 100%;
+        margin-bottom: 10px;
+    }
+
+    .nav-menu a,
+    .nav-menu form {
+        display: block;
+        width: 100%;
+        text-align: center;
+        padding: 12px;
+    }
+
+    .nav-login-btn,
+    .nav-register-btn,
+    .nav-portal-btn {
+        display: block;
+        text-align: center;
+        margin-top: 10px;
+        width: 100%;
+    }
+
+    .nav-logout-btn {
+        width: 100%;
+        display: block;
     }
 
     .nav-menu.active {

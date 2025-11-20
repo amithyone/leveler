@@ -23,8 +23,29 @@
                 <li><a href="{{ route('partners') }}">Partners</a></li>
                 <li><a href="{{ route('tips-updates') }}">Tips & Updates</a></li>
                 <li><a href="{{ route('contact') }}">Contact</a></li>
-                <li><a href="{{ route('trainee.login') }}" class="nav-login-btn">Login</a></li>
-                <li><a href="{{ route('trainee.register') }}" class="nav-register-btn">Register</a></li>
+                @auth('web')
+                    {{-- Admin is logged in --}}
+                    <li><a href="{{ route('admin.dashboard') }}" class="nav-portal-btn"><i class="fas fa-tachometer-alt"></i> Portal</a></li>
+                    <li>
+                        <form action="{{ route('logout') }}" method="POST" style="display: inline;">
+                            @csrf
+                            <button type="submit" class="nav-logout-btn">Logout</button>
+                        </form>
+                    </li>
+                @elseauth('trainee')
+                    {{-- Trainee is logged in --}}
+                    <li><a href="{{ route('trainee.dashboard') }}" class="nav-portal-btn"><i class="fas fa-user-graduate"></i> Portal</a></li>
+                    <li>
+                        <form action="{{ route('trainee.logout') }}" method="POST" style="display: inline;">
+                            @csrf
+                            <button type="submit" class="nav-logout-btn">Logout</button>
+                        </form>
+                    </li>
+                @else
+                    {{-- Not logged in --}}
+                    <li><a href="{{ route('trainee.login') }}" class="nav-login-btn">Login</a></li>
+                    <li><a href="{{ route('trainee.register') }}" class="nav-register-btn">Register</a></li>
+                @endauth
             </ul>
         </div>
     </nav>

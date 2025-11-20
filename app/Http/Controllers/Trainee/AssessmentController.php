@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Course;
 use App\Models\QuestionPool;
 use App\Models\Result;
+use App\Helpers\TraineeHelper;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -13,7 +14,14 @@ class AssessmentController extends Controller
 {
     public function start($courseId)
     {
-        $trainee = Auth::guard('trainee')->user();
+        $user = Auth::user();
+        $trainee = TraineeHelper::getCurrentTrainee();
+        
+        if (!$trainee) {
+            return redirect()->route('trainee.payments.create')
+                ->with('info', 'Please select a course package to become a trainee and take assessments.');
+        }
+        
         $course = Course::with('questionPools')->findOrFail($courseId);
 
         // Check if trainee has access to this course
@@ -45,7 +53,14 @@ class AssessmentController extends Controller
 
     public function submit(Request $request, $courseId)
     {
-        $trainee = Auth::guard('trainee')->user();
+        $user = Auth::user();
+        $trainee = TraineeHelper::getCurrentTrainee();
+        
+        if (!$trainee) {
+            return redirect()->route('trainee.payments.create')
+                ->with('info', 'Please select a course package to become a trainee and take assessments.');
+        }
+        
         $course = Course::with('questionPools')->findOrFail($courseId);
 
         $request->validate([
@@ -97,7 +112,14 @@ class AssessmentController extends Controller
 
     public function result($resultId)
     {
-        $trainee = Auth::guard('trainee')->user();
+        $user = Auth::user();
+        $trainee = TraineeHelper::getCurrentTrainee();
+        
+        if (!$trainee) {
+            return redirect()->route('trainee.payments.create')
+                ->with('info', 'Please select a course package to become a trainee.');
+        }
+        
         $result = Result::with(['course', 'trainee'])->findOrFail($resultId);
 
         // Ensure the result belongs to the trainee
@@ -105,6 +127,6 @@ class AssessmentController extends Controller
             abort(403);
         }
 
-        return view('trainee.assessment.result', compact('result'));
+        return view('trainee.assessment.result', compact('result', 'trainee'));
     }
 }

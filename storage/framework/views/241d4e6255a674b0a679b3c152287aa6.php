@@ -1,5 +1,3 @@
-
-
 <?php $__env->startSection('title', 'Home - Leveler'); ?>
 
 <?php $__env->startSection('content'); ?>

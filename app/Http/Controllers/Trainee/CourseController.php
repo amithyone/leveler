@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Trainee;
 use App\Http\Controllers\Controller;
 use App\Models\Course;
 use App\Models\Result;
+use App\Helpers\TraineeHelper;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -12,7 +13,13 @@ class CourseController extends Controller
 {
     public function index()
     {
-        $trainee = Auth::guard('trainee')->user();
+        $user = Auth::user();
+        $trainee = TraineeHelper::getCurrentTrainee();
+        
+        if (!$trainee) {
+            return redirect()->route('trainee.payments.create')
+                ->with('info', 'Please select a course package to become a trainee and access courses.');
+        }
         
         // Get courses trainee has access to
         $accessibleCourseIds = $trainee->accessibleCourses()->pluck('courses.id')->toArray();
@@ -35,7 +42,14 @@ class CourseController extends Controller
 
     public function show($id)
     {
-        $trainee = Auth::guard('trainee')->user();
+        $user = Auth::user();
+        $trainee = TraineeHelper::getCurrentTrainee();
+        
+        if (!$trainee) {
+            return redirect()->route('trainee.payments.create')
+                ->with('info', 'Please select a course package to become a trainee and access courses.');
+        }
+        
         $course = Course::with('questionPools')->findOrFail($id);
         
         // Check if trainee has access to this course

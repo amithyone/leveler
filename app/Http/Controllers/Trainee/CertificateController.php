@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Trainee;
 
 use App\Http\Controllers\Controller;
 use App\Models\Result;
+use App\Helpers\TraineeHelper;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 // Note: Install barryvdh/laravel-dompdf for PDF generation
@@ -14,7 +15,13 @@ class CertificateController extends Controller
 {
     public function index()
     {
-        $trainee = Auth::guard('trainee')->user();
+        $user = Auth::user();
+        $trainee = TraineeHelper::getCurrentTrainee();
+        
+        if (!$trainee) {
+            return redirect()->route('trainee.payments.create')
+                ->with('info', 'Please select a course package to become a trainee and view certificates.');
+        }
         
         $certificates = Result::where('trainee_id', $trainee->id)
             ->where('status', 'passed')
@@ -31,7 +38,13 @@ class CertificateController extends Controller
 
     public function download($resultId)
     {
-        $trainee = Auth::guard('trainee')->user();
+        $user = Auth::user();
+        $trainee = TraineeHelper::getCurrentTrainee();
+        
+        if (!$trainee) {
+            return redirect()->route('trainee.payments.create')
+                ->with('info', 'Please select a course package to become a trainee.');
+        }
         $result = Result::with(['course', 'trainee'])->findOrFail($resultId);
 
         // Ensure the result belongs to the trainee and is passed
@@ -68,7 +81,14 @@ class CertificateController extends Controller
 
     public function view($resultId)
     {
-        $trainee = Auth::guard('trainee')->user();
+        $user = Auth::user();
+        $trainee = TraineeHelper::getCurrentTrainee();
+        
+        if (!$trainee) {
+            return redirect()->route('trainee.payments.create')
+                ->with('info', 'Please select a course package to become a trainee.');
+        }
+        
         $result = Result::with(['course', 'trainee'])->findOrFail($resultId);
 
         // Ensure the result belongs to the trainee and is passed

@@ -23,8 +23,29 @@
                 <li><a href="<?php echo e(route('partners')); ?>">Partners</a></li>
                 <li><a href="<?php echo e(route('tips-updates')); ?>">Tips & Updates</a></li>
                 <li><a href="<?php echo e(route('contact')); ?>">Contact</a></li>
-                <li><a href="<?php echo e(route('trainee.login')); ?>" class="nav-login-btn">Login</a></li>
-                <li><a href="<?php echo e(route('trainee.register')); ?>" class="nav-register-btn">Register</a></li>
+                <?php if(auth()->guard('web')->check()): ?>
+                    
+                    <li><a href="<?php echo e(route('trainee.dashboard')); ?>" class="nav-portal-btn"><i class="fas fa-user-graduate"></i> Portal</a></li>
+                    <li>
+                        <form action="<?php echo e(route('logout')); ?>" method="POST" style="display: inline;">
+                            <?php echo csrf_field(); ?>
+                            <button type="submit" class="nav-logout-btn">Logout</button>
+                        </form>
+                    </li>
+                <?php elseif(auth()->guard('trainee')->check()): ?>
+                    
+                    <li><a href="<?php echo e(route('trainee.dashboard')); ?>" class="nav-portal-btn"><i class="fas fa-user-graduate"></i> Portal</a></li>
+                    <li>
+                        <form action="<?php echo e(route('trainee.logout')); ?>" method="POST" style="display: inline;">
+                            <?php echo csrf_field(); ?>
+                            <button type="submit" class="nav-logout-btn">Logout</button>
+                        </form>
+                    </li>
+                <?php else: ?>
+                    
+                    <li><a href="<?php echo e(route('trainee.login')); ?>" class="nav-login-btn">Login</a></li>
+                    <li><a href="<?php echo e(route('trainee.register')); ?>" class="nav-register-btn">Register</a></li>
+                <?php endif; ?>
             </ul>
         </div>
     </nav>

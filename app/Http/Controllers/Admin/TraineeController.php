@@ -278,8 +278,16 @@ class TraineeController extends Controller
         session(['admin_user_id' => Auth::id()]);
         session(['impersonating' => true]);
         
-        // Log in as trainee
-        Auth::guard('trainee')->login($trainee);
+        // Log in as the user associated with the trainee
+        // If trainee doesn't have a user (old data), create one or use trainee's user
+        if ($trainee->user) {
+            Auth::login($trainee->user);
+        } else {
+            // For backward compatibility: if trainee has no user, we can't impersonate
+            // In this case, we'd need to create a user or handle differently
+            return redirect()->back()
+                ->with('error', 'This trainee does not have a user account. Please update the trainee record.');
+        }
         
         return redirect()->route('trainee.dashboard')
             ->with('info', 'You are now viewing as ' . $trainee->full_name);
@@ -292,8 +300,8 @@ class TraineeController extends Controller
     {
         $adminUserId = session('admin_user_id');
         
-        // Logout from trainee guard
-        Auth::guard('trainee')->logout();
+        // Logout from current user
+        Auth::logout();
         
         // Clear impersonation session
         session()->forget(['admin_user_id', 'impersonating']);

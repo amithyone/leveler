@@ -1,5 +1,3 @@
-
-
 <?php $__env->startSection('content'); ?>
 <div class="page-header">
     <h1 class="page-title">Admin Dashboard</h1>

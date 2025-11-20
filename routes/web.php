@@ -75,7 +75,7 @@ Route::prefix('admin')->name('admin.')->middleware('auth')->group(function () {
     Route::get('/trainees/manage', [TraineeController::class, 'manage'])->name('trainees.manage');
     Route::post('/trainees/manage/bulk-action', [TraineeController::class, 'bulkAction'])->name('trainees.bulk-action');
     Route::get('/trainees/activate', [TraineeController::class, 'activate'])->name('trainees.activate');
-    Route::post('/trainees/activate', [TraineeController::class, 'activate'])->name('trainees.activate');
+    Route::post('/trainees/activate', [TraineeController::class, 'activate'])->name('trainees.activate.post');
     Route::get('/trainees/deactivate', [TraineeController::class, 'deactivate'])->name('trainees.deactivate');
     Route::post('/trainees/deactivate', [TraineeController::class, 'deactivate'])->name('trainees.deactivate');
     Route::get('/trainees/stop-impersonating', [TraineeController::class, 'stopImpersonating'])->name('trainees.stop-impersonating');

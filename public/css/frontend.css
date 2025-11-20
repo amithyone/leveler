@@ -768,5 +768,30 @@ section {
         flex-direction: column;
         text-align: center;
     }
+
+    .nav-brand a {
+        font-size: 18px;
+    }
+
+    .navbar .container {
+        padding: 12px 15px;
+    }
+}
+
+/* Extra small devices */
+@media (max-width: 480px) {
+    .nav-menu {
+        padding: 15px;
+    }
+
+    .nav-menu a,
+    .nav-menu button {
+        font-size: 16px;
+        padding: 14px;
+    }
+
+    .nav-brand a {
+        font-size: 16px;
+    }
 }
 

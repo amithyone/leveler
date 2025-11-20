@@ -3,7 +3,7 @@
 ## Server Information
 - **Server IP**: 75.119.139.18
 - **Application Path**: /var/www/leveler/public
-- **Domain**: yourdomain.com (replace with your actual domain)
+- **Domain**: levelercc.com
 
 ## Step 1: Point Domain to Server
 
@@ -40,7 +40,7 @@ Wait for DNS propagation (can take a few minutes to 48 hours).
    ```bash
    sudo nano /etc/apache2/sites-available/leveler.conf
    ```
-   Replace `yourdomain.com` with your actual domain name.
+   Replace `levelercc.com` with your actual domain name.
 
 3. **Enable required modules:**
    ```bash
@@ -80,7 +80,7 @@ Wait for DNS propagation (can take a few minutes to 48 hours).
    ```bash
    sudo nano /etc/nginx/sites-available/leveler
    ```
-   Replace `yourdomain.com` with your actual domain name.
+   Replace `levelercc.com` with your actual domain name.
 
 3. **Create symbolic link:**
    ```bash
@@ -111,7 +111,7 @@ nano /var/www/leveler/.env
 
 Update these values:
 ```env
-APP_URL=https://yourdomain.com
+APP_URL=https://levelercc.com
 APP_ENV=production
 APP_DEBUG=false
 ```
@@ -139,10 +139,10 @@ php artisan config:cache
 2. **Obtain SSL Certificate:**
    ```bash
    # For Apache
-   sudo certbot --apache -d yourdomain.com -d www.yourdomain.com
+   sudo certbot --apache -d levelercc.com -d www.levelercc.com
    
    # For Nginx
-   sudo certbot --nginx -d yourdomain.com -d www.yourdomain.com
+   sudo certbot --nginx -d levelercc.com -d www.levelercc.com
    ```
 
 3. **Auto-renewal (already set up by certbot):**
@@ -154,20 +154,20 @@ php artisan config:cache
 
 1. **Check DNS propagation:**
    ```bash
-   nslookup yourdomain.com
-   ping yourdomain.com
+   nslookup levelercc.com
+   ping levelercc.com
    ```
 
 2. **Test website:**
-   - Visit: `http://yourdomain.com`
+   - Visit: `http://levelercc.com`
    - Should see the Leveler homepage
 
 3. **Test admin panel:**
-   - Visit: `http://yourdomain.com/admin/dashboard`
+   - Visit: `http://levelercc.com/admin/dashboard`
    - Should see login page
 
 4. **Test trainee portal:**
-   - Visit: `http://yourdomain.com/trainee/login`
+   - Visit: `http://levelercc.com/trainee/login`
    - Should see trainee login page
 
 ## Troubleshooting

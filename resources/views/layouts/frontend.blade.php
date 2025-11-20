@@ -25,7 +25,7 @@
                 <li><a href="{{ route('contact') }}">Contact</a></li>
                 @auth('web')
                     {{-- Admin is logged in --}}
-                    <li><a href="{{ route('admin.dashboard') }}" class="nav-portal-btn"><i class="fas fa-tachometer-alt"></i> Portal</a></li>
+                    <li><a href="{{ route('trainee.dashboard') }}" class="nav-portal-btn"><i class="fas fa-user-graduate"></i> Portal</a></li>
                     <li>
                         <form action="{{ route('logout') }}" method="POST" style="display: inline;">
                             @csrf

@@ -95,6 +95,31 @@ Access the admin dashboard at `/admin/dashboard` with an admin account to:
 - View all orders and users
 - Monitor platform statistics
 
+### Admin: Add Product Categories
+
+1) Sign in as an admin and go to `/admin/dashboard`.
+
+2) Open the Categories manager
+   - From the admin navigation, choose Products → Categories (or Categories if shown separately).
+
+3) Create a new category
+   - Name: Display name (e.g., “Streaming”, “Social Media”, “Gaming”).
+   - Slug: Leave blank to auto-generate, or enter a custom slug.
+   - Status: Set to Active to show on the storefront.
+   - Sort order: Optional number; lower numbers appear first.
+
+4) Save the category
+   - Active categories appear on the home page and product filters.
+
+5) Assign products to the category
+   - Edit or create a product and select the category.
+   - Save the product; it will now show under that category.
+
+Tips
+- Keep names short and clear.
+- Use `sort_order` to control listing order.
+- Disable instead of deleting if you may restore later.
+
 ## Support
 
 For support tickets, users can create tickets from the dashboard. Replacement requests are automatically converted to high-priority tickets.

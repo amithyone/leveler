@@ -5,11 +5,17 @@
 @section('content')
 <div class="max-w-4xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-6 md:py-8 pb-20 md:pb-8">
     <div class="bg-dark-200 border-2 border-dark-300 rounded-xl shadow-2xl shadow-red-accent/10 p-4 md:p-6">
-        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-            <div>
+        <div class="flex items-center justify-between mb-4">
+            <div class="flex-1">
                 <h1 class="text-xl md:text-2xl font-bold text-gray-200">{{ $ticket->subject }}</h1>
                 <p class="text-xs md:text-sm text-gray-400 mt-1">Ticket #{{ $ticket->ticket_number }}</p>
             </div>
+            <a href="{{ route('tickets.index') }}" class="text-yellow-accent hover:text-red-accent transition flex items-center gap-2">
+                <span>← Back</span>
+            </a>
+        </div>
+        
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
             <span class="px-3 md:px-4 py-2 rounded-full border text-xs md:text-sm self-start sm:self-auto
                 {{ $ticket->status === 'open' ? 'bg-blue-500/20 text-blue-400 border-blue-500/30' : '' }}
                 {{ $ticket->status === 'resolved' ? 'bg-green-600/20 text-green-400 border-green-500/30' : '' }}

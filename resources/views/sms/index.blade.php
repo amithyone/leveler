@@ -1,10 +1,230 @@
 @extends('layouts.app')
 
+@section('title', 'SMS Numbers - BiggestLogs')
+
+@section('content')
+<div class="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-6 md:py-8 pb-24">
+    <div class="flex items-center justify-between mb-4">
+        <div>
+            <h1 class="text-2xl md:text-3xl font-bold gradient-text">📲 SMS Numbers</h1>
+            <p class="text-xs md:text-sm text-gray-400 mt-1">Select a service, pick a country, buy a number, then wait for the code.</p>
+        </div>
+        <a href="{{ route('sms.select') }}" class="text-yellow-accent hover:text-red-accent transition text-sm">Switch Provider</a>
+    </div>
+
+    {{-- Summary / Balance --}}
+    <div class="grid grid-cols-2 gap-3 md:gap-4 mb-5">
+        <div class="bg-dark-200 border border-dark-300 rounded-xl p-3">
+            <div class="text-[11px] text-gray-400">Provider</div>
+            <div class="text-sm text-gray-200 font-semibold">{{ $services['provider'] ?? 'Unknown' }}</div>
+        </div>
+        <div class="bg-dark-200 border border-dark-300 rounded-xl p-3 text-right">
+            <div class="text-[11px] text-gray-400">Balance</div>
+            <div class="text-sm text-gray-200 font-semibold">
+                @php
+                    $bal = $balance['balance'] ?? ($balance['balances'] ?? null);
+                @endphp
+                @if(is_array($bal))
+                    {{ collect($bal)->map(fn($b, $k) => (is_array($b) && isset($b['balance']) ? $b['balance'] : 'N/A')." (".$k.")")->join(', ') }}
+                @else
+                    {{ $balance['balance'] ?? 'N/A' }} {{ $balance['currency'] ?? '' }}
+                @endif
+            </div>
+        </div>
+    </div>
+
+    {{-- Filters --}}
+    <div class="bg-dark-200 border border-dark-300 rounded-2xl p-4 md:p-5 mb-5">
+        <div class="grid grid-cols-1 gap-3">
+            <div>
+                <label class="block text-xs text-gray-400 mb-1">Service</label>
+                <select id="serviceSelect" class="w-full bg-dark-300 border border-dark-400 rounded-xl px-3 py-2 text-sm text-gray-200">
+                    <option value="">Select service</option>
+                    @foreach(($services['services'] ?? []) as $svc)
+                        <option value="{{ $svc['id'] }}">{{ $svc['name'] }} @if(($svc['price'] ?? 0)>0)- {{ number_format($svc['price'],2) }}@endif</option>
+                    @endforeach
+                </select>
+            </div>
+            <div>
+                <label class="block text-xs text-gray-400 mb-1">Country</label>
+                <select id="countrySelect" class="w-full bg-dark-300 border border-dark-400 rounded-xl px-3 py-2 text-sm text-gray-200">
+                    <option value="">Select country</option>
+                    @foreach(($countries['countries'] ?? []) as $ctr)
+                        <option value="{{ $ctr['id'] }}">{{ $ctr['name'] }}</option>
+                    @endforeach
+                </select>
+                <div id="countryHint" class="mt-1 text-[11px] text-gray-400 hidden">Filtered to countries available for this service.</div>
+            </div>
+            <div class="flex items-center gap-2">
+                <input id="maxPrice" type="number" step="0.01" placeholder="Max price (optional, RUB)" class="flex-1 bg-dark-300 border border-dark-400 rounded-xl px-3 py-2 text-sm text-gray-200" />
+                <button id="buyBtn" class="px-4 py-2 rounded-xl bg-yellow-accent text-dark-900 font-semibold text-sm">Get Number</button>
+            </div>
+        </div>
+    </div>
+
+    {{-- Result card --}}
+    <div id="resultCard" class="hidden bg-dark-200 border border-dark-300 rounded-2xl p-4 md:p-5">
+        <div class="flex items-center justify-between mb-2">
+            <div class="text-sm text-gray-200 font-semibold">Purchase</div>
+            <a href="{{ route('sms.inbox') }}" class="text-xs text-yellow-accent">Open Inbox →</a>
+        </div>
+        <div class="text-[13px] text-gray-300 leading-relaxed">
+            <div><span class="text-gray-400">Number:</span> <span id="rNumber" class="text-gray-200 font-semibold">—</span></div>
+            <div><span class="text-gray-400">Order ID:</span> <span id="rOrderId" class="text-gray-200">—</span></div>
+            <div class="mt-2"><span class="text-gray-400">Status:</span> <span id="rStatus" class="text-gray-200">Waiting for code…</span></div>
+            <div class="mt-2"><span class="text-gray-400">Code:</span> <span id="rCode" class="text-green-400 font-bold">—</span></div>
+        </div>
+        <div class="mt-3 flex items-center gap-2">
+            <button id="pollBtn" class="px-3 py-2 rounded-lg bg-dark-300 border border-dark-400 text-sm">Check Now</button>
+            <button id="stopPollBtn" class="px-3 py-2 rounded-lg bg-dark-300 border border-dark-400 text-sm hidden">Stop Auto</button>
+        </div>
+    </div>
+
+    {{-- Toast --}}
+    <div id="toast" class="fixed bottom-4 left-1/2 -translate-x-1/2 bg-dark-200 border border-dark-300 text-gray-200 px-4 py-3 rounded-xl shadow-lg hidden text-sm"></div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const serviceSel = document.getElementById('serviceSelect');
+    const countrySel = document.getElementById('countrySelect');
+    const countryHint = document.getElementById('countryHint');
+    const buyBtn = document.getElementById('buyBtn');
+    const maxPrice = document.getElementById('maxPrice');
+    const toast = document.getElementById('toast');
+
+    const resultCard = document.getElementById('resultCard');
+    const rNumber = document.getElementById('rNumber');
+    const rOrderId = document.getElementById('rOrderId');
+    const rStatus = document.getElementById('rStatus');
+    const rCode = document.getElementById('rCode');
+    const pollBtn = document.getElementById('pollBtn');
+    const stopPollBtn = document.getElementById('stopPollBtn');
+
+    let pollTimer = null;
+    let currentOrderId = null;
+
+    function showToast(msg, type = 'info') {
+        toast.textContent = msg;
+        toast.classList.remove('hidden');
+        toast.style.borderColor = type === 'error' ? '#f87171' : '#52525b';
+        setTimeout(() => { toast.classList.add('hidden'); }, 2500);
+    }
+
+    async function postJSON(url, payload) {
+        const resp = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            },
+            body: JSON.stringify(payload)
+        });
+        return resp.json();
+    }
+
+    async function refreshCountriesForService(serviceId) {
+        if (!serviceId) return;
+        try {
+            const res = await postJSON('{{ route('sms.service-countries') }}', { service: serviceId });
+            if (res && res.countries && Array.isArray(res.countries)) {
+                countrySel.innerHTML = '<option value="">Select country</option>';
+                res.countries.forEach(c => {
+                    const opt = document.createElement('option');
+                    opt.value = c.id; opt.textContent = c.name;
+                    countrySel.appendChild(opt);
+                });
+                countryHint.classList.remove('hidden');
+            } else {
+                countryHint.classList.add('hidden');
+            }
+        } catch (e) {
+            showToast('Failed to load countries for service', 'error');
+        }
+    }
+
+    serviceSel.addEventListener('change', (e) => {
+        refreshCountriesForService(e.target.value);
+    });
+
+    async function pollStatus(orderId) {
+        if (!orderId) return;
+        try {
+            const res = await postJSON('{{ route('sms.check-status') }}', { order_id: orderId });
+            if (res.success) {
+                rStatus.textContent = res.status || 'Waiting for code…';
+                if (res.sms_code) {
+                    rCode.textContent = res.sms_code;
+                    showToast('Code received', 'info');
+                    stopPolling();
+                }
+            } else if (res.error) {
+                showToast(res.error, 'error');
+            }
+        } catch (e) {
+            // swallow intermittent errors during polling
+        }
+    }
+
+    function startPolling(orderId) {
+        currentOrderId = orderId;
+        if (pollTimer) clearInterval(pollTimer);
+        pollTimer = setInterval(() => pollStatus(orderId), 5000);
+        stopPollBtn.classList.remove('hidden');
+    }
+
+    function stopPolling() {
+        if (pollTimer) clearInterval(pollTimer);
+        pollTimer = null;
+        stopPollBtn.classList.add('hidden');
+    }
+
+    pollBtn.addEventListener('click', () => {
+        if (currentOrderId) pollStatus(currentOrderId);
+    });
+    stopPollBtn.addEventListener('click', stopPolling);
+
+    buyBtn.addEventListener('click', async () => {
+        const service = serviceSel.value;
+        const country = countrySel.value;
+        const maxP = maxPrice.value ? parseFloat(maxPrice.value) : undefined;
+        if (!service) return showToast('Select a service first', 'error');
+        try {
+            buyBtn.disabled = true; buyBtn.textContent = 'Requesting…';
+            const res = await postJSON('{{ route('sms.request-number') }}', { service, country, max_price: maxP });
+            if (res.success) {
+                resultCard.classList.remove('hidden');
+                rNumber.textContent = res.number || 'Pending…';
+                rOrderId.textContent = res.order_id || '—';
+                rStatus.textContent = res.number ? 'Number ready' : 'Waiting for number…';
+                rCode.textContent = '—';
+                if (res.order_id) startPolling(res.order_id);
+                showToast(res.message || 'Number requested');
+            } else {
+                showToast(res.error || 'Request failed', 'error');
+            }
+        } catch (e) {
+            showToast('Failed to request number', 'error');
+        } finally {
+            buyBtn.disabled = false; buyBtn.textContent = 'Get Number';
+        }
+    });
+});
+</script>
+@endsection
+
+@extends('layouts.app')
+
 @section('title', 'SMS Verification Service - BiggestLogs')
 
 @section('content')
 <div class="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-6 md:py-8 pb-20 md:pb-8">
-    <h1 class="text-2xl md:text-3xl font-bold mb-4 md:mb-6 gradient-text">📱 SMS Verification Service</h1>
+    <div class="flex items-center justify-between mb-4 md:mb-6">
+        <h1 class="text-2xl md:text-3xl font-bold gradient-text">📱 SMS Verification Service</h1>
+        <a href="{{ route('dashboard') }}" class="text-yellow-accent hover:text-red-accent transition flex items-center gap-2">
+            <span>← Back</span>
+        </a>
+    </div>
 
 
     <!-- Request SMS Number -->

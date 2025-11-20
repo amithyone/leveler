@@ -1062,6 +1062,14 @@ class TigerSmsProvider implements SmsProviderInterface
             // Extract country IDs for the specific service
             // Pricing structure: { serviceCode: { countryId: { price, count } } }
             $countryIds = [];
+            $countryMap = $this->getCountryMap();
+            $validCodeSet = [];
+            foreach ($countryMap as $k => $info) {
+                $validCodeSet[strtolower((string)$k)] = true; // include numeric and iso keys
+                if (is_array($info) && isset($info['code'])) {
+                    $validCodeSet[strtolower($info['code'])] = true;
+                }
+            }
             
             // Check if the service exists in pricing data
             if (isset($pricing[$serviceId]) && is_array($pricing[$serviceId])) {
@@ -1075,8 +1083,10 @@ class TigerSmsProvider implements SmsProviderInterface
                                 break;
                             }
                         }
-                        if ($hasPrice) {
-                            $countryIds[(string)$countryId] = true;
+                        $codeStr = strtolower((string)$countryId);
+                        // Only accept codes that exist in our country map (iso or numeric)
+                        if ($hasPrice && isset($validCodeSet[$codeStr])) {
+                            $countryIds[$codeStr] = true;
                         }
                     }
                 }
@@ -1097,14 +1107,12 @@ class TigerSmsProvider implements SmsProviderInterface
                 ];
             }
             
-            // Map to country info - use TigerSMS codes directly
-            // TigerSMS uses text codes like "dz", "ar", "am" - these are the actual IDs
+            // Map to country info - use TigerSMS codes directly (validated above)
             $availableCountries = [];
             foreach (array_keys($countryIds) as $tigerCode) {
                 $codeStr = strtolower((string)$tigerCode);
                 
                 // Try to match TigerSMS code to country name via ISO code mapping
-                $countryMap = $this->getCountryMap();
                 $matchedCountry = null;
                 
                 // First try: Match by ISO code (many TigerSMS codes match ISO codes)
@@ -1171,23 +1179,37 @@ class TigerSmsProvider implements SmsProviderInterface
     {
         try {
             // TigerSMS Flow:
-            // 1. Service: Use numeric ID directly (e.g., "22" for WhatsApp)
-            // 2. Country: Use TigerSMS text code from pricing data (e.g., "dz", "ar", "am")
-            // 3. No conversion needed - use codes as-is from getAvailableCountriesForService
+            // 1. Service: Convert numeric ID to TigerSMS text code (e.g., "22" -> "wa", "30" -> "qu")
+            // 2. Country: Use numeric country ID (not text codes)
+            // getPrices returns numeric service IDs but purchase needs text codes
             
             $serviceCode = trim((string)$service);
+            // Convert numeric IDs to TigerSMS text codes
+            $serviceParam = $this->getServiceCode($serviceCode);
             $params = [
-                'service' => $serviceCode,
+                'service' => $serviceParam,
             ];
 
             // Handle country parameter
             if (!empty($country)) {
                 $countryStr = trim((string)$country);
-                
-                // TigerSMS uses text country codes (e.g., "dz", "ar", "am")
-                // These come directly from getAvailableCountriesForService
-                // Use as-is, no conversion needed
-                $params['country'] = strtolower($countryStr);
+                $codeLower = strtolower($countryStr);
+                $params['country'] = $codeLower;
+
+                // Map ISO alpha-2 to Tiger numeric ID if available (improves compatibility)
+                if (strlen($codeLower) === 2) {
+                    $map = $this->getCountryMap();
+                    $numericId = null;
+                    foreach ($map as $k => $info) {
+                        if (is_numeric($k) && is_array($info) && isset($info['code']) && strtolower($info['code']) === $codeLower) {
+                            $numericId = (string)$k;
+                            break;
+                        }
+                    }
+                    if ($numericId !== null) {
+                        $params['country'] = $numericId;
+                    }
+                }
                 
                 Log::info('TigerSMS requestNumber', [
                     'service' => $serviceCode,

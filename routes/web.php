@@ -4,7 +4,10 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\OrderController;
+use App\Http\Controllers\PayVibeController;
+use App\Http\Controllers\PayVibeWebhookController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\TestPayVibeController;
 use App\Http\Controllers\TicketController;
 use App\Http\Controllers\WalletController;
 use Illuminate\Support\Facades\Route;
@@ -15,6 +18,17 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+Route::get('/verify-email/{userId}/{hash}', [AuthController::class, 'verifyEmail'])->name('verify-email');
+Route::get('/forgot-password', [AuthController::class, 'showForgotPassword'])->name('password.request');
+Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
+Route::post('/reset-password', [AuthController::class, 'resetPassword'])->name('password.reset');
+Route::post('/setup-pin', [AuthController::class, 'setupPin'])->name('setup-pin')->middleware('auth');
+
+// Webhooks (no auth required)
+Route::post('/webhook/payvibe', [PayVibeWebhookController::class, 'handle'])->name('webhook.payvibe');
+
+// Test route
+Route::get('/test-payvibe-config', [TestPayVibeController::class, 'test'])->name('test.payvibe');
 
 // Public routes (with maintenance check)
 Route::middleware('maintenance')->group(function() {
@@ -47,6 +61,11 @@ Route::middleware('auth')->group(function () {
     // Wallet
     Route::get('/wallet', [WalletController::class, 'index'])->name('wallet.index');
     Route::post('/wallet/deposit', [WalletController::class, 'deposit'])->name('wallet.deposit');
+    Route::get('/wallet/payvibe/{transaction}', [WalletController::class, 'showPayVibePayment'])->name('payvibe.payment');
+    
+    // PayVibe
+    Route::post('/payvibe/generate-account', [PayVibeController::class, 'generateAccount'])->name('payvibe.generate');
+    Route::post('/payvibe/check-payment-status', [PayVibeController::class, 'checkStatus'])->name('payvibe.check-status');
     
     // SMS Service
     Route::get('/sms', [\App\Http\Controllers\SmsController::class, 'chooseProvider'])->name('sms.select');
@@ -102,5 +121,17 @@ Route::middleware('auth')->group(function () {
         // Bulk Upload
         Route::get('/bulk-upload', [AdminController::class, 'bulkUpload'])->name('bulk-upload');
         Route::post('/bulk-upload', [AdminController::class, 'processBulkUpload'])->name('bulk-upload.process');
+
+        // Products & Categories
+        Route::get('/products', [AdminController::class, 'products'])->name('products');
+        Route::post('/products', [AdminController::class, 'storeProduct'])->name('products.store');
+        Route::post('/products/{product}/update', [AdminController::class, 'updateProduct'])->name('products.update');
+        Route::post('/products/{product}/details/upload', [AdminController::class, 'uploadProductDetails'])->name('products.details.upload');
+        Route::get('/products/demo-format.txt', [AdminController::class, 'downloadDemoTxt'])->name('products.demo.download');
+
+        Route::get('/categories', [AdminController::class, 'categories'])->name('categories');
+        Route::post('/categories', [AdminController::class, 'storeCategory'])->name('categories.store');
+        Route::post('/categories/{category}/update', [AdminController::class, 'updateCategory'])->name('categories.update');
+        Route::post('/categories/{category}/delete', [AdminController::class, 'deleteCategory'])->name('categories.delete');
     });
 });

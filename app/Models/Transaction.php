@@ -14,6 +14,7 @@ class Transaction extends Model
         'wallet_id',
         'type',
         'amount',
+        'final_amount',
         'gateway',
         'reference',
         'status',
@@ -23,6 +24,7 @@ class Transaction extends Model
 
     protected $casts = [
         'amount' => 'decimal:2',
+        'final_amount' => 'decimal:2',
         'gateway_response' => 'array',
     ];
 

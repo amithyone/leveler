@@ -5,7 +5,12 @@
 @section('content')
 <div class="max-w-2xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-6 md:py-8 pb-20 md:pb-8">
     <div class="bg-dark-200 border-2 border-dark-300 rounded-xl shadow-2xl shadow-red-accent/10 p-4 md:p-6">
-        <h1 class="text-2xl md:text-3xl font-bold mb-4 md:mb-6 gradient-text">Create Support Ticket</h1>
+        <div class="flex items-center justify-between mb-4 md:mb-6">
+            <h1 class="text-2xl md:text-3xl font-bold gradient-text">Create Support Ticket</h1>
+            <a href="{{ route('tickets.index') }}" class="text-yellow-accent hover:text-red-accent transition flex items-center gap-2">
+                <span>← Back</span>
+            </a>
+        </div>
 
         <form id="ticket-form" enctype="multipart/form-data">
             @csrf

@@ -3,9 +3,100 @@
 @section('title', 'SMS Inbox - BiggestLogs')
 
 @section('content')
+<div class="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-6 md:py-8 pb-20">
+    <div class="flex items-center justify-between mb-4">
+        <div>
+            <h1 class="text-2xl md:text-3xl font-bold gradient-text">📥 SMS Inbox</h1>
+            <p class="text-xs md:text-sm text-gray-400 mt-1">Your purchased numbers and received codes.</p>
+        </div>
+        <a href="{{ route('sms.select') }}" class="text-yellow-accent hover:text-red-accent transition text-sm">Providers</a>
+    </div>
+
+    <div class="space-y-3">
+        @forelse($orders as $order)
+            <div class="bg-dark-200 border border-dark-300 rounded-2xl p-4">
+                <div class="flex items-center justify-between">
+                    <div class="text-sm text-gray-200 font-semibold">{{ $order->service_name ?? ('Service '.$order->service_id) }}</div>
+                    <div class="text-[11px] px-2 py-1 rounded-full border {{ $order->status === 'completed' ? 'border-green-500 text-green-400' : 'border-yellow-accent text-yellow-accent' }}">
+                        {{ ucfirst($order->status) }}
+                    </div>
+                </div>
+                <div class="mt-2 grid grid-cols-1 gap-1 text-[13px] text-gray-300">
+                    <div><span class="text-gray-400">Number:</span> {{ $order->phone_number ?? '—' }}</div>
+                    <div><span class="text-gray-400">Order ID:</span> {{ $order->provider_order_id ?? $order->id }}</div>
+                    <div><span class="text-gray-400">Country:</span> {{ $order->country_name ?? ($order->country_id ?: '—') }}</div>
+                    <div><span class="text-gray-400">Created:</span> {{ $order->created_at->diffForHumans() }}</div>
+                    @if($order->sms_code)
+                        <div class="mt-1"><span class="text-gray-400">Code:</span> <span class="text-green-400 font-bold">{{ $order->sms_code }}</span></div>
+                        @if($order->sms_text)
+                            <div class="text-gray-400 text-[12px]">{{ $order->sms_text }}</div>
+                        @endif
+                    @endif
+                </div>
+                <div class="mt-3 flex items-center gap-2">
+                    <form method="post" action="{{ route('sms.check-status') }}" onsubmit="event.preventDefault(); checkStatus('{{ $order->provider_order_id ?? $order->id }}', this)">
+                        @csrf
+                        <button class="px-3 py-2 rounded-lg bg-dark-300 border border-dark-400 text-sm">Check Status</button>
+                    </form>
+                </div>
+            </div>
+        @empty
+            <div class="text-center text-gray-400 text-sm py-10">No SMS orders yet. Buy a number to see incoming codes here.</div>
+        @endforelse
+    </div>
+
+    <div class="mt-6">{{ $orders->links() }}</div>
+
+    <div id="toast" class="fixed bottom-4 left-1/2 -translate-x-1/2 bg-dark-200 border border-dark-300 text-gray-200 px-4 py-3 rounded-xl shadow-lg hidden text-sm"></div>
+</div>
+
+<script>
+function showToast(msg, type = 'info') {
+    const toast = document.getElementById('toast');
+    toast.textContent = msg;
+    toast.classList.remove('hidden');
+    toast.style.borderColor = type === 'error' ? '#f87171' : '#52525b';
+    setTimeout(() => { toast.classList.add('hidden'); }, 2500);
+}
+
+async function checkStatus(orderId, formEl) {
+    try {
+        const resp = await fetch(formEl.action, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+            body: JSON.stringify({ order_id: orderId })
+        });
+        const res = await resp.json();
+        if (res.success) {
+            if (res.sms_code) {
+                showToast('Code: ' + res.sms_code);
+                window.location.reload();
+            } else {
+                showToast(res.status || 'Waiting for code…');
+            }
+        } else {
+            showToast(res.error || 'Failed to check status', 'error');
+        }
+    } catch (e) {
+        showToast('Network error checking status', 'error');
+    }
+}
+</script>
+@endsection
+
+@extends('layouts.app')
+
+@section('title', 'SMS Inbox - BiggestLogs')
+
+@section('content')
 <div class="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-6 md:py-8 pb-20 md:pb-8">
     <div class="flex items-center justify-between mb-6">
-        <h1 class="text-2xl md:text-3xl font-bold gradient-text">📬 SMS Inbox</h1>
+        <div class="flex items-center gap-4">
+            <h1 class="text-2xl md:text-3xl font-bold gradient-text">📬 SMS Inbox</h1>
+            <a href="{{ route('dashboard') }}" class="text-yellow-accent hover:text-red-accent transition flex items-center gap-2">
+                <span>← Back</span>
+            </a>
+        </div>
         <a href="{{ route('sms.select') }}" class="bg-gradient-to-r from-red-accent to-yellow-accent hover:from-red-dark hover:to-yellow-dark text-white px-4 py-2 rounded-lg font-medium transition glow-button">
             Request New Number
         </a>

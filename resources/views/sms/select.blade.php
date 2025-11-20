@@ -4,8 +4,15 @@
 
 @section('content')
 <div class="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-6 md:py-8 pb-20 md:pb-8">
-    <h1 class="text-2xl md:text-3xl font-bold mb-2 md:mb-3 gradient-text">📱 Choose SMS Provider</h1>
-    <p class="text-xs md:text-sm text-gray-400 mb-5 md:mb-8">Pick a provider to request numbers and receive codes. You can switch anytime.</p>
+    <div class="flex items-center justify-between mb-4">
+        <div>
+            <h1 class="text-2xl md:text-3xl font-bold gradient-text">📱 Choose SMS Provider</h1>
+            <p class="text-xs md:text-sm text-gray-400 mt-1">Pick a provider to request numbers and receive codes. You can switch anytime.</p>
+        </div>
+        <a href="{{ route('dashboard') }}" class="text-yellow-accent hover:text-red-accent transition flex items-center gap-2">
+            <span>← Back</span>
+        </a>
+    </div>
 
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
         <a href="{{ route('sms.index', ['provider' => 'smspool']) }}" class="block bg-dark-200 border-2 border-dark-300 rounded-2xl p-6 md:p-8 hover:border-yellow-accent transition shadow-lg shadow-red-accent/10">

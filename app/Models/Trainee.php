@@ -19,10 +19,14 @@ class Trainee extends Authenticatable
         'username',
         'password',
         'phone_number',
+        'whatsapp_number',
         'status',
         'available_courses',
         'total_paid',
         'total_required',
+        'user_type',
+        'state_code',
+        'nysc_start_date',
     ];
 
     protected $hidden = [
@@ -135,7 +139,7 @@ class Trainee extends Authenticatable
     public function accessibleCourses()
     {
         return $this->belongsToMany(Course::class, 'trainee_course_access', 'trainee_id', 'course_id')
-            ->withPivot('payment_id', 'granted_at')
+            ->withPivot('payment_id', 'granted_at', 'course_status', 'whatsapp_link', 'activated_at')
             ->withTimestamps();
     }
 

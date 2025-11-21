@@ -44,8 +44,11 @@ Route::get('/privacy-policy', [HomeController::class, 'privacy'])->name('privacy
 Route::get('/legal', [HomeController::class, 'legal'])->name('legal');
 Route::get('/trainee/login', [TraineeAuthController::class, 'showLoginForm'])->name('trainee.login');
 Route::post('/trainee/login', [TraineeAuthController::class, 'login']);
-Route::get('/trainee/register', [TraineeRegisterController::class, 'showRegistrationForm'])->name('trainee.register');
-Route::post('/trainee/register', [TraineeRegisterController::class, 'register']);
+Route::get('/trainee/register', [TraineeRegisterController::class, 'showCategorySelection'])->name('trainee.register');
+Route::post('/trainee/register/category', [TraineeRegisterController::class, 'selectCategory'])->name('trainee.register.category');
+Route::get('/trainee/register/form', [TraineeRegisterController::class, 'showRegistrationForm'])->name('trainee.register.form');
+Route::post('/trainee/register/nysc', [TraineeRegisterController::class, 'registerNysc'])->name('trainee.register.nysc');
+Route::post('/trainee/register/working-class', [TraineeRegisterController::class, 'registerWorkingClass'])->name('trainee.register.working-class');
 Route::post('/trainee/logout', [TraineeAuthController::class, 'logout'])->name('trainee.logout');
 Route::get('/page/{slug}', [HomeController::class, 'showPage'])->name('page');
 

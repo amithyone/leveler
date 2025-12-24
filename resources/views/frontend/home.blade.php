@@ -68,9 +68,8 @@
 </section>
 
 @php
-    $vulnerability = $page->sections['vulnerability'] ?? null;
+    $vulnerability = $page->sections['vulnerability'] ?? [];
 @endphp
-@if($vulnerability)
 <section class="vulnerability-section">
     <div class="container">
         <h2>{{ $vulnerability['title'] ?? 'Are you vulnerable to disruption?' }}</h2>
@@ -78,7 +77,6 @@
         <a href="{{ route('contact') }}" class="btn btn-primary">{{ $vulnerability['button'] ?? 'Reach Out' }}</a>
     </div>
 </section>
-@endif
 
 @php
     $features = $page->sections['features'] ?? [];
@@ -109,17 +107,19 @@
 @endif
 
 @php
-    $about = $page->sections['about'] ?? null;
+    $about = $page->sections['about'] ?? [];
+    $aboutText = $about['text'] ?? 'Leveler is a Business & Management consulting company whose mandate is to aid growth and sustainability of businesses through strategy development.
+
+Our reputation is built on the foundation of providing business and management solutions that deliver growth, increase profit and boost efficiency.';
 @endphp
-@if($about)
 <section class="about-section">
     <div class="container">
         <div class="about-content">
             <div class="about-text">
                 <h2>{{ $about['title'] ?? 'About Us' }}</h2>
                 <h3>{{ $about['subtitle'] ?? 'For over 10 years, we have supported businesses to accelerate growth.' }}</h3>
-                @if(!empty($about['text']))
-                    @foreach(explode("\n", $about['text']) as $paragraph)
+                @if(!empty($aboutText))
+                    @foreach(explode("\n", $aboutText) as $paragraph)
                         @if(trim($paragraph))
                             <p>{{ trim($paragraph) }}</p>
                         @endif
@@ -130,10 +130,9 @@
         </div>
     </div>
 </section>
-@endif
 
 @php
-    $why = $page->sections['why'] ?? null;
+    $why = $page->sections['why'] ?? [];
     $whyItems = $why['items'] ?? [];
     if (empty($whyItems)) {
         $whyItems = [
@@ -142,7 +141,7 @@
         ];
     }
 @endphp
-@if($why && !empty($whyItems))
+@if(!empty($whyItems))
 <section class="why-section">
     <div class="container">
         <h2>{{ $why['title'] ?? 'Why Leveler' }}</h2>
@@ -160,7 +159,7 @@
 @endif
 
 @php
-    $stats = $page->sections['stats'] ?? null;
+    $stats = $page->sections['stats'] ?? [];
     $statItems = $stats['items'] ?? [];
     if (empty($statItems)) {
         $statItems = [
@@ -171,7 +170,7 @@
         ];
     }
 @endphp
-@if($stats && !empty($statItems))
+@if(!empty($statItems))
 <section class="stats-section">
     <div class="container">
         <h2>{{ $stats['title'] ?? 'Enabling businesses to attain desired growth aspirations' }}</h2>
@@ -188,7 +187,7 @@
 @endif
 
 @php
-    $services = $page->sections['services'] ?? null;
+    $services = $page->sections['services'] ?? [];
     $serviceItems = $services['items'] ?? [];
     if (empty($serviceItems)) {
         $serviceItems = [
@@ -198,7 +197,7 @@
         ];
     }
 @endphp
-@if($services && !empty($serviceItems))
+@if(!empty($serviceItems))
 <section class="services-section">
     <div class="container">
         <h2>{{ $services['title'] ?? 'Our Services' }}</h2>
@@ -219,9 +218,8 @@
 @endif
 
 @php
-    $newsletter = $page->sections['newsletter'] ?? null;
+    $newsletter = $page->sections['newsletter'] ?? [];
 @endphp
-@if($newsletter)
 <section class="newsletter-section">
     <div class="container">
         <h2>{{ $newsletter['text'] ?? 'Subscribing to our mailing list and receive weekly newsletter with latest news and offers.' }}</h2>
@@ -231,6 +229,5 @@
         </form>
     </div>
 </section>
-@endif
 @endsection
 

@@ -24,7 +24,7 @@
                 // Debug: Output the URL
                 // echo "<!-- Image URL: " . $imageUrl . " -->";
             @endphp
-            <div class="hero-slide {{ $index === 0 ? 'active' : '' }}" style="background-image: url('{{ $imageUrl }}');">
+            <div class="hero-slide {{ $index === 0 ? 'active' : '' }}" data-bg-image="{{ $imageUrl }}" style="background-image: url('{{ $imageUrl }}'); background-size: cover; background-position: center; background-repeat: no-repeat;">
                 <div class="hero-overlay"></div>
                 <div class="container">
                     @php

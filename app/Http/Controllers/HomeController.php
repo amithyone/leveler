@@ -60,8 +60,20 @@ class HomeController extends Controller
     public function courses()
     {
         $page = Page::findBySlug('courses') ?? new Page(['title' => 'Courses', 'content' => '']);
-        $courses = Course::where('status', 'Active')->orderBy('title')->get();
+        $courses = Course::where('status', 'Active')
+            ->withCount('questionPools')
+            ->orderBy('title')
+            ->get();
         return view('frontend.courses', compact('page', 'courses'));
+    }
+
+    public function courseDetails($id)
+    {
+        $course = Course::withCount('questionPools')
+            ->with('questionPools')
+            ->findOrFail($id);
+        
+        return view('frontend.course-details', compact('course'));
     }
 
     public function eLearning()

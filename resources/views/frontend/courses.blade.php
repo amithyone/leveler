@@ -19,27 +19,58 @@
         @endif
 
         @if($courses->count() > 0)
-        <div class="courses-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 25px;">
+        <div class="courses-grid">
             @foreach($courses as $course)
             <div class="course-card">
+                @if($course->image)
+                <div class="course-image">
+                    <img src="{{ Storage::url($course->image) }}" alt="{{ $course->title }}">
+                </div>
+                @endif
                 <div class="course-header">
                     <span class="course-code">{{ $course->code }}</span>
-                    <span class="course-status {{ $course->status === 'Active' ? 'active' : 'inactive' }}">
-                        {{ $course->status }}
-                    </span>
+                    <div class="course-badges">
+                        @if($course->level)
+                        <span class="course-level">{{ $course->level }}</span>
+                        @endif
+                        <span class="course-status {{ $course->status === 'Active' ? 'active' : 'inactive' }}">
+                            {{ $course->status }}
+                        </span>
+                    </div>
                 </div>
                 <h3 class="course-title">{{ $course->title }}</h3>
-                @if($course->description)
-                <p class="course-description">{{ \Illuminate\Support\Str::limit($course->description, 120) }}</p>
+                @if($course->overview)
+                <p class="course-overview">{{ \Illuminate\Support\Str::limit($course->overview, 150) }}</p>
+                @elseif($course->description)
+                <p class="course-description">{{ \Illuminate\Support\Str::limit($course->description, 150) }}</p>
                 @endif
                 <div class="course-meta">
                     @if($course->duration_hours)
-                    <span><i class="fas fa-clock"></i> {{ $course->duration_hours }} hours</span>
+                    <span><i class="fas fa-clock"></i> {{ $course->duration_hours }}h</span>
+                    @endif
+                    @if($course->instructor)
+                    <span><i class="fas fa-chalkboard-teacher"></i> {{ $course->instructor }}</span>
                     @endif
                     <span><i class="fas fa-question-circle"></i> {{ $course->questionPools()->count() }} questions</span>
+                    @if($course->rating > 0)
+                    <span><i class="fas fa-star"></i> {{ number_format($course->rating, 1) }}</span>
+                    @endif
                 </div>
+                @if($course->what_you_will_learn && count($course->what_you_will_learn) > 0)
+                <div class="course-highlights">
+                    <strong>You'll learn:</strong>
+                    <ul>
+                        @foreach(array_slice($course->what_you_will_learn, 0, 3) as $item)
+                            @if(!empty($item))
+                            <li>{{ $item }}</li>
+                            @endif
+                        @endforeach
+                    </ul>
+                </div>
+                @endif
                 <div class="course-actions">
                     <a href="{{ route('register') }}" class="btn btn-primary btn-sm">Register Now</a>
+                    <a href="{{ route('course.details', $course->id) }}" class="btn btn-secondary btn-sm">View Details</a>
                 </div>
             </div>
             @endforeach
@@ -66,8 +97,11 @@
     background: white;
     border: 2px solid #e0e0e0;
     border-radius: 12px;
-    padding: 25px;
+    padding: 0;
     transition: all 0.3s;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
 }
 
 .course-card:hover {
@@ -76,11 +110,84 @@
     transform: translateY(-2px);
 }
 
+.course-image {
+    width: 100%;
+    height: 200px;
+    overflow: hidden;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.course-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.course-card > .course-header,
+.course-card > .course-title,
+.course-card > .course-overview,
+.course-card > .course-description,
+.course-card > .course-meta,
+.course-card > .course-highlights,
+.course-card > .course-actions {
+    padding: 0 25px;
+}
+
+.course-card > .course-header {
+    padding-top: 20px;
+    padding-bottom: 15px;
+}
+
+.course-card > .course-title {
+    padding-top: 0;
+    padding-bottom: 10px;
+}
+
+.course-card > .course-overview,
+.course-card > .course-description {
+    padding-top: 0;
+    padding-bottom: 15px;
+    flex-grow: 1;
+}
+
+.course-card > .course-meta {
+    padding-top: 0;
+    padding-bottom: 15px;
+}
+
+.course-card > .course-highlights {
+    padding-top: 0;
+    padding-bottom: 15px;
+    margin-top: auto;
+}
+
+.course-card > .course-actions {
+    padding-top: 15px;
+    padding-bottom: 25px;
+    margin-top: auto;
+}
+
 .course-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 15px;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.course-badges {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.course-level {
+    background: #e0f2fe;
+    color: #0369a1;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 600;
 }
 
 .course-code {
@@ -127,9 +234,53 @@
 .course-meta {
     display: flex;
     gap: 15px;
-    margin-bottom: 20px;
+    flex-wrap: wrap;
     font-size: 13px;
     color: #666;
+}
+
+.course-overview {
+    color: #555;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.course-highlights {
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 8px;
+    margin-top: 10px;
+}
+
+.course-highlights strong {
+    display: block;
+    margin-bottom: 8px;
+    color: #333;
+    font-size: 13px;
+}
+
+.course-highlights ul {
+    margin: 0;
+    padding-left: 20px;
+    list-style: none;
+}
+
+.course-highlights li {
+    color: #666;
+    font-size: 12px;
+    margin-bottom: 5px;
+    position: relative;
+    padding-left: 15px;
+}
+
+.course-highlights li:before {
+    content: "\f00c";
+    font-family: "Font Awesome 5 Free";
+    font-weight: 900;
+    position: absolute;
+    left: 0;
+    color: #667eea;
+    font-size: 10px;
 }
 
 .course-meta i {
@@ -138,8 +289,14 @@
 }
 
 .course-actions {
-    padding-top: 15px;
+    display: flex;
+    gap: 10px;
     border-top: 1px solid #e0e0e0;
+}
+
+.course-actions .btn {
+    flex: 1;
+    text-align: center;
 }
 
 .btn-sm {

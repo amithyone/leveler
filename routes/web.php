@@ -36,6 +36,7 @@ Route::get('/contact', [HomeController::class, 'contact'])->name('contact');
 Route::get('/faqs', [HomeController::class, 'faqs'])->name('faqs');
 Route::get('/careers', [HomeController::class, 'careers'])->name('careers');
 Route::get('/courses', [HomeController::class, 'courses'])->name('courses');
+Route::get('/courses/{id}', [HomeController::class, 'courseDetails'])->name('course.details');
 Route::get('/e-learning', [HomeController::class, 'eLearning'])->name('e-learning');
 Route::get('/register', [HomeController::class, 'register'])->name('register');
 Route::get('/news', [HomeController::class, 'news'])->name('news');
@@ -79,7 +80,6 @@ Route::prefix('admin')->name('admin.')->middleware('auth')->group(function () {
     Route::post('/trainees/manage/bulk-action', [TraineeController::class, 'bulkAction'])->name('trainees.bulk-action');
     Route::get('/trainees/activate', [TraineeController::class, 'activate'])->name('trainees.activate');
     Route::post('/trainees/activate', [TraineeController::class, 'activate'])->name('trainees.activate.post');
-    Route::get('/trainees/deactivate', [TraineeController::class, 'deactivate'])->name('trainees.deactivate');
     Route::post('/trainees/deactivate', [TraineeController::class, 'deactivate'])->name('trainees.deactivate');
     Route::get('/trainees/stop-impersonating', [TraineeController::class, 'stopImpersonating'])->name('trainees.stop-impersonating');
     Route::get('/trainees/{id}', [TraineeController::class, 'show'])->name('trainees.show');

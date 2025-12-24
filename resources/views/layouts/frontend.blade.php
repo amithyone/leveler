@@ -20,6 +20,7 @@
             <ul class="nav-menu" id="navMenu">
                 <li><a href="{{ route('about') }}">About DHC</a></li>
                 <li><a href="{{ route('services') }}">Our Services</a></li>
+                <li><a href="{{ route('courses') }}">Courses</a></li>
                 <li><a href="{{ route('partners') }}">Partners</a></li>
                 <li><a href="{{ route('tips-updates') }}">Tips & Updates</a></li>
                 <li><a href="{{ route('contact') }}">Contact</a></li>

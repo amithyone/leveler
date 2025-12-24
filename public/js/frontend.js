@@ -65,14 +65,32 @@ document.addEventListener('DOMContentLoaded', function() {
     const indicators = document.querySelectorAll('.indicator');
     let currentSlide = 0;
 
-    // Preload images
+    // Preload images and ensure background is set
     heroSlides.forEach(slide => {
         const bgImage = slide.getAttribute('data-bg-image');
+        const inlineBg = slide.style.backgroundImage;
+        
+        // Use data-bg-image if available, otherwise use inline style
         if (bgImage) {
             const img = new Image();
             img.src = bgImage;
-            // Ensure background is set
+            img.onload = function() {
+                // Ensure background is set after image loads
+                slide.style.backgroundImage = `url('${bgImage}')`;
+                slide.style.backgroundSize = 'cover';
+                slide.style.backgroundPosition = 'center';
+                slide.style.backgroundRepeat = 'no-repeat';
+            };
+            // Set immediately as well
             slide.style.backgroundImage = `url('${bgImage}')`;
+            slide.style.backgroundSize = 'cover';
+            slide.style.backgroundPosition = 'center';
+            slide.style.backgroundRepeat = 'no-repeat';
+        } else if (inlineBg) {
+            // If no data attribute but has inline style, ensure it's applied
+            slide.style.backgroundSize = 'cover';
+            slide.style.backgroundPosition = 'center';
+            slide.style.backgroundRepeat = 'no-repeat';
         }
     });
 

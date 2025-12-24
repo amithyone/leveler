@@ -4,10 +4,39 @@
 
 @section('content')
 <div class="dashboard-header">
-    <h1>Welcome, {{ Auth::guard('trainee')->user()->full_name }}</h1>
+    <h1>Welcome, {{ $trainee ? $trainee->full_name : ($user->name ?? 'User') }}</h1>
     <p>Track your learning progress and achievements</p>
 </div>
 
+@if(isset($showEnrollment) && $showEnrollment)
+<div class="alert alert-info" style="padding: 20px; margin: 20px 0; background: #e3f2fd; border-left: 4px solid #2196f3; border-radius: 4px;">
+    <h3 style="margin-top: 0;">Welcome to Leveler!</h3>
+    <p>To get started, please enroll in a course below or contact the administrator to activate your account.</p>
+</div>
+
+@if(isset($courses) && $courses->count() > 0)
+<div class="courses-section">
+    <h2>Available Courses</h2>
+    <div class="courses-grid">
+        @foreach($courses as $course)
+        <div class="course-card">
+            @if($course->image)
+            <div class="course-image">
+                <img src="{{ Storage::url($course->image) }}" alt="{{ $course->title }}">
+            </div>
+            @endif
+            <div class="course-content">
+                <h3>{{ $course->title }}</h3>
+                <p>{{ Str::limit($course->description, 100) }}</p>
+                <a href="{{ route('course.details', $course->id) }}" class="btn btn-primary">View Details</a>
+            </div>
+        </div>
+        @endforeach
+    </div>
+</div>
+@endif
+
+@else
 <!-- Statistics Cards -->
 <div class="stats-grid">
     <div class="stat-card">

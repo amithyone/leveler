@@ -21,11 +21,22 @@ class HomeController extends Controller
                 'slug' => 'home',
                 'slider_images' => [],
             ]);
-        }
-        
-        // Ensure slider_images is an array
-        if ($page->slider_images && !is_array($page->slider_images)) {
-            $page->slider_images = json_decode($page->slider_images, true) ?? [];
+        } else {
+            // Refresh the page to get latest data
+            $page->refresh();
+            
+            // Ensure slider_images is properly cast as array
+            if ($page->slider_images) {
+                if (is_string($page->slider_images)) {
+                    $page->slider_images = json_decode($page->slider_images, true) ?? [];
+                }
+                // Ensure it's an array
+                if (!is_array($page->slider_images)) {
+                    $page->slider_images = [];
+                }
+            } else {
+                $page->slider_images = [];
+            }
         }
         
         $courses = Course::where('status', 'Active')->take(6)->get();

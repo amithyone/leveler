@@ -85,16 +85,41 @@ class CourseController extends Controller
             'title' => 'required|string|max:255',
             'code' => 'required|string|max:10|unique:courses,code,' . $id,
             'description' => 'nullable|string',
+            'overview' => 'nullable|string',
+            'objectives' => 'nullable|array',
+            'what_you_will_learn' => 'nullable|array',
+            'requirements' => 'nullable|array',
+            'who_is_this_for' => 'nullable|string',
+            'level' => 'nullable|in:Beginner,Intermediate,Advanced',
+            'language' => 'nullable|string|max:50',
+            'instructor' => 'nullable|string|max:255',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'curriculum' => 'nullable|array',
             'duration_hours' => 'nullable|numeric|min:0',
             'status' => 'required|in:Active,Inactive',
         ]);
 
         $course = Course::findOrFail($id);
-        $course->update($request->only([
-            'title', 'code', 'description', 'duration_hours', 'status'
-        ]));
+        
+        $data = $request->only([
+            'title', 'code', 'description', 'overview', 'objectives',
+            'what_you_will_learn', 'requirements', 'who_is_this_for',
+            'level', 'language', 'instructor', 'curriculum',
+            'duration_hours', 'status'
+        ]);
 
-        return redirect()->route('admin.courses.view')
+        // Handle image upload
+        if ($request->hasFile('image')) {
+            // Delete old image if exists
+            if ($course->image && \Storage::exists($course->image)) {
+                \Storage::delete($course->image);
+            }
+            $data['image'] = $request->file('image')->store('courses', 'public');
+        }
+
+        $course->update($data);
+
+        return redirect()->route('admin.courses.show', $course->id)
             ->with('success', 'Course updated successfully!');
     }
 }

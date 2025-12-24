@@ -73,8 +73,146 @@
                     @endif
                 </div>
             </div>
+
+            @if($course->image)
+            <div class="info-item full-width">
+                <label>Course Image:</label>
+                <div class="info-value">
+                    <img src="{{ Storage::url($course->image) }}" alt="{{ $course->title }}" style="max-width: 300px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                </div>
+            </div>
+            @endif
+
+            @if($course->level)
+            <div class="info-item">
+                <label>Level:</label>
+                <div class="info-value">
+                    <span class="badge badge-info">{{ $course->level }}</span>
+                </div>
+            </div>
+            @endif
+
+            @if($course->language)
+            <div class="info-item">
+                <label>Language:</label>
+                <div class="info-value">{{ $course->language }}</div>
+            </div>
+            @endif
+
+            @if($course->instructor)
+            <div class="info-item">
+                <label>Instructor:</label>
+                <div class="info-value">{{ $course->instructor }}</div>
+            </div>
+            @endif
+
+            @if($course->rating > 0)
+            <div class="info-item">
+                <label>Rating:</label>
+                <div class="info-value">
+                    <span class="rating-display">
+                        @for($i = 1; $i <= 5; $i++)
+                            <i class="fas fa-star {{ $i <= $course->rating ? 'filled' : '' }}"></i>
+                        @endfor
+                        ({{ number_format($course->rating, 1) }}) - {{ $course->total_reviews }} reviews
+                    </span>
+                </div>
+            </div>
+            @endif
         </div>
     </div>
+
+    @if($course->overview)
+    <div class="content-section">
+        <h2 class="section-title">
+            <i class="fas fa-info-circle"></i> Course Overview
+        </h2>
+        <div class="course-overview">
+            {!! nl2br(e($course->overview)) !!}
+        </div>
+    </div>
+    @endif
+
+    @if($course->objectives && count($course->objectives) > 0)
+    <div class="content-section">
+        <h2 class="section-title">
+            <i class="fas fa-bullseye"></i> Learning Objectives
+        </h2>
+        <ul class="detail-list">
+            @foreach($course->objectives as $objective)
+                @if(!empty($objective))
+                    <li>{{ $objective }}</li>
+                @endif
+            @endforeach
+        </ul>
+    </div>
+    @endif
+
+    @if($course->what_you_will_learn && count($course->what_you_will_learn) > 0)
+    <div class="content-section">
+        <h2 class="section-title">
+            <i class="fas fa-check-circle"></i> What You Will Learn
+        </h2>
+        <ul class="detail-list">
+            @foreach($course->what_you_will_learn as $item)
+                @if(!empty($item))
+                    <li>{{ $item }}</li>
+                @endif
+            @endforeach
+        </ul>
+    </div>
+    @endif
+
+    @if($course->requirements && count($course->requirements) > 0)
+    <div class="content-section">
+        <h2 class="section-title">
+            <i class="fas fa-list-check"></i> Requirements
+        </h2>
+        <ul class="detail-list">
+            @foreach($course->requirements as $requirement)
+                @if(!empty($requirement))
+                    <li>{{ $requirement }}</li>
+                @endif
+            @endforeach
+        </ul>
+    </div>
+    @endif
+
+    @if($course->who_is_this_for)
+    <div class="content-section">
+        <h2 class="section-title">
+            <i class="fas fa-users"></i> Who Is This For?
+        </h2>
+        <div class="course-overview">
+            {!! nl2br(e($course->who_is_this_for)) !!}
+        </div>
+    </div>
+    @endif
+
+    @if($course->curriculum && count($course->curriculum) > 0)
+    <div class="content-section">
+        <h2 class="section-title">
+            <i class="fas fa-book"></i> Curriculum/Modules
+        </h2>
+        <div class="curriculum-list">
+            @foreach($course->curriculum as $index => $module)
+                @if(!empty($module['title']))
+                    <div class="curriculum-module">
+                        <div class="module-header">
+                            <h3>
+                                <span class="module-number">Module {{ $index + 1 }}</span>
+                                {{ $module['title'] }}
+                            </h3>
+                        </div>
+                        @if(!empty($module['description']))
+                            <p class="module-description">{{ $module['description'] }}</p>
+                        @endif
+                    </div>
+                @endif
+            @endforeach
+        </div>
+    </div>
+    @endif
 
     <!-- Statistics Cards -->
     <div class="stats-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin: 30px 0;">
@@ -359,6 +497,119 @@
 .btn-sm {
     padding: 8px 16px;
     font-size: 14px;
+}
+
+.course-overview {
+    line-height: 1.8;
+    color: #555;
+    font-size: 15px;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border-left: 4px solid #667eea;
+}
+
+.detail-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.detail-list li {
+    padding: 12px 15px;
+    margin-bottom: 10px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border-left: 4px solid #667eea;
+    position: relative;
+    padding-left: 35px;
+}
+
+.detail-list li:before {
+    content: "\f00c";
+    font-family: "Font Awesome 5 Free";
+    font-weight: 900;
+    position: absolute;
+    left: 12px;
+    color: #667eea;
+}
+
+.curriculum-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.curriculum-module {
+    background: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 20px;
+    transition: all 0.3s;
+}
+
+.curriculum-module:hover {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    border-color: #667eea;
+}
+
+.module-header {
+    margin-bottom: 10px;
+}
+
+.module-header h3 {
+    margin: 0;
+    color: #333;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.module-number {
+    display: inline-block;
+    background: #667eea;
+    color: white;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.module-description {
+    color: #666;
+    margin: 0;
+    line-height: 1.6;
+}
+
+.badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.badge-info {
+    background: #e0f2fe;
+    color: #0369a1;
+}
+
+.rating-display {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.rating-display .fa-star {
+    color: #ddd;
+    font-size: 16px;
+}
+
+.rating-display .fa-star.filled {
+    color: #fbbf24;
 }
 </style>
 @endsection

@@ -38,7 +38,7 @@
     @endif
 
     <div class="content-section">
-        <form method="POST" action="{{ route('admin.courses.update', $course->id) }}" class="course-form">
+        <form method="POST" action="{{ route('admin.courses.update', $course->id) }}" class="course-form" enctype="multipart/form-data">
             @csrf
             @method('PUT')
 
@@ -96,6 +96,255 @@
                     <span class="error-message">{{ $message }}</span>
                 @enderror
                 <small class="form-help">Brief description of the course content and objectives</small>
+            </div>
+
+            <div class="form-group">
+                <label for="overview">
+                    <i class="fas fa-info-circle"></i> Course Overview
+                </label>
+                <textarea 
+                    id="overview" 
+                    name="overview" 
+                    class="form-control @error('overview') error @enderror"
+                    rows="6"
+                    placeholder="Provide a comprehensive overview of the course..."
+                >{{ old('overview', $course->overview) }}</textarea>
+                @error('overview')
+                    <span class="error-message">{{ $message }}</span>
+                @enderror
+                <small class="form-help">Detailed overview of what the course covers</small>
+            </div>
+
+            <div class="form-group">
+                <label>
+                    <i class="fas fa-bullseye"></i> Learning Objectives
+                </label>
+                <div id="objectives-container">
+                    @php
+                        $objectives = old('objectives', $course->objectives ?? []);
+                        if (empty($objectives)) $objectives = [''];
+                    @endphp
+                    @foreach($objectives as $index => $objective)
+                        <div class="array-input-group" style="display: flex; gap: 10px; margin-bottom: 10px;">
+                            <input 
+                                type="text" 
+                                name="objectives[]" 
+                                class="form-control" 
+                                value="{{ $objective }}"
+                                placeholder="Enter learning objective"
+                            >
+                            @if($index > 0)
+                                <button type="button" class="btn btn-danger remove-item" onclick="removeArrayItem(this)">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            @endif
+                        </div>
+                    @endforeach
+                </div>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="addArrayItem('objectives-container', 'objectives')">
+                    <i class="fas fa-plus"></i> Add Objective
+                </button>
+                <small class="form-help">List the key learning objectives for this course</small>
+            </div>
+
+            <div class="form-group">
+                <label>
+                    <i class="fas fa-check-circle"></i> What You Will Learn
+                </label>
+                <div id="learn-container">
+                    @php
+                        $learn = old('what_you_will_learn', $course->what_you_will_learn ?? []);
+                        if (empty($learn)) $learn = [''];
+                    @endphp
+                    @foreach($learn as $index => $item)
+                        <div class="array-input-group" style="display: flex; gap: 10px; margin-bottom: 10px;">
+                            <input 
+                                type="text" 
+                                name="what_you_will_learn[]" 
+                                class="form-control" 
+                                value="{{ $item }}"
+                                placeholder="Enter what students will learn"
+                            >
+                            @if($index > 0)
+                                <button type="button" class="btn btn-danger remove-item" onclick="removeArrayItem(this)">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            @endif
+                        </div>
+                    @endforeach
+                </div>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="addArrayItem('learn-container', 'what_you_will_learn')">
+                    <i class="fas fa-plus"></i> Add Item
+                </button>
+                <small class="form-help">List what students will learn from this course</small>
+            </div>
+
+            <div class="form-group">
+                <label>
+                    <i class="fas fa-list-check"></i> Requirements
+                </label>
+                <div id="requirements-container">
+                    @php
+                        $requirements = old('requirements', $course->requirements ?? []);
+                        if (empty($requirements)) $requirements = [''];
+                    @endphp
+                    @foreach($requirements as $index => $requirement)
+                        <div class="array-input-group" style="display: flex; gap: 10px; margin-bottom: 10px;">
+                            <input 
+                                type="text" 
+                                name="requirements[]" 
+                                class="form-control" 
+                                value="{{ $requirement }}"
+                                placeholder="Enter requirement"
+                            >
+                            @if($index > 0)
+                                <button type="button" class="btn btn-danger remove-item" onclick="removeArrayItem(this)">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            @endif
+                        </div>
+                    @endforeach
+                </div>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="addArrayItem('requirements-container', 'requirements')">
+                    <i class="fas fa-plus"></i> Add Requirement
+                </button>
+                <small class="form-help">List prerequisites or requirements for this course</small>
+            </div>
+
+            <div class="form-group">
+                <label for="who_is_this_for">
+                    <i class="fas fa-users"></i> Who Is This For?
+                </label>
+                <textarea 
+                    id="who_is_this_for" 
+                    name="who_is_this_for" 
+                    class="form-control @error('who_is_this_for') error @enderror"
+                    rows="3"
+                    placeholder="Describe who this course is designed for..."
+                >{{ old('who_is_this_for', $course->who_is_this_for) }}</textarea>
+                @error('who_is_this_for')
+                    <span class="error-message">{{ $message }}</span>
+                @enderror
+                <small class="form-help">Target audience for this course</small>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="level">
+                        <i class="fas fa-layer-group"></i> Level
+                    </label>
+                    <select 
+                        id="level" 
+                        name="level" 
+                        class="form-control @error('level') error @enderror"
+                    >
+                        <option value="">Select Level</option>
+                        <option value="Beginner" {{ old('level', $course->level) === 'Beginner' ? 'selected' : '' }}>Beginner</option>
+                        <option value="Intermediate" {{ old('level', $course->level) === 'Intermediate' ? 'selected' : '' }}>Intermediate</option>
+                        <option value="Advanced" {{ old('level', $course->level) === 'Advanced' ? 'selected' : '' }}>Advanced</option>
+                    </select>
+                    @error('level')
+                        <span class="error-message">{{ $message }}</span>
+                    @enderror
+                </div>
+
+                <div class="form-group">
+                    <label for="language">
+                        <i class="fas fa-language"></i> Language
+                    </label>
+                    <input 
+                        type="text" 
+                        id="language" 
+                        name="language" 
+                        class="form-control @error('language') error @enderror"
+                        value="{{ old('language', $course->language ?? 'English') }}"
+                        placeholder="e.g., English"
+                    >
+                    @error('language')
+                        <span class="error-message">{{ $message }}</span>
+                    @enderror
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="instructor">
+                    <i class="fas fa-chalkboard-teacher"></i> Instructor
+                </label>
+                <input 
+                    type="text" 
+                    id="instructor" 
+                    name="instructor" 
+                    class="form-control @error('instructor') error @enderror"
+                    value="{{ old('instructor', $course->instructor) }}"
+                    placeholder="Enter instructor name"
+                >
+                @error('instructor')
+                    <span class="error-message">{{ $message }}</span>
+                @enderror
+            </div>
+
+            <div class="form-group">
+                <label for="image">
+                    <i class="fas fa-image"></i> Course Image
+                </label>
+                @if($course->image)
+                    <div style="margin-bottom: 10px;">
+                        <img src="{{ Storage::url($course->image) }}" alt="Course Image" style="max-width: 200px; border-radius: 8px;">
+                    </div>
+                @endif
+                <input 
+                    type="file" 
+                    id="image" 
+                    name="image" 
+                    class="form-control @error('image') error @enderror"
+                    accept="image/*"
+                >
+                @error('image')
+                    <span class="error-message">{{ $message }}</span>
+                @enderror
+                <small class="form-help">Upload a course image (max 2MB, JPEG/PNG/JPG/GIF)</small>
+            </div>
+
+            <div class="form-group">
+                <label>
+                    <i class="fas fa-book"></i> Curriculum/Modules
+                </label>
+                <div id="curriculum-container">
+                    @php
+                        $curriculum = old('curriculum', $course->curriculum ?? []);
+                        if (empty($curriculum)) $curriculum = [['title' => '', 'description' => '']];
+                    @endphp
+                    @foreach($curriculum as $index => $module)
+                        <div class="curriculum-item" style="border: 1px solid #e0e0e0; padding: 15px; margin-bottom: 15px; border-radius: 8px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                                <strong>Module {{ $index + 1 }}</strong>
+                                @if($index > 0)
+                                    <button type="button" class="btn btn-danger btn-sm" onclick="removeCurriculumItem(this)">
+                                        <i class="fas fa-times"></i> Remove
+                                    </button>
+                                @endif
+                            </div>
+                            <input 
+                                type="text" 
+                                name="curriculum[{{ $index }}][title]" 
+                                class="form-control" 
+                                value="{{ $module['title'] ?? '' }}"
+                                placeholder="Module title"
+                                style="margin-bottom: 10px;"
+                            >
+                            <textarea 
+                                name="curriculum[{{ $index }}][description]" 
+                                class="form-control" 
+                                rows="2"
+                                placeholder="Module description"
+                            >{{ $module['description'] ?? '' }}</textarea>
+                        </div>
+                    @endforeach
+                </div>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="addCurriculumItem()">
+                    <i class="fas fa-plus"></i> Add Module
+                </button>
+                <small class="form-help">Add course modules/lessons</small>
             </div>
 
             <div class="form-row">
@@ -275,6 +524,64 @@ textarea.form-control {
         grid-template-columns: 1fr;
     }
 }
+
+.remove-item {
+    padding: 8px 12px;
+    font-size: 12px;
+}
+
+.btn-sm {
+    padding: 6px 12px;
+    font-size: 13px;
+}
 </style>
+
+<script>
+function addArrayItem(containerId, fieldName) {
+    const container = document.getElementById(containerId);
+    const newItem = document.createElement('div');
+    newItem.className = 'array-input-group';
+    newItem.style.cssText = 'display: flex; gap: 10px; margin-bottom: 10px;';
+    newItem.innerHTML = `
+        <input type="text" name="${fieldName}[]" class="form-control" placeholder="Enter item">
+        <button type="button" class="btn btn-danger remove-item" onclick="removeArrayItem(this)">
+            <i class="fas fa-times"></i>
+        </button>
+    `;
+    container.appendChild(newItem);
+}
+
+function removeArrayItem(button) {
+    button.closest('.array-input-group').remove();
+}
+
+function addCurriculumItem() {
+    const container = document.getElementById('curriculum-container');
+    const index = container.children.length;
+    const newItem = document.createElement('div');
+    newItem.className = 'curriculum-item';
+    newItem.style.cssText = 'border: 1px solid #e0e0e0; padding: 15px; margin-bottom: 15px; border-radius: 8px;';
+    newItem.innerHTML = `
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+            <strong>Module ${index + 1}</strong>
+            <button type="button" class="btn btn-danger btn-sm" onclick="removeCurriculumItem(this)">
+                <i class="fas fa-times"></i> Remove
+            </button>
+        </div>
+        <input type="text" name="curriculum[${index}][title]" class="form-control" placeholder="Module title" style="margin-bottom: 10px;">
+        <textarea name="curriculum[${index}][description]" class="form-control" rows="2" placeholder="Module description"></textarea>
+    `;
+    container.appendChild(newItem);
+}
+
+function removeCurriculumItem(button) {
+    button.closest('.curriculum-item').remove();
+    // Renumber modules
+    const items = document.querySelectorAll('.curriculum-item');
+    items.forEach((item, index) => {
+        item.querySelector('strong').textContent = `Module ${index + 1}`;
+    });
+}
+</script>
 @endsection
 

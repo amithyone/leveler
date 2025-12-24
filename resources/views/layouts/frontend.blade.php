@@ -82,9 +82,32 @@
                 </div>
                 <div class="footer-section">
                     <h4>Contact Details</h4>
-                    <p><i class="fas fa-map-marker-alt"></i> Plot 559c, Capital Street (NCWS House), Garki, Abuja, Nigeria.</p>
-                    <p><i class="fas fa-phone"></i> 234 (806) 141-3675</p>
-                    <p><i class="fas fa-clock"></i> Mon - Fri: 9.00 to 17.00</p>
+                    @php
+                        $contactPage = \App\Models\Page::findBySlug('contact');
+                        $contactDetails = $contactPage->contact_details ?? [];
+                        $address = $contactDetails['address'] ?? 'Nigeria';
+                        $addressLine2 = $contactDetails['address_line2'] ?? 'Plot 559c, Capital Str., A11, Garki, Abuja';
+                        $phone = $contactDetails['phone'] ?? '(+234) 806-141-3675';
+                        $email = $contactDetails['email'] ?? '';
+                        $workingHours = $contactDetails['working_hours'] ?? 'Mon - Fri: 9.00 to 17.00';
+                    @endphp
+                    
+                    @if($address || $addressLine2)
+                        <p><i class="fas fa-map-marker-alt"></i> 
+                            @if($address){{ $address }}@endif
+                            @if($address && $addressLine2), @endif
+                            @if($addressLine2){{ $addressLine2 }}@endif
+                        </p>
+                    @endif
+                    @if($phone)
+                        <p><i class="fas fa-phone"></i> {{ $phone }}</p>
+                    @endif
+                    @if($email)
+                        <p><i class="fas fa-envelope"></i> <a href="mailto:{{ $email }}" style="color: inherit; text-decoration: none;">{{ $email }}</a></p>
+                    @endif
+                    @if($workingHours)
+                        <p><i class="fas fa-clock"></i> {{ $workingHours }}</p>
+                    @endif
                 </div>
             </div>
             <div class="footer-bottom">

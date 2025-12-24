@@ -92,26 +92,26 @@ use Illuminate\Support\Facades\Storage;
                 ['icon' => 'fas fa-chart-line', 'title' => 'Shared Success', 'text' => 'Build lasting relationships and achieve mutual growth through strategic partnerships.'],
             ];
         @endphp
-        <div class="become-partner-section" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 16px; padding: 60px 40px; color: white; text-align: center; margin-top: 60px;">
-            <h2 style="font-size: 2.5rem; margin-bottom: 20px; color: white;">{{ $becomePartnerTitle }}</h2>
-            <p style="font-size: 1.2rem; margin-bottom: 30px; opacity: 0.95; max-width: 800px; margin-left: auto; margin-right: auto; line-height: 1.8;">
+        <div class="become-partner-section" style="background: #f8f9fa; border-radius: 16px; padding: 60px 40px; color: #333; text-align: center; margin-top: 60px; border: 1px solid #e0e0e0;">
+            <h2 style="font-size: 2.5rem; margin-bottom: 20px; color: #333;">{{ $becomePartnerTitle }}</h2>
+            <p style="font-size: 1.2rem; margin-bottom: 30px; color: #666; max-width: 800px; margin-left: auto; margin-right: auto; line-height: 1.8;">
                 {{ $becomePartnerDescription }}
             </p>
             
             <div class="partnership-benefits" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 30px; margin: 40px 0; text-align: left;">
                 @foreach($benefits as $benefit)
-                <div class="benefit-item" style="background: rgba(255,255,255,0.1); padding: 25px; border-radius: 12px; backdrop-filter: blur(10px);">
-                    <div style="font-size: 2.5rem; margin-bottom: 15px;">
+                <div class="benefit-item" style="background: white; padding: 25px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); border: 1px solid #e0e0e0;">
+                    <div style="font-size: 2.5rem; margin-bottom: 15px; color: #667eea;">
                         <i class="{{ $benefit['icon'] ?? 'fas fa-star' }}"></i>
                     </div>
-                    <h3 style="margin-bottom: 10px; font-size: 1.3rem;">{{ $benefit['title'] ?? '' }}</h3>
-                    <p style="opacity: 0.9; line-height: 1.6;">{{ $benefit['text'] ?? '' }}</p>
+                    <h3 style="margin-bottom: 10px; font-size: 1.3rem; color: #333;">{{ $benefit['title'] ?? '' }}</h3>
+                    <p style="color: #666; line-height: 1.6;">{{ $benefit['text'] ?? '' }}</p>
                 </div>
                 @endforeach
             </div>
 
             <div style="margin-top: 40px;">
-                <a href="{{ route('contact') }}" class="btn btn-primary" style="background: white; color: #667eea; padding: 15px 40px; font-size: 1.1rem; font-weight: 600; border-radius: 50px; text-decoration: none; display: inline-block; transition: transform 0.3s ease, box-shadow 0.3s ease;">
+                <a href="{{ route('contact') }}" class="btn btn-primary" style="background: #667eea; color: white; padding: 15px 40px; font-size: 1.1rem; font-weight: 600; border-radius: 50px; text-decoration: none; display: inline-block; transition: transform 0.3s ease, box-shadow 0.3s ease;">
                     {{ $becomePartnerButtonText }} <i class="fas fa-arrow-right"></i>
                 </a>
             </div>

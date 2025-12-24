@@ -104,9 +104,23 @@ class CourseController extends Controller
         $data = $request->only([
             'title', 'code', 'description', 'overview', 'objectives',
             'what_you_will_learn', 'requirements', 'who_is_this_for',
-            'level', 'language', 'instructor', 'curriculum',
-            'duration_hours', 'status'
+            'level', 'language', 'instructor', 'duration_hours', 'status'
         ]);
+
+        // Process curriculum to ensure proper structure
+        $curriculum = [];
+        foreach ($request->input('curriculum', []) as $module) {
+            if (!empty($module['module_title'])) {
+                $lessons = array_filter($module['lessons'] ?? [], function($lesson) {
+                    return !empty(trim($lesson));
+                });
+                $curriculum[] = [
+                    'module_title' => $module['module_title'],
+                    'lessons' => array_values($lessons),
+                ];
+            }
+        }
+        $data['curriculum'] = $curriculum;
 
         // Handle image upload
         if ($request->hasFile('image')) {

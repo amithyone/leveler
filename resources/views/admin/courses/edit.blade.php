@@ -307,44 +307,69 @@
 
             <div class="form-group">
                 <label>
-                    <i class="fas fa-book"></i> Curriculum/Modules
+                    <i class="fas fa-book"></i> Curriculum/Modules (Course Outline)
                 </label>
                 <div id="curriculum-container">
                     @php
                         $curriculum = old('curriculum', $course->curriculum ?? []);
-                        if (empty($curriculum)) $curriculum = [['title' => '', 'description' => '']];
+                        if (empty($curriculum)) $curriculum = [['module_title' => '', 'lessons' => []]];
                     @endphp
                     @foreach($curriculum as $index => $module)
-                        <div class="curriculum-item" style="border: 1px solid #e0e0e0; padding: 15px; margin-bottom: 15px; border-radius: 8px;">
-                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                                <strong>Module {{ $index + 1 }}</strong>
-                                @if($index > 0)
-                                    <button type="button" class="btn btn-danger btn-sm" onclick="removeCurriculumItem(this)">
-                                        <i class="fas fa-times"></i> Remove
-                                    </button>
-                                @endif
+                        <div class="curriculum-item" style="border: 1px solid #e0e0e0; padding: 15px; margin-bottom: 15px; border-radius: 8px; background: #f9fafb;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                                <strong style="color: #667eea;">Module {{ $index + 1 }}</strong>
+                                <button type="button" class="btn btn-danger btn-sm" onclick="removeCurriculumItem(this)">
+                                    <i class="fas fa-times"></i> Remove Module
+                                </button>
                             </div>
-                            <input 
-                                type="text" 
-                                name="curriculum[{{ $index }}][title]" 
-                                class="form-control" 
-                                value="{{ $module['title'] ?? '' }}"
-                                placeholder="Module title"
-                                style="margin-bottom: 10px;"
-                            >
-                            <textarea 
-                                name="curriculum[{{ $index }}][description]" 
-                                class="form-control" 
-                                rows="2"
-                                placeholder="Module description"
-                            >{{ $module['description'] ?? '' }}</textarea>
+                            
+                            <div style="margin-bottom: 15px;">
+                                <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #333;">Module Title</label>
+                                <input 
+                                    type="text" 
+                                    name="curriculum[{{ $index }}][module_title]" 
+                                    class="form-control" 
+                                    value="{{ $module['module_title'] ?? '' }}"
+                                    placeholder="e.g., Module 1 – Project Management Framework"
+                                    required
+                                >
+                            </div>
+                            
+                            <div>
+                                <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #333;">Lessons/Topics</label>
+                                <div class="lessons-container" data-module-index="{{ $index }}">
+                                    @php
+                                        $lessons = $module['lessons'] ?? [];
+                                        if (empty($lessons)) $lessons = [''];
+                                    @endphp
+                                    @foreach($lessons as $lessonIndex => $lesson)
+                                        <div class="lesson-item" style="display: flex; gap: 10px; margin-bottom: 8px;">
+                                            <input 
+                                                type="text" 
+                                                name="curriculum[{{ $index }}][lessons][]" 
+                                                class="form-control" 
+                                                value="{{ $lesson }}"
+                                                placeholder="Enter lesson/topic name"
+                                            >
+                                            @if($lessonIndex > 0 || count($lessons) > 1)
+                                                <button type="button" class="btn btn-danger btn-sm remove-lesson" onclick="removeLesson(this)">
+                                                    <i class="fas fa-times"></i>
+                                                </button>
+                                            @endif
+                                        </div>
+                                    @endforeach
+                                </div>
+                                <button type="button" class="btn btn-secondary btn-sm" onclick="addLesson({{ $index }})" style="margin-top: 8px;">
+                                    <i class="fas fa-plus"></i> Add Lesson
+                                </button>
+                            </div>
                         </div>
                     @endforeach
                 </div>
-                <button type="button" class="btn btn-secondary btn-sm" onclick="addCurriculumItem()">
+                <button type="button" class="btn btn-secondary btn-sm" onclick="addCurriculumItem()" style="margin-top: 10px;">
                     <i class="fas fa-plus"></i> Add Module
                 </button>
-                <small class="form-help">Add course modules/lessons</small>
+                <small class="form-help">Add course modules with their lessons/topics. This forms the course outline.</small>
             </div>
 
             <div class="form-row">
@@ -560,16 +585,29 @@ function addCurriculumItem() {
     const index = container.children.length;
     const newItem = document.createElement('div');
     newItem.className = 'curriculum-item';
-    newItem.style.cssText = 'border: 1px solid #e0e0e0; padding: 15px; margin-bottom: 15px; border-radius: 8px;';
+    newItem.style.cssText = 'border: 1px solid #e0e0e0; padding: 15px; margin-bottom: 15px; border-radius: 8px; background: #f9fafb;';
     newItem.innerHTML = `
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-            <strong>Module ${index + 1}</strong>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+            <strong style="color: #667eea;">Module ${index + 1}</strong>
             <button type="button" class="btn btn-danger btn-sm" onclick="removeCurriculumItem(this)">
-                <i class="fas fa-times"></i> Remove
+                <i class="fas fa-times"></i> Remove Module
             </button>
         </div>
-        <input type="text" name="curriculum[${index}][title]" class="form-control" placeholder="Module title" style="margin-bottom: 10px;">
-        <textarea name="curriculum[${index}][description]" class="form-control" rows="2" placeholder="Module description"></textarea>
+        <div style="margin-bottom: 15px;">
+            <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #333;">Module Title</label>
+            <input type="text" name="curriculum[${index}][module_title]" class="form-control" placeholder="e.g., Module 1 – Project Management Framework" required>
+        </div>
+        <div>
+            <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #333;">Lessons/Topics</label>
+            <div class="lessons-container" data-module-index="${index}">
+                <div class="lesson-item" style="display: flex; gap: 10px; margin-bottom: 8px;">
+                    <input type="text" name="curriculum[${index}][lessons][]" class="form-control" placeholder="Enter lesson/topic name">
+                </div>
+            </div>
+            <button type="button" class="btn btn-secondary btn-sm" onclick="addLesson(${index})" style="margin-top: 8px;">
+                <i class="fas fa-plus"></i> Add Lesson
+            </button>
+        </div>
     `;
     container.appendChild(newItem);
 }
@@ -580,7 +618,46 @@ function removeCurriculumItem(button) {
     const items = document.querySelectorAll('.curriculum-item');
     items.forEach((item, index) => {
         item.querySelector('strong').textContent = `Module ${index + 1}`;
+        // Update all input names in this module
+        const moduleInputs = item.querySelectorAll('input[name*="[module_title]"], input[name*="[lessons]"]');
+        moduleInputs.forEach(input => {
+            const name = input.getAttribute('name');
+            if (name) {
+                input.setAttribute('name', name.replace(/curriculum\[\d+\]/, `curriculum[${index}]`));
+            }
+        });
+        // Update lesson buttons
+        const lessonButtons = item.querySelectorAll('button[onclick*="addLesson"]');
+        lessonButtons.forEach(btn => {
+            btn.setAttribute('onclick', `addLesson(${index})`);
+        });
+        item.querySelector('.lessons-container').setAttribute('data-module-index', index);
     });
+}
+
+function addLesson(moduleIndex) {
+    const container = document.querySelector(`.lessons-container[data-module-index="${moduleIndex}"]`);
+    const lessonItem = document.createElement('div');
+    lessonItem.className = 'lesson-item';
+    lessonItem.style.cssText = 'display: flex; gap: 10px; margin-bottom: 8px;';
+    lessonItem.innerHTML = `
+        <input type="text" name="curriculum[${moduleIndex}][lessons][]" class="form-control" placeholder="Enter lesson/topic name">
+        <button type="button" class="btn btn-danger btn-sm remove-lesson" onclick="removeLesson(this)">
+            <i class="fas fa-times"></i>
+        </button>
+    `;
+    container.appendChild(lessonItem);
+}
+
+function removeLesson(button) {
+    const container = button.closest('.lessons-container');
+    const lessons = container.querySelectorAll('.lesson-item');
+    if (lessons.length > 1) {
+        button.closest('.lesson-item').remove();
+    } else {
+        // If it's the last lesson, just clear it
+        button.closest('.lesson-item').querySelector('input').value = '';
+    }
 }
 </script>
 @endsection

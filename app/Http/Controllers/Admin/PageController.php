@@ -131,6 +131,17 @@ class PageController extends Controller
             'order' => $request->order ?? 0,
         ];
 
+        // Handle contact details if this is the contact page
+        if ($request->slug === 'contact' || $page->slug === 'contact') {
+            $data['contact_details'] = [
+                'address' => $request->contact_address ?? '',
+                'address_line2' => $request->contact_address_line2 ?? '',
+                'phone' => $request->contact_phone ?? '',
+                'email' => $request->contact_email ?? '',
+                'working_hours' => $request->contact_working_hours ?? '',
+            ];
+        }
+
         // Handle featured image upload/removal
         if ($request->has('remove_featured_image') && $request->remove_featured_image) {
             if ($page->featured_image) {

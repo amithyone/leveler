@@ -11,7 +11,23 @@ class HomeController extends Controller
     public function index()
     {
         // Get home page - don't filter by is_active for home page
-        $page = Page::where('slug', 'home')->first() ?? new Page(['title' => 'Home', 'content' => '']);
+        $page = Page::where('slug', 'home')->first();
+        
+        // If page doesn't exist, create a default one
+        if (!$page) {
+            $page = new Page([
+                'title' => 'Home',
+                'content' => '',
+                'slug' => 'home',
+                'slider_images' => [],
+            ]);
+        }
+        
+        // Ensure slider_images is an array
+        if ($page->slider_images && !is_array($page->slider_images)) {
+            $page->slider_images = json_decode($page->slider_images, true) ?? [];
+        }
+        
         $courses = Course::where('status', 'Active')->take(6)->get();
         return view('frontend.home', compact('page', 'courses'));
     }

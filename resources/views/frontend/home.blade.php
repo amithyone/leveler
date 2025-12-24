@@ -5,9 +5,15 @@
 @section('content')
 <section class="hero">
     <div class="hero-slider">
-        @if($page && $page->slider_images && count($page->slider_images) > 0)
+        @php
+            $hasSliderImages = $page && $page->slider_images && is_array($page->slider_images) && count($page->slider_images) > 0;
+        @endphp
+        @if($hasSliderImages)
             @foreach($page->slider_images as $index => $sliderImage)
-            <div class="hero-slide {{ $index === 0 ? 'active' : '' }}" style="background-image: url('{{ \Illuminate\Support\Facades\Storage::disk('public')->url($sliderImage) }}');">
+            @php
+                $imageUrl = \Illuminate\Support\Facades\Storage::disk('public')->url($sliderImage);
+            @endphp
+            <div class="hero-slide {{ $index === 0 ? 'active' : '' }}" style="background-image: url('{{ $imageUrl }}');">
                 <div class="hero-overlay"></div>
                 <div class="container">
                     <h1>Welcome to<br>Leveler<br>A Human Capacity Development Company</h1>
@@ -51,7 +57,7 @@
         @endif
     </div>
     <div class="hero-indicators">
-        @if($page && $page->slider_images && count($page->slider_images) > 0)
+        @if($hasSliderImages)
             @foreach($page->slider_images as $index => $sliderImage)
             <span class="indicator {{ $index === 0 ? 'active' : '' }}" data-slide="{{ $index }}"></span>
             @endforeach

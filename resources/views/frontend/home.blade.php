@@ -22,9 +22,9 @@
                 // Generate the correct URL for the image
                 $imageUrl = asset('storage/' . $sliderImage);
             @endphp
-            <div class="hero-slide {{ $index === 0 ? 'active' : '' }}" style="background-image: url('{{ $imageUrl }}');">
+            <div class="hero-slide {{ $index === 0 ? 'active' : '' }}" style="background-image: url('{{ $imageUrl }}'); background-size: cover; background-position: center center; background-repeat: no-repeat;">
                 <div class="hero-overlay"></div>
-                <div class="container">
+                <div class="container" style="position: relative; z-index: 3;">
                     @php
                         $heroTitle = $page->sections['hero']['title'] ?? 'Welcome to<br>Leveler<br>A Human Capacity Development Company';
                         $heroPrimaryBtn = $page->sections['hero']['primary_button'] ?? 'Get a quote';
@@ -44,8 +44,8 @@
                 $heroPrimaryBtn = $page->sections['hero']['primary_button'] ?? 'Get a quote';
                 $heroSecondaryBtn = $page->sections['hero']['secondary_button'] ?? 'Contact us';
             @endphp
-            <div class="hero-slide active">
-                <div class="container">
+            <div class="hero-slide active" style="background: linear-gradient(135deg, #6B46C1 0%, #9333EA 100%);">
+                <div class="container" style="position: relative; z-index: 3;">
                     <h1>{!! $heroTitle !!}</h1>
                     <div class="hero-buttons">
                         <a href="{{ route('contact') }}" class="btn btn-primary">{{ $heroPrimaryBtn }}</a>

@@ -9,8 +9,12 @@ use Illuminate\Support\Facades\Storage;
 @section('content')
 <section class="page-header">
     <div class="container">
-        <h1>Our Partners</h1>
+        <h1>{{ $page && isset($page->sections['header_title']) ? $page->sections['header_title'] : 'Our Partners' }}</h1>
+        @if($page && isset($page->sections['header_subtitle']))
+        <p>{{ $page->sections['header_subtitle'] }}</p>
+        @else
         <p>Collaborating with leading organizations to deliver excellence</p>
+        @endif
     </div>
 </section>
 
@@ -25,7 +29,9 @@ use Illuminate\Support\Facades\Storage;
         <!-- Current Partners Section -->
         @if($partners && $partners->count() > 0)
         <div class="partners-section" style="margin-bottom: 60px;">
-            <h2 style="text-align: center; margin-bottom: 40px; color: #667eea; font-size: 2.5rem;">Our Current Partners</h2>
+            <h2 style="text-align: center; margin-bottom: 40px; color: #667eea; font-size: 2.5rem;">
+                {{ $page && isset($page->sections['partners_title']) ? $page->sections['partners_title'] : 'Our Current Partners' }}
+            </h2>
             <div class="partners-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 30px; margin-bottom: 40px;">
                 @foreach($partners as $partner)
                 <div class="partner-card" style="background: white; border-radius: 12px; padding: 30px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); text-align: center; transition: transform 0.3s ease, box-shadow 0.3s ease;">
@@ -50,42 +56,38 @@ use Illuminate\Support\Facades\Storage;
         @endif
 
         <!-- Become a Partner Section -->
+        @php
+            $partnerSections = $page->sections ?? [];
+            $becomePartnerTitle = $partnerSections['become_partner_title'] ?? 'Become a Partner';
+            $becomePartnerDescription = $partnerSections['become_partner_description'] ?? 'Join us in our mission to empower individuals and organizations through quality training and development. Partner with Leveler to create meaningful impact and drive sustainable growth.';
+            $becomePartnerButtonText = $partnerSections['become_partner_button_text'] ?? 'Get in Touch';
+            $benefits = $partnerSections['benefits'] ?? [
+                ['icon' => 'fas fa-handshake', 'title' => 'Collaborative Opportunities', 'text' => 'Work together on projects that create real value and drive positive change in communities.'],
+                ['icon' => 'fas fa-users', 'title' => 'Expanded Reach', 'text' => 'Leverage our network and expertise to reach new audiences and markets.'],
+                ['icon' => 'fas fa-chart-line', 'title' => 'Shared Success', 'text' => 'Build lasting relationships and achieve mutual growth through strategic partnerships.'],
+            ];
+        @endphp
         <div class="become-partner-section" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 16px; padding: 60px 40px; color: white; text-align: center; margin-top: 60px;">
-            <h2 style="font-size: 2.5rem; margin-bottom: 20px; color: white;">Become a Partner</h2>
+            <h2 style="font-size: 2.5rem; margin-bottom: 20px; color: white;">{{ $becomePartnerTitle }}</h2>
             <p style="font-size: 1.2rem; margin-bottom: 30px; opacity: 0.95; max-width: 800px; margin-left: auto; margin-right: auto; line-height: 1.8;">
-                Join us in our mission to empower individuals and organizations through quality training and development. 
-                Partner with Leveler to create meaningful impact and drive sustainable growth.
+                {{ $becomePartnerDescription }}
             </p>
             
             <div class="partnership-benefits" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 30px; margin: 40px 0; text-align: left;">
+                @foreach($benefits as $benefit)
                 <div class="benefit-item" style="background: rgba(255,255,255,0.1); padding: 25px; border-radius: 12px; backdrop-filter: blur(10px);">
                     <div style="font-size: 2.5rem; margin-bottom: 15px;">
-                        <i class="fas fa-handshake"></i>
+                        <i class="{{ $benefit['icon'] ?? 'fas fa-star' }}"></i>
                     </div>
-                    <h3 style="margin-bottom: 10px; font-size: 1.3rem;">Collaborative Opportunities</h3>
-                    <p style="opacity: 0.9; line-height: 1.6;">Work together on projects that create real value and drive positive change in communities.</p>
+                    <h3 style="margin-bottom: 10px; font-size: 1.3rem;">{{ $benefit['title'] ?? '' }}</h3>
+                    <p style="opacity: 0.9; line-height: 1.6;">{{ $benefit['text'] ?? '' }}</p>
                 </div>
-                
-                <div class="benefit-item" style="background: rgba(255,255,255,0.1); padding: 25px; border-radius: 12px; backdrop-filter: blur(10px);">
-                    <div style="font-size: 2.5rem; margin-bottom: 15px;">
-                        <i class="fas fa-users"></i>
-                    </div>
-                    <h3 style="margin-bottom: 10px; font-size: 1.3rem;">Expanded Reach</h3>
-                    <p style="opacity: 0.9; line-height: 1.6;">Leverage our network and expertise to reach new audiences and markets.</p>
-                </div>
-                
-                <div class="benefit-item" style="background: rgba(255,255,255,0.1); padding: 25px; border-radius: 12px; backdrop-filter: blur(10px);">
-                    <div style="font-size: 2.5rem; margin-bottom: 15px;">
-                        <i class="fas fa-chart-line"></i>
-                    </div>
-                    <h3 style="margin-bottom: 10px; font-size: 1.3rem;">Shared Success</h3>
-                    <p style="opacity: 0.9; line-height: 1.6;">Build lasting relationships and achieve mutual growth through strategic partnerships.</p>
-                </div>
+                @endforeach
             </div>
 
             <div style="margin-top: 40px;">
                 <a href="{{ route('contact') }}" class="btn btn-primary" style="background: white; color: #667eea; padding: 15px 40px; font-size: 1.1rem; font-weight: 600; border-radius: 50px; text-decoration: none; display: inline-block; transition: transform 0.3s ease, box-shadow 0.3s ease;">
-                    Get in Touch <i class="fas fa-arrow-right"></i>
+                    {{ $becomePartnerButtonText }} <i class="fas fa-arrow-right"></i>
                 </a>
             </div>
 

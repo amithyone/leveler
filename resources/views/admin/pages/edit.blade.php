@@ -479,6 +479,100 @@ Our reputation is built on the foundation of providing business and management s
             </div>
             @endif
 
+            {{-- Partners Page Sections --}}
+            @if($page->slug === 'partners' || old('slug') === 'partners')
+            <div class="partners-sections" style="margin-top: 40px; padding-top: 30px; border-top: 2px solid #e0e0e0;">
+                <h3 style="margin-bottom: 20px; color: #667eea;">
+                    <i class="fas fa-handshake"></i> Partners Page Sections
+                </h3>
+                
+                @php
+                    $partnerSections = old('sections', $page->sections ?? []);
+                    if (is_string($partnerSections)) {
+                        $partnerSections = json_decode($partnerSections, true) ?? [];
+                    }
+                    if (!is_array($partnerSections)) {
+                        $partnerSections = [];
+                    }
+                @endphp
+
+                <div class="form-group">
+                    <label>Page Header</label>
+                    <div class="form-group">
+                        <label for="partners_header_title">Header Title</label>
+                        <input type="text" id="partners_header_title" name="sections[header_title]" class="form-control" value="{{ $partnerSections['header_title'] ?? 'Our Partners' }}" placeholder="Page header title">
+                    </div>
+                    <div class="form-group">
+                        <label for="partners_header_subtitle">Header Subtitle</label>
+                        <input type="text" id="partners_header_subtitle" name="sections[header_subtitle]" class="form-control" value="{{ $partnerSections['header_subtitle'] ?? 'Collaborating with leading organizations to deliver excellence' }}" placeholder="Page header subtitle">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="partners_title">Current Partners Section Title</label>
+                    <input type="text" id="partners_title" name="sections[partners_title]" class="form-control" value="{{ $partnerSections['partners_title'] ?? 'Our Current Partners' }}" placeholder="Section title">
+                </div>
+
+                <div class="form-group">
+                    <label>Become a Partner Section</label>
+                    <div class="form-group">
+                        <label for="become_partner_title">Section Title</label>
+                        <input type="text" id="become_partner_title" name="sections[become_partner_title]" class="form-control" value="{{ $partnerSections['become_partner_title'] ?? 'Become a Partner' }}" placeholder="Section title">
+                    </div>
+                    <div class="form-group">
+                        <label for="become_partner_description">Description</label>
+                        <textarea id="become_partner_description" name="sections[become_partner_description]" class="form-control" rows="4" placeholder="Description text">{{ $partnerSections['become_partner_description'] ?? 'Join us in our mission to empower individuals and organizations through quality training and development. Partner with Leveler to create meaningful impact and drive sustainable growth.' }}</textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="become_partner_button_text">Button Text</label>
+                        <input type="text" id="become_partner_button_text" name="sections[become_partner_button_text]" class="form-control" value="{{ $partnerSections['become_partner_button_text'] ?? 'Get in Touch' }}" placeholder="Button text">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Partnership Benefits</label>
+                    <div id="benefits-container">
+                        @php
+                            $benefits = $partnerSections['benefits'] ?? [
+                                ['icon' => 'fas fa-handshake', 'title' => 'Collaborative Opportunities', 'text' => 'Work together on projects that create real value and drive positive change in communities.'],
+                                ['icon' => 'fas fa-users', 'title' => 'Expanded Reach', 'text' => 'Leverage our network and expertise to reach new audiences and markets.'],
+                                ['icon' => 'fas fa-chart-line', 'title' => 'Shared Success', 'text' => 'Build lasting relationships and achieve mutual growth through strategic partnerships.'],
+                            ];
+                        @endphp
+                        @foreach($benefits as $index => $benefit)
+                        <div class="benefit-item" style="border: 1px solid #e0e0e0; padding: 15px; margin-bottom: 15px; border-radius: 8px;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                                <strong>Benefit {{ $index + 1 }}</strong>
+                                @if($index > 0)
+                                <button type="button" class="btn btn-danger btn-sm" onclick="removeBenefit(this)">Remove</button>
+                                @endif
+                            </div>
+                            <div class="form-group">
+                                <label>Icon Class (Font Awesome)</label>
+                                <input type="text" name="sections[benefits][{{ $index }}][icon]" class="form-control" value="{{ $benefit['icon'] ?? '' }}" placeholder="e.g., fas fa-handshake">
+                            </div>
+                            <div class="form-group">
+                                <label>Title</label>
+                                <input type="text" name="sections[benefits][{{ $index }}][title]" class="form-control" value="{{ $benefit['title'] ?? '' }}" placeholder="Benefit title">
+                            </div>
+                            <div class="form-group">
+                                <label>Description</label>
+                                <textarea name="sections[benefits][{{ $index }}][text]" class="form-control" rows="2" placeholder="Benefit description">{{ $benefit['text'] ?? '' }}</textarea>
+                            </div>
+                        </div>
+                        @endforeach
+                    </div>
+                    <button type="button" class="btn btn-secondary btn-sm" onclick="addBenefit()">Add Benefit</button>
+                </div>
+
+                <div class="form-group">
+                    <label for="partnership_info">Additional Partnership Information</label>
+                    <textarea id="partnership_info" name="sections[partnership_info]" class="form-control" rows="6" placeholder="Additional information about partnerships (supports HTML)">{{ $partnerSections['partnership_info'] ?? '' }}</textarea>
+                    <small class="form-text">This will appear at the bottom of the "Become a Partner" section. HTML is supported.</small>
+                </div>
+            </div>
+            @endif
+
             <div class="form-actions">
                 <button type="submit" class="btn btn-primary">
                     <i class="fas fa-save"></i> Update Page

@@ -199,6 +199,36 @@ class PageController extends Controller
             }
             
             $data['sections'] = $sections;
+        } elseif ($request->slug === 'partners' || $page->slug === 'partners') {
+            // Handle partners page sections
+            $sections = [];
+            
+            if ($request->has('sections.header_title')) {
+                $sections['header_title'] = $request->input('sections.header_title');
+            }
+            if ($request->has('sections.header_subtitle')) {
+                $sections['header_subtitle'] = $request->input('sections.header_subtitle');
+            }
+            if ($request->has('sections.partners_title')) {
+                $sections['partners_title'] = $request->input('sections.partners_title');
+            }
+            if ($request->has('sections.become_partner_title')) {
+                $sections['become_partner_title'] = $request->input('sections.become_partner_title');
+            }
+            if ($request->has('sections.become_partner_description')) {
+                $sections['become_partner_description'] = $request->input('sections.become_partner_description');
+            }
+            if ($request->has('sections.become_partner_button_text')) {
+                $sections['become_partner_button_text'] = $request->input('sections.become_partner_button_text');
+            }
+            if ($request->has('sections.benefits')) {
+                $sections['benefits'] = array_values($request->input('sections.benefits', []));
+            }
+            if ($request->has('sections.partnership_info')) {
+                $sections['partnership_info'] = $request->input('sections.partnership_info');
+            }
+            
+            $data['sections'] = $sections;
         }
 
         // Handle featured image upload/removal

@@ -21,7 +21,7 @@
         @if($courses->count() > 0)
         <div class="courses-grid">
             @foreach($courses as $course)
-            <div class="course-card">
+            <div class="course-card" onclick="window.location='{{ route('course.details', $course->id) }}'">
                 @if($course->image)
                 <div class="course-image">
                     <img src="{{ Storage::url($course->image) }}" alt="{{ $course->title }}">
@@ -68,7 +68,7 @@
                     </ul>
                 </div>
                 @endif
-                <div class="course-actions">
+                <div class="course-actions" onclick="event.stopPropagation();">
                     <a href="{{ route('register') }}" class="btn btn-primary btn-sm">Register Now</a>
                     <a href="{{ route('course.details', $course->id) }}" class="btn btn-secondary btn-sm">View Details</a>
                 </div>

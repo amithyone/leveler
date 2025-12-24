@@ -6,10 +6,18 @@
 <section class="hero">
     <div class="hero-slider">
         @php
-            $hasSliderImages = $page && $page->slider_images && is_array($page->slider_images) && count($page->slider_images) > 0;
+            // Debug: Check what we have
+            $sliderImages = $page->slider_images ?? null;
+            if ($sliderImages && is_string($sliderImages)) {
+                $sliderImages = json_decode($sliderImages, true);
+            }
+            if (!is_array($sliderImages)) {
+                $sliderImages = [];
+            }
+            $hasSliderImages = !empty($sliderImages) && count($sliderImages) > 0;
         @endphp
         @if($hasSliderImages)
-            @foreach($page->slider_images as $index => $sliderImage)
+            @foreach($sliderImages as $index => $sliderImage)
             @php
                 $imageUrl = \Illuminate\Support\Facades\Storage::disk('public')->url($sliderImage);
             @endphp
@@ -58,7 +66,7 @@
     </div>
     <div class="hero-indicators">
         @if($hasSliderImages)
-            @foreach($page->slider_images as $index => $sliderImage)
+            @foreach($sliderImages as $index => $sliderImage)
             <span class="indicator {{ $index === 0 ? 'active' : '' }}" data-slide="{{ $index }}"></span>
             @endforeach
         @else

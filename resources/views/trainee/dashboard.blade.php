@@ -130,6 +130,7 @@
     </div>
     @endif
 </div>
+@endif
 
 <!-- Recent Results -->
 @if($recentResults->count() > 0)

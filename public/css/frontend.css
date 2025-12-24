@@ -177,11 +177,6 @@ body {
     display: flex !important;
 }
 
-/* Ensure background image loads */
-.hero-slide[data-bg-image] {
-    background-image: url(attr(data-bg-image)) !important;
-}
-
 .hero-overlay {
     position: absolute;
     top: 0;

@@ -26,6 +26,31 @@ use Illuminate\Support\Facades\Storage;
             </div>
         @endif
 
+        <!-- Partner Logos Section -->
+        @php
+            $partnerLogos = $page->sections['partner_logos'] ?? [];
+            if (is_string($partnerLogos)) {
+                $partnerLogos = json_decode($partnerLogos, true) ?? [];
+            }
+            if (!is_array($partnerLogos)) {
+                $partnerLogos = [];
+            }
+        @endphp
+        @if(!empty($partnerLogos))
+        <div class="partner-logos-section" style="margin-bottom: 60px; text-align: center;">
+            <h2 style="margin-bottom: 40px; color: #667eea; font-size: 2.5rem;">Our Partners</h2>
+            <div class="partner-logos-grid" style="display: flex; flex-wrap: wrap; justify-content: center; gap: 40px; max-width: 1200px; margin: 0 auto;">
+                @foreach($partnerLogos as $logo)
+                @if(isset($logo['image']) && $logo['image'])
+                <div class="partner-logo-item" style="flex: 0 0 calc(20% - 32px); max-width: calc(20% - 32px); min-width: 150px; display: flex; align-items: center; justify-content: center; height: 120px; padding: 20px; background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); transition: transform 0.3s ease, box-shadow 0.3s ease;">
+                    <img src="{{ Storage::url($logo['image']) }}" alt="{{ $logo['name'] ?? 'Partner Logo' }}" style="max-width: 100%; max-height: 100%; object-fit: contain; filter: grayscale(100%); opacity: 0.7; transition: all 0.3s ease;">
+                </div>
+                @endif
+                @endforeach
+            </div>
+        </div>
+        @endif
+
         <!-- Current Partners Section -->
         @if($partners && $partners->count() > 0)
         <div class="partners-section" style="margin-bottom: 60px;">
@@ -108,6 +133,23 @@ use Illuminate\Support\Facades\Storage;
     box-shadow: 0 8px 24px rgba(0,0,0,0.15);
 }
 
+.partner-logo-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.partner-logo-item:hover img {
+    filter: grayscale(0%) !important;
+    opacity: 1 !important;
+}
+
+@media (max-width: 1200px) {
+    .partner-logo-item {
+        flex: 0 0 calc(25% - 30px) !important;
+        max-width: calc(25% - 30px) !important;
+    }
+}
+
 @media (max-width: 768px) {
     .partners-grid {
         grid-template-columns: 1fr !important;
@@ -123,6 +165,19 @@ use Illuminate\Support\Facades\Storage;
     
     .become-partner-section h2 {
         font-size: 2rem !important;
+    }
+    
+    .partner-logo-item {
+        flex: 0 0 calc(50% - 20px) !important;
+        max-width: calc(50% - 20px) !important;
+        min-width: 120px !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .partner-logo-item {
+        flex: 0 0 100% !important;
+        max-width: 100% !important;
     }
 }
 </style>

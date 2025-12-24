@@ -228,6 +228,40 @@ class PageController extends Controller
                 $sections['partnership_info'] = $request->input('sections.partnership_info');
             }
             
+            // Handle partner logos
+            if ($request->has('partner_logos') && is_array($request->partner_logos)) {
+                $partnerLogos = [];
+                foreach ($request->partner_logos as $index => $logoData) {
+                    $logo = [
+                        'name' => $logoData['name'] ?? '',
+                    ];
+                    
+                    // Handle image upload/removal
+                    if ($request->hasFile("partner_logos.{$index}.image")) {
+                        // Delete old image if exists
+                        if (!empty($logoData['existing_image'])) {
+                            Storage::disk('public')->delete($logoData['existing_image']);
+                        }
+                        $logo['image'] = $request->file("partner_logos.{$index}.image")->store('partners/logos', 'public');
+                    } elseif (!empty($logoData['remove_image']) && $logoData['remove_image']) {
+                        // Remove image if requested
+                        if (!empty($logoData['existing_image'])) {
+                            Storage::disk('public')->delete($logoData['existing_image']);
+                        }
+                        $logo['image'] = null;
+                    } else {
+                        // Keep existing image
+                        $logo['image'] = $logoData['existing_image'] ?? null;
+                    }
+                    
+                    // Only add logo if it has an image
+                    if (!empty($logo['image'])) {
+                        $partnerLogos[] = $logo;
+                    }
+                }
+                $sections['partner_logos'] = $partnerLogos;
+            }
+            
             $data['sections'] = $sections;
         }
 

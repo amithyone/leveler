@@ -570,6 +570,67 @@ Our reputation is built on the foundation of providing business and management s
                     <textarea id="partnership_info" name="sections[partnership_info]" class="form-control" rows="6" placeholder="Additional information about partnerships (supports HTML)">{{ $partnerSections['partnership_info'] ?? '' }}</textarea>
                     <small class="form-text">This will appear at the bottom of the "Become a Partner" section. HTML is supported.</small>
                 </div>
+
+                <div class="form-group">
+                    <label>Partner Logos</label>
+                    <p class="form-text" style="margin-bottom: 20px;">Upload partner logos to display on the partners page. Maximum 5 logos per row. Logos will be displayed in a centered grid.</p>
+                    
+                    <div id="partner-logos-container">
+                        @php
+                            $partnerLogos = $partnerSections['partner_logos'] ?? [];
+                            if (is_string($partnerLogos)) {
+                                $partnerLogos = json_decode($partnerLogos, true) ?? [];
+                            }
+                            if (!is_array($partnerLogos)) {
+                                $partnerLogos = [];
+                            }
+                            // Add default dummy logos if empty
+                            if (empty($partnerLogos)) {
+                                $partnerLogos = [
+                                    ['name' => 'Partner 1', 'image' => ''],
+                                    ['name' => 'Partner 2', 'image' => ''],
+                                    ['name' => 'Partner 3', 'image' => ''],
+                                    ['name' => 'Partner 4', 'image' => ''],
+                                    ['name' => 'Partner 5', 'image' => ''],
+                                ];
+                            }
+                        @endphp
+                        @foreach($partnerLogos as $index => $logo)
+                        <div class="partner-logo-item" style="border: 1px solid #e0e0e0; padding: 20px; margin-bottom: 20px; border-radius: 8px; background: #f9f9f9;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                                <strong>Logo {{ $index + 1 }}</strong>
+                                <button type="button" class="btn btn-danger btn-sm" onclick="removePartnerLogo(this)">Remove</button>
+                            </div>
+                            
+                            @if(!empty($logo['image']))
+                            <div class="current-logo" style="margin-bottom: 15px;">
+                                <img src="{{ Storage::url($logo['image']) }}" alt="Current Logo" style="max-width: 200px; max-height: 100px; border-radius: 8px; border: 2px solid #e0e0e0; display: block; margin-bottom: 10px; object-fit: contain; background: white; padding: 10px;">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" name="partner_logos[{{ $index }}][remove_image]" value="1">
+                                    <span>Remove current logo</span>
+                                </label>
+                                <input type="hidden" name="partner_logos[{{ $index }}][existing_image]" value="{{ $logo['image'] }}">
+                            </div>
+                            @endif
+                            
+                            <div class="form-group">
+                                <label>Partner Name</label>
+                                <input type="text" name="partner_logos[{{ $index }}][name]" class="form-control" value="{{ $logo['name'] ?? '' }}" placeholder="Partner name (for alt text)">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Logo Image</label>
+                                <input type="file" name="partner_logos[{{ $index }}][image]" class="form-control" accept="image/*" onchange="previewPartnerLogo(this, 'partner_logo_preview_{{ $index }}')">
+                                <small class="form-text">Recommended: PNG with transparent background, max 2MB. Logo will be displayed at max 200px width.</small>
+                                <div id="partner_logo_preview_{{ $index }}" class="image-preview" style="margin-top: 10px; display: none;">
+                                    <img src="" alt="Logo Preview" style="max-width: 200px; max-height: 100px; border-radius: 8px; border: 2px solid #e0e0e0; background: white; padding: 10px;">
+                                </div>
+                            </div>
+                        </div>
+                        @endforeach
+                    </div>
+                    <button type="button" class="btn btn-secondary btn-sm" onclick="addPartnerLogo()">Add Another Logo</button>
+                </div>
             </div>
             @endif
 

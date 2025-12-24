@@ -164,9 +164,9 @@ body {
     justify-content: center;
     opacity: 0;
     transition: opacity 0.5s;
-    background-size: cover;
-    background-position: center center;
-    background-repeat: no-repeat;
+    background-size: cover !important;
+    background-position: center center !important;
+    background-repeat: no-repeat !important;
     z-index: 1;
 }
 
@@ -182,7 +182,19 @@ body {
     right: 0;
     bottom: 0;
     background: rgba(0, 0, 0, 0.4);
-    z-index: 1;
+    z-index: 2;
+}
+
+.hero-slide .container {
+    position: relative;
+    z-index: 10;
+    color: white;
+    text-align: center;
+}
+
+.hero-slide h1 {
+    color: white;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
 }
 
 .hero-slide .container {

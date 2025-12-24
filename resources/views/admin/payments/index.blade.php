@@ -54,6 +54,7 @@
                         <th>Payment Date</th>
                         <th>Status</th>
                         <th>Receipt #</th>
+                        <th>Details</th>
                         <th>Actions</th>
                     </tr>
                 </thead>

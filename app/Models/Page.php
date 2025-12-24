@@ -21,12 +21,14 @@ class Page extends Model
         'order',
         'page_type',
         'sections',
+        'contact_details',
     ];
 
     protected $casts = [
         'is_active' => 'boolean',
         'sections' => 'array',
         'slider_images' => 'array',
+        'contact_details' => 'array',
     ];
 
     /**

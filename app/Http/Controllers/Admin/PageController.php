@@ -113,6 +113,11 @@ class PageController extends Controller
             'page_type' => 'required|in:page,section,footer_link',
             'is_active' => 'boolean',
             'order' => 'integer',
+            'contact_address' => 'nullable|string|max:500',
+            'contact_address_line2' => 'nullable|string|max:500',
+            'contact_phone' => 'nullable|string|max:50',
+            'contact_email' => 'nullable|email|max:255',
+            'contact_working_hours' => 'nullable|string|max:255',
         ]);
 
         $data = [

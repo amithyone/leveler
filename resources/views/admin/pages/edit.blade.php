@@ -134,6 +134,45 @@
                 </label>
             </div>
 
+            @if($page->slug === 'contact' || old('slug') === 'contact')
+            <div class="contact-details-section" style="margin-top: 40px; padding-top: 30px; border-top: 2px solid #e0e0e0;">
+                <h3 style="margin-bottom: 20px; color: #667eea;">
+                    <i class="fas fa-address-book"></i> Contact Details
+                </h3>
+                
+                @php
+                    $contactDetails = old('contact_details', $page->contact_details ?? []);
+                @endphp
+
+                <div class="form-group">
+                    <label for="contact_address">Address Line 1</label>
+                    <input type="text" id="contact_address" name="contact_address" class="form-control" value="{{ old('contact_address', $contactDetails['address'] ?? 'Nigeria') }}" placeholder="e.g., Nigeria">
+                </div>
+
+                <div class="form-group">
+                    <label for="contact_address_line2">Address Line 2</label>
+                    <input type="text" id="contact_address_line2" name="contact_address_line2" class="form-control" value="{{ old('contact_address_line2', $contactDetails['address_line2'] ?? 'Plot 559c, Capital Str., A11, Garki, Abuja') }}" placeholder="e.g., Plot 559c, Capital Str., A11, Garki, Abuja">
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="contact_phone">Phone Number</label>
+                        <input type="text" id="contact_phone" name="contact_phone" class="form-control" value="{{ old('contact_phone', $contactDetails['phone'] ?? '(+234) 806-141-3675') }}" placeholder="e.g., (+234) 806-141-3675">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="contact_email">Email Address</label>
+                        <input type="email" id="contact_email" name="contact_email" class="form-control" value="{{ old('contact_email', $contactDetails['email'] ?? '') }}" placeholder="e.g., info@levelercc.com">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="contact_working_hours">Working Hours</label>
+                    <input type="text" id="contact_working_hours" name="contact_working_hours" class="form-control" value="{{ old('contact_working_hours', $contactDetails['working_hours'] ?? 'Mon - Fri: 9.00 to 17.00') }}" placeholder="e.g., Mon - Fri: 9.00 to 17.00">
+                </div>
+            </div>
+            @endif
+
             <div class="form-actions">
                 <button type="submit" class="btn btn-primary">
                     <i class="fas fa-save"></i> Update Page

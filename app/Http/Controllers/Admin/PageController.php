@@ -228,6 +228,7 @@ class PageController extends Controller
                         'primary_button_link' => $slideData['primary_button_link'] ?? route('contact'),
                         'secondary_button_text' => $slideData['secondary_button_text'] ?? 'Contact us',
                         'secondary_button_link' => $slideData['secondary_button_link'] ?? route('contact'),
+                        'duration' => isset($slideData['duration']) ? max(1, min(30, (int)$slideData['duration'])) : 5,
                     ];
                     
                     // Handle image upload/removal for this slide

@@ -223,6 +223,12 @@
                                     <input type="text" name="hero_slides[{{ $index }}][secondary_button_link]" class="form-control" value="{{ $slide['secondary_button_link'] ?? route('contact') }}" placeholder="Button URL">
                                 </div>
                             </div>
+                            
+                            <div class="form-group">
+                                <label>Display Duration (seconds)</label>
+                                <input type="number" name="hero_slides[{{ $index }}][duration]" class="form-control" value="{{ $slide['duration'] ?? 5 }}" min="1" max="30" placeholder="5">
+                                <small class="form-text">How long this slide should be displayed before auto-advancing (1-30 seconds, default: 5)</small>
+                            </div>
                         </div>
                         @endforeach
                     </div>
@@ -679,6 +685,12 @@ function addHeroSlide() {
                 <label>Secondary Button Link</label>
                 <input type="text" name="hero_slides[${heroSlideIndex}][secondary_button_link]" class="form-control" value="{{ route('contact') }}" placeholder="Button URL">
             </div>
+        </div>
+        
+        <div class="form-group">
+            <label>Display Duration (seconds)</label>
+            <input type="number" name="hero_slides[${heroSlideIndex}][duration]" class="form-control" value="5" min="1" max="30" placeholder="5">
+            <small class="form-text">How long this slide should be displayed before auto-advancing (1-30 seconds, default: 5)</small>
         </div>
     `;
     container.appendChild(div);

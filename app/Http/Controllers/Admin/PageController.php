@@ -215,27 +215,50 @@ class PageController extends Controller
             $data['featured_image'] = $request->file('featured_image')->store('pages/featured', 'public');
         }
 
-        // Handle slider images upload/removal
-        $currentSliderImages = $page->slider_images ?? [];
-        
-        // Remove selected slider images
-        if ($request->has('remove_slider_images') && is_array($request->remove_slider_images)) {
-            foreach ($request->remove_slider_images as $imagePath) {
-                if (in_array($imagePath, $currentSliderImages)) {
-                    Storage::disk('public')->delete($imagePath);
-                    $currentSliderImages = array_values(array_diff($currentSliderImages, [$imagePath]));
+        // Handle hero slides for home page
+        if ($request->slug === 'home' || $page->slug === 'home') {
+            $heroSlides = [];
+            
+            if ($request->has('hero_slides') && is_array($request->hero_slides)) {
+                foreach ($request->hero_slides as $index => $slideData) {
+                    $slide = [
+                        'title' => $slideData['title'] ?? '',
+                        'subtitle' => $slideData['subtitle'] ?? '',
+                        'primary_button_text' => $slideData['primary_button_text'] ?? 'Get a quote',
+                        'primary_button_link' => $slideData['primary_button_link'] ?? route('contact'),
+                        'secondary_button_text' => $slideData['secondary_button_text'] ?? 'Contact us',
+                        'secondary_button_link' => $slideData['secondary_button_link'] ?? route('contact'),
+                    ];
+                    
+                    // Handle image upload/removal for this slide
+                    if (isset($slideData['remove_image']) && $slideData['remove_image']) {
+                        // Remove image if exists
+                        if (!empty($slideData['old_image'])) {
+                            Storage::disk('public')->delete($slideData['old_image']);
+                        }
+                        $slide['image'] = '';
+                    } elseif ($request->hasFile("hero_slides.{$index}.image")) {
+                        // Delete old image if exists
+                        if (!empty($slideData['old_image'])) {
+                            Storage::disk('public')->delete($slideData['old_image']);
+                        }
+                        // Upload new image
+                        $image = $request->file("hero_slides.{$index}.image");
+                        $slide['image'] = $image->store('pages/sliders', 'public');
+                    } else {
+                        // Keep existing image if available
+                        $slide['image'] = $slideData['old_image'] ?? '';
+                    }
+                    
+                    // Only add slide if it has at least an image or title
+                    if (!empty($slide['image']) || !empty($slide['title'])) {
+                        $heroSlides[] = $slide;
+                    }
                 }
             }
+            
+            $data['hero_slides'] = !empty($heroSlides) ? $heroSlides : null;
         }
-
-        // Add new slider images
-        if ($request->hasFile('slider_images')) {
-            foreach ($request->file('slider_images') as $image) {
-                $currentSliderImages[] = $image->store('pages/sliders', 'public');
-            }
-        }
-
-        $data['slider_images'] = !empty($currentSliderImages) ? $currentSliderImages : null;
 
         $page->update($data);
 

@@ -60,34 +60,19 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Hero slider
+    // Hero slider - Clean implementation
     const heroSlides = document.querySelectorAll('.hero-slide');
     const indicators = document.querySelectorAll('.indicator');
     let currentSlide = 0;
+    let slideInterval = null;
 
-    // Preload images and ensure background is set
+    // Preload images for better performance
     heroSlides.forEach(slide => {
         const bgImage = slide.getAttribute('data-bg-image');
-        const inlineBg = slide.style.backgroundImage;
-        
-        // Use data-bg-image if available, otherwise use inline style
         if (bgImage) {
             const img = new Image();
             img.src = bgImage;
-            img.onload = function() {
-                // Ensure background is set after image loads
-                slide.style.backgroundImage = `url('${bgImage}')`;
-                slide.style.backgroundSize = 'cover';
-                slide.style.backgroundPosition = 'center';
-                slide.style.backgroundRepeat = 'no-repeat';
-            };
-            // Set immediately as well
-            slide.style.backgroundImage = `url('${bgImage}')`;
-            slide.style.backgroundSize = 'cover';
-            slide.style.backgroundPosition = 'center';
-            slide.style.backgroundRepeat = 'no-repeat';
-        } else if (inlineBg) {
-            // If no data attribute but has inline style, ensure it's applied
+            // Ensure background styles are applied
             slide.style.backgroundSize = 'cover';
             slide.style.backgroundPosition = 'center';
             slide.style.backgroundRepeat = 'no-repeat';
@@ -95,43 +80,66 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     function showSlide(index) {
+        // Hide all slides
         heroSlides.forEach(slide => {
             slide.classList.remove('active');
-            slide.style.opacity = '0';
         });
-        indicators.forEach(indicator => indicator.classList.remove('active'));
+        
+        // Remove active from all indicators
+        indicators.forEach(indicator => {
+            indicator.classList.remove('active');
+        });
 
+        // Show selected slide
         if (heroSlides[index]) {
             heroSlides[index].classList.add('active');
-            heroSlides[index].style.opacity = '1';
-            // Force background image
-            const bgImage = heroSlides[index].getAttribute('data-bg-image');
-            if (bgImage) {
-                heroSlides[index].style.backgroundImage = `url('${bgImage}')`;
-            }
         }
+        
+        // Activate corresponding indicator
         if (indicators[index]) {
             indicators[index].classList.add('active');
         }
+        
+        currentSlide = index;
     }
 
     function nextSlide() {
-        if (heroSlides.length > 0) {
-            currentSlide = (currentSlide + 1) % heroSlides.length;
-            showSlide(currentSlide);
+        if (heroSlides.length > 1) {
+            const next = (currentSlide + 1) % heroSlides.length;
+            showSlide(next);
         }
     }
 
-    // Auto-advance slides
-    if (heroSlides.length > 1) {
-        setInterval(nextSlide, 5000);
+    function startAutoSlide() {
+        if (heroSlides.length > 1) {
+            slideInterval = setInterval(nextSlide, 5000);
+        }
+    }
+
+    function stopAutoSlide() {
+        if (slideInterval) {
+            clearInterval(slideInterval);
+            slideInterval = null;
+        }
+    }
+
+    // Start auto-slide
+    startAutoSlide();
+
+    // Pause on hover
+    const heroSection = document.querySelector('.hero');
+    if (heroSection) {
+        heroSection.addEventListener('mouseenter', stopAutoSlide);
+        heroSection.addEventListener('mouseleave', startAutoSlide);
     }
 
     // Indicator clicks
     indicators.forEach((indicator, index) => {
         indicator.addEventListener('click', function() {
-            currentSlide = index;
-            showSlide(currentSlide);
+            showSlide(index);
+            // Restart auto-slide after manual navigation
+            stopAutoSlide();
+            startAutoSlide();
         });
     });
 });

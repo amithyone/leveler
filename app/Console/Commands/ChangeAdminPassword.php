@@ -46,3 +46,5 @@ class ChangeAdminPassword extends Command
     }
 }
 
+
+

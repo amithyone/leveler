@@ -44,3 +44,5 @@ echo "  ✓ Duplicate routes fixed"
 echo "  ✓ Cache table created"
 echo "  ✓ All caches cleared and rebuilt"
 
+
+

@@ -25,17 +25,16 @@ class HomeController extends Controller
             // Refresh the page to get latest data
             $page->refresh();
             
-            // Ensure slider_images is properly cast as array
-            if ($page->slider_images) {
-                if (is_string($page->slider_images)) {
-                    $page->slider_images = json_decode($page->slider_images, true) ?? [];
+            // Ensure hero_slides is properly cast as array
+            if ($page->hero_slides) {
+                if (is_string($page->hero_slides)) {
+                    $page->hero_slides = json_decode($page->hero_slides, true) ?? [];
                 }
-                // Ensure it's an array
-                if (!is_array($page->slider_images)) {
-                    $page->slider_images = [];
+                if (!is_array($page->hero_slides)) {
+                    $page->hero_slides = [];
                 }
             } else {
-                $page->slider_images = [];
+                $page->hero_slides = [];
             }
             
             // Ensure sections is properly cast as array

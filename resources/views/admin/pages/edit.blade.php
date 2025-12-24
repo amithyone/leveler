@@ -58,33 +58,6 @@
                 @enderror
             </div>
 
-            <div class="form-group">
-                <label for="slider_images">Slider Images</label>
-                @if($page->slider_images && count($page->slider_images) > 0)
-                <div class="current-slider-images" style="margin-bottom: 15px;">
-                    <p style="font-weight: 600; margin-bottom: 10px;">Current Slider Images:</p>
-                    <div class="slider-images-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 15px; margin-bottom: 15px;">
-                        @foreach($page->slider_images as $index => $sliderImage)
-                        <div class="slider-image-item" style="position: relative;">
-                            <img src="{{ \Illuminate\Support\Facades\Storage::url($sliderImage) }}" alt="Slider Image {{ $index + 1 }}" style="width: 100%; height: 150px; object-fit: cover; border-radius: 8px; border: 2px solid #e0e0e0;">
-                            <label class="checkbox-label" style="margin-top: 8px; display: block;">
-                                <input type="checkbox" name="remove_slider_images[]" value="{{ $sliderImage }}">
-                                <span style="font-size: 12px;">Remove</span>
-                            </label>
-                        </div>
-                        @endforeach
-                    </div>
-                </div>
-                @endif
-                <input type="file" id="slider_images" name="slider_images[]" class="form-control @error('slider_images.*') is-invalid @enderror" accept="image/*" multiple onchange="previewSliderImages(this)">
-                <small class="form-text">Add more slider images (max 5MB each, formats: jpeg, png, jpg, gif, webp)</small>
-                <div id="slider_preview" class="slider-preview" style="margin-top: 10px; display: none;">
-                    <div class="preview-grid"></div>
-                </div>
-                @error('slider_images.*')
-                <div class="invalid-feedback">{{ $message }}</div>
-                @enderror
-            </div>
 
             <div class="form-row">
                 <div class="form-group">
@@ -148,26 +121,105 @@
                     if (!is_array($sections)) {
                         $sections = [];
                     }
+                    
+                    $heroSlides = old('hero_slides', $page->hero_slides ?? []);
+                    if (is_string($heroSlides)) {
+                        $heroSlides = json_decode($heroSlides, true) ?? [];
+                    }
+                    if (!is_array($heroSlides)) {
+                        $heroSlides = [];
+                    }
+                    if (empty($heroSlides)) {
+                        // Default slide
+                        $heroSlides = [[
+                            'image' => '',
+                            'title' => 'Welcome to<br>Leveler<br>A Human Capacity Development Company',
+                            'subtitle' => '',
+                            'primary_button_text' => 'Get a quote',
+                            'primary_button_link' => route('contact'),
+                            'secondary_button_text' => 'Contact us',
+                            'secondary_button_link' => route('contact'),
+                        ]];
+                    }
                 @endphp
 
-                <div class="form-group">
-                    <label>Hero Slider Content (when images are uploaded)</label>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="hero_title">Hero Title</label>
-                            <input type="text" id="hero_title" name="sections[hero][title]" class="form-control" value="{{ $sections['hero']['title'] ?? 'Welcome to<br>Leveler<br>A Human Capacity Development Company' }}" placeholder="Hero title">
+                <!-- Hero Slider Section -->
+                <div class="form-group" style="margin-bottom: 30px;">
+                    <h4 style="margin-bottom: 15px; color: #667eea; border-bottom: 1px solid #e0e0e0; padding-bottom: 10px;">
+                        <i class="fas fa-images"></i> Hero Slider
+                    </h4>
+                    <p style="color: #666; margin-bottom: 20px; font-size: 14px;">Manage your homepage hero slider. Each slide can have its own image, title, and buttons.</p>
+                    
+                    <div id="hero-slides-container">
+                        @foreach($heroSlides as $index => $slide)
+                        <div class="hero-slide-item" style="border: 2px solid #e0e0e0; padding: 20px; margin-bottom: 20px; border-radius: 8px; background: #f9f9f9;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                                <h5 style="margin: 0; color: #667eea;">Slide {{ $index + 1 }}</h5>
+                                @if($index > 0)
+                                <button type="button" class="btn btn-danger btn-sm" onclick="removeHeroSlide(this)">
+                                    <i class="fas fa-trash"></i> Remove Slide
+                                </button>
+                                @endif
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Slide Image <span class="text-danger">*</span></label>
+                                @if(!empty($slide['image']))
+                                <input type="hidden" name="hero_slides[{{ $index }}][old_image]" value="{{ $slide['image'] }}">
+                                <div style="margin-bottom: 10px;">
+                                    <img src="{{ \Illuminate\Support\Facades\Storage::url($slide['image']) }}" alt="Slide Image" style="max-width: 300px; max-height: 200px; border-radius: 8px; border: 2px solid #e0e0e0; display: block; margin-bottom: 10px;">
+                                    <label class="checkbox-label">
+                                        <input type="checkbox" name="hero_slides[{{ $index }}][remove_image]" value="1">
+                                        <span>Remove current image</span>
+                                    </label>
+                                </div>
+                                @endif
+                                <input type="file" name="hero_slides[{{ $index }}][image]" class="form-control" accept="image/*" onchange="previewSlideImage(this, {{ $index }})">
+                                <small class="form-text">Upload slide background image (max 5MB, formats: jpeg, png, jpg, gif, webp)</small>
+                                <div id="slide_preview_{{ $index }}" class="image-preview" style="margin-top: 10px; display: none;">
+                                    <img src="" alt="Preview" style="max-width: 300px; max-height: 200px; border-radius: 8px; border: 2px solid #e0e0e0;">
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Title</label>
+                                <textarea name="hero_slides[{{ $index }}][title]" class="form-control" rows="2" placeholder="e.g., Welcome to<br>Leveler<br>A Human Capacity Development Company">{{ $slide['title'] ?? '' }}</textarea>
+                                <small class="form-text">You can use &lt;br&gt; tags for line breaks</small>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Subtitle (Optional)</label>
+                                <input type="text" name="hero_slides[{{ $index }}][subtitle]" class="form-control" value="{{ $slide['subtitle'] ?? '' }}" placeholder="Optional subtitle text">
+                            </div>
+                            
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Primary Button Text</label>
+                                    <input type="text" name="hero_slides[{{ $index }}][primary_button_text]" class="form-control" value="{{ $slide['primary_button_text'] ?? 'Get a quote' }}" placeholder="Button text">
+                                </div>
+                                <div class="form-group">
+                                    <label>Primary Button Link</label>
+                                    <input type="text" name="hero_slides[{{ $index }}][primary_button_link]" class="form-control" value="{{ $slide['primary_button_link'] ?? route('contact') }}" placeholder="Button URL">
+                                </div>
+                            </div>
+                            
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Secondary Button Text</label>
+                                    <input type="text" name="hero_slides[{{ $index }}][secondary_button_text]" class="form-control" value="{{ $slide['secondary_button_text'] ?? 'Contact us' }}" placeholder="Button text">
+                                </div>
+                                <div class="form-group">
+                                    <label>Secondary Button Link</label>
+                                    <input type="text" name="hero_slides[{{ $index }}][secondary_button_link]" class="form-control" value="{{ $slide['secondary_button_link'] ?? route('contact') }}" placeholder="Button URL">
+                                </div>
+                            </div>
                         </div>
+                        @endforeach
                     </div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="hero_primary_btn">Primary Button Text</label>
-                            <input type="text" id="hero_primary_btn" name="sections[hero][primary_button]" class="form-control" value="{{ $sections['hero']['primary_button'] ?? 'Get a quote' }}" placeholder="Primary button text">
-                        </div>
-                        <div class="form-group">
-                            <label for="hero_secondary_btn">Secondary Button Text</label>
-                            <input type="text" id="hero_secondary_btn" name="sections[hero][secondary_button]" class="form-control" value="{{ $sections['hero']['secondary_button'] ?? 'Contact us' }}" placeholder="Secondary button text">
-                        </div>
-                    </div>
+                    
+                    <button type="button" class="btn btn-secondary" onclick="addHeroSlide()">
+                        <i class="fas fa-plus"></i> Add Another Slide
+                    </button>
                 </div>
 
                 <div class="form-group">
@@ -550,6 +602,87 @@ function removeService(btn) {
 
 function previewImage(input, previewId) {
     const preview = document.getElementById(previewId);
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            preview.style.display = 'block';
+            preview.querySelector('img').src = e.target.result;
+        };
+        reader.readAsDataURL(input.files[0]);
+    } else {
+        preview.style.display = 'none';
+    }
+}
+
+let heroSlideIndex = {{ count($heroSlides ?? []) }};
+
+function addHeroSlide() {
+    const container = document.getElementById('hero-slides-container');
+    const div = document.createElement('div');
+    div.className = 'hero-slide-item';
+    div.style.cssText = 'border: 2px solid #e0e0e0; padding: 20px; margin-bottom: 20px; border-radius: 8px; background: #f9f9f9;';
+    div.innerHTML = `
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+            <h5 style="margin: 0; color: #667eea;">Slide ${heroSlideIndex + 1}</h5>
+            <button type="button" class="btn btn-danger btn-sm" onclick="removeHeroSlide(this)">
+                <i class="fas fa-trash"></i> Remove Slide
+            </button>
+        </div>
+        
+        <div class="form-group">
+            <label>Slide Image <span class="text-danger">*</span></label>
+            <input type="file" name="hero_slides[${heroSlideIndex}][image]" class="form-control" accept="image/*" onchange="previewSlideImage(this, ${heroSlideIndex})">
+            <small class="form-text">Upload slide background image (max 5MB, formats: jpeg, png, jpg, gif, webp)</small>
+            <div id="slide_preview_${heroSlideIndex}" class="image-preview" style="margin-top: 10px; display: none;">
+                <img src="" alt="Preview" style="max-width: 300px; max-height: 200px; border-radius: 8px; border: 2px solid #e0e0e0;">
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label>Title</label>
+            <textarea name="hero_slides[${heroSlideIndex}][title]" class="form-control" rows="2" placeholder="e.g., Welcome to<br>Leveler<br>A Human Capacity Development Company"></textarea>
+            <small class="form-text">You can use &lt;br&gt; tags for line breaks</small>
+        </div>
+        
+        <div class="form-group">
+            <label>Subtitle (Optional)</label>
+            <input type="text" name="hero_slides[${heroSlideIndex}][subtitle]" class="form-control" placeholder="Optional subtitle text">
+        </div>
+        
+        <div class="form-row">
+            <div class="form-group">
+                <label>Primary Button Text</label>
+                <input type="text" name="hero_slides[${heroSlideIndex}][primary_button_text]" class="form-control" value="Get a quote" placeholder="Button text">
+            </div>
+            <div class="form-group">
+                <label>Primary Button Link</label>
+                <input type="text" name="hero_slides[${heroSlideIndex}][primary_button_link]" class="form-control" value="{{ route('contact') }}" placeholder="Button URL">
+            </div>
+        </div>
+        
+        <div class="form-row">
+            <div class="form-group">
+                <label>Secondary Button Text</label>
+                <input type="text" name="hero_slides[${heroSlideIndex}][secondary_button_text]" class="form-control" value="Contact us" placeholder="Button text">
+            </div>
+            <div class="form-group">
+                <label>Secondary Button Link</label>
+                <input type="text" name="hero_slides[${heroSlideIndex}][secondary_button_link]" class="form-control" value="{{ route('contact') }}" placeholder="Button URL">
+            </div>
+        </div>
+    `;
+    container.appendChild(div);
+    heroSlideIndex++;
+}
+
+function removeHeroSlide(btn) {
+    if (confirm('Are you sure you want to remove this slide?')) {
+        btn.closest('.hero-slide-item').remove();
+    }
+}
+
+function previewSlideImage(input, index) {
+    const preview = document.getElementById(`slide_preview_${index}`);
     if (input.files && input.files[0]) {
         const reader = new FileReader();
         reader.onload = function(e) {

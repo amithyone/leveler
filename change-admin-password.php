@@ -24,3 +24,5 @@ $user->save();
 echo "Password successfully changed for {$email}\n";
 echo "New password: {$newPassword}\n";
 
+
+

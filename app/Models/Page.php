@@ -15,6 +15,7 @@ class Page extends Model
         'content',
         'featured_image',
         'slider_images',
+        'hero_slides',
         'meta_description',
         'meta_keywords',
         'is_active',
@@ -28,6 +29,7 @@ class Page extends Model
         'is_active' => 'boolean',
         'sections' => 'array',
         'slider_images' => 'array',
+        'hero_slides' => 'array',
         'contact_details' => 'array',
     ];
 

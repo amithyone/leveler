@@ -36,3 +36,5 @@ if ($page) {
     echo "Default home page created!\n";
 }
 
+
+

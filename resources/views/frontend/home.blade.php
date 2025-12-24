@@ -3,71 +3,72 @@
 @section('title', 'Home - Leveler')
 
 @section('content')
+@php
+    // Get hero slides
+    $heroSlides = $page->hero_slides ?? null;
+    if ($heroSlides && is_string($heroSlides)) {
+        $heroSlides = json_decode($heroSlides, true);
+    }
+    if (!is_array($heroSlides)) {
+        $heroSlides = [];
+    }
+    // If no slides, create a default one
+    if (empty($heroSlides)) {
+        $heroSlides = [[
+            'image' => '',
+            'title' => 'Welcome to<br>Leveler<br>A Human Capacity Development Company',
+            'subtitle' => '',
+            'primary_button_text' => 'Get a quote',
+            'primary_button_link' => route('contact'),
+            'secondary_button_text' => 'Contact us',
+            'secondary_button_link' => route('contact'),
+        ]];
+    }
+@endphp
+
 <section class="hero">
     <div class="hero-slider">
-        @php
-            // Debug: Check what we have
-            $sliderImages = $page->slider_images ?? null;
-            if ($sliderImages && is_string($sliderImages)) {
-                $sliderImages = json_decode($sliderImages, true);
-            }
-            if (!is_array($sliderImages)) {
-                $sliderImages = [];
-            }
-            $hasSliderImages = !empty($sliderImages) && count($sliderImages) > 0;
-        @endphp
-        @if($hasSliderImages)
-            @foreach($sliderImages as $index => $sliderImage)
+        @foreach($heroSlides as $index => $slide)
             @php
-                // Generate the correct URL for the image
-                $imageUrl = asset('storage/' . $sliderImage);
-                // Debug: Output the URL
-                // echo "<!-- Image URL: " . $imageUrl . " -->";
+                $imageUrl = !empty($slide['image']) ? asset('storage/' . $slide['image']) : '';
+                $hasImage = !empty($slide['image']);
             @endphp
-            <div class="hero-slide {{ $index === 0 ? 'active' : '' }}" data-bg-image="{{ $imageUrl }}" style="background-image: url('{{ $imageUrl }}'); background-size: cover; background-position: center; background-repeat: no-repeat;">
+            <div class="hero-slide {{ $index === 0 ? 'active' : '' }}" 
+                 @if($hasImage) 
+                 data-bg-image="{{ $imageUrl }}" 
+                 style="background-image: url('{{ $imageUrl }}');"
+                 @else
+                 style="background: linear-gradient(135deg, #6B46C1 0%, #9333EA 100%);"
+                 @endif>
+                @if($hasImage)
                 <div class="hero-overlay"></div>
+                @endif
                 <div class="container">
-                    @php
-                        $heroTitle = $page->sections['hero']['title'] ?? 'Welcome to<br>Leveler<br>A Human Capacity Development Company';
-                        $heroPrimaryBtn = $page->sections['hero']['primary_button'] ?? 'Get a quote';
-                        $heroSecondaryBtn = $page->sections['hero']['secondary_button'] ?? 'Contact us';
-                    @endphp
-                    <h1>{!! $heroTitle !!}</h1>
+                    @if(!empty($slide['title']))
+                    <h1>{!! $slide['title'] !!}</h1>
+                    @endif
+                    @if(!empty($slide['subtitle']))
+                    <p class="hero-subtitle">{{ $slide['subtitle'] }}</p>
+                    @endif
                     <div class="hero-buttons">
-                        <a href="{{ route('contact') }}" class="btn btn-primary">{{ $heroPrimaryBtn }}</a>
-                        <a href="{{ route('contact') }}" class="btn btn-secondary">{{ $heroSecondaryBtn }}</a>
+                        @if(!empty($slide['primary_button_text']))
+                        <a href="{{ $slide['primary_button_link'] ?? route('contact') }}" class="btn btn-primary">{{ $slide['primary_button_text'] }}</a>
+                        @endif
+                        @if(!empty($slide['secondary_button_text']))
+                        <a href="{{ $slide['secondary_button_link'] ?? route('contact') }}" class="btn btn-secondary">{{ $slide['secondary_button_text'] }}</a>
+                        @endif
                     </div>
                 </div>
             </div>
-            @endforeach
-        @else
-            @php
-                $heroTitle = $page->sections['hero']['title'] ?? 'Welcome to<br>Leveler<br>A Human Capacity Development Company';
-                $heroPrimaryBtn = $page->sections['hero']['primary_button'] ?? 'Get a quote';
-                $heroSecondaryBtn = $page->sections['hero']['secondary_button'] ?? 'Contact us';
-            @endphp
-            <div class="hero-slide active" style="background: linear-gradient(135deg, #6B46C1 0%, #9333EA 100%);">
-                <div class="container">
-                    <h1>{!! $heroTitle !!}</h1>
-                    <div class="hero-buttons">
-                        <a href="{{ route('contact') }}" class="btn btn-primary">{{ $heroPrimaryBtn }}</a>
-                        <a href="{{ route('contact') }}" class="btn btn-secondary">{{ $heroSecondaryBtn }}</a>
-                    </div>
-                </div>
-            </div>
-        @endif
+        @endforeach
     </div>
+    @if(count($heroSlides) > 1)
     <div class="hero-indicators">
-        @if($hasSliderImages)
-            @foreach($sliderImages as $index => $sliderImage)
-            <span class="indicator {{ $index === 0 ? 'active' : '' }}" data-slide="{{ $index }}"></span>
-            @endforeach
-        @else
-            <span class="indicator active" data-slide="0"></span>
-            <span class="indicator" data-slide="1"></span>
-            <span class="indicator" data-slide="2"></span>
-        @endif
+        @foreach($heroSlides as $index => $slide)
+        <span class="indicator {{ $index === 0 ? 'active' : '' }}" data-slide="{{ $index }}"></span>
+        @endforeach
     </div>
+    @endif
 </section>
 
 @php

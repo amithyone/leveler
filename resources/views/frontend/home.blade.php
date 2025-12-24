@@ -21,8 +21,10 @@
             @php
                 // Generate the correct URL for the image
                 $imageUrl = asset('storage/' . $sliderImage);
+                // Debug: Output the URL
+                // echo "<!-- Image URL: " . $imageUrl . " -->";
             @endphp
-            <div class="hero-slide {{ $index === 0 ? 'active' : '' }}" style="background-image: url('{{ $imageUrl }}');">
+            <div class="hero-slide {{ $index === 0 ? 'active' : '' }}" style="background-image: url('{{ $imageUrl }}'); background-size: cover; background-position: center; background-repeat: no-repeat;">
                 <div class="hero-overlay"></div>
                 <div class="container">
                     @php

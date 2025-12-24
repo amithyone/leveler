@@ -163,16 +163,23 @@ body {
     align-items: center;
     justify-content: center;
     opacity: 0;
-    transition: opacity 0.5s;
+    transition: opacity 0.5s ease-in-out;
     background-size: cover !important;
     background-position: center center !important;
     background-repeat: no-repeat !important;
+    background-attachment: scroll !important;
     z-index: 1;
 }
 
 .hero-slide.active {
-    opacity: 1;
+    opacity: 1 !important;
     z-index: 2;
+    display: flex !important;
+}
+
+/* Ensure background image loads */
+.hero-slide[data-bg-image] {
+    background-image: url(attr(data-bg-image)) !important;
 }
 
 .hero-overlay {

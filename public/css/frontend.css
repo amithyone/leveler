@@ -177,11 +177,6 @@ body {
     display: flex !important;
 }
 
-/* Ensure background image is visible */
-.hero-slide[style*="background-image"] {
-    background-image: inherit !important;
-}
-
 .hero-overlay {
     position: absolute;
     top: 0;

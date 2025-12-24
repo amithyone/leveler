@@ -166,6 +166,12 @@
                         <span>Pages Management</span>
                         <i class="fas fa-chevron-right nav-arrow"></i>
                     </a>
+
+                    <a href="{{ route('admin.partners.index') }}" class="nav-item {{ request()->routeIs('admin.partners.*') ? 'active' : '' }}">
+                        <i class="fas fa-handshake"></i>
+                        <span>Partners Management</span>
+                        <i class="fas fa-chevron-right nav-arrow"></i>
+                    </a>
                 </nav>
             </aside>
 

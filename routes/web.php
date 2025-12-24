@@ -18,6 +18,7 @@ use App\Http\Controllers\Admin\TrainedController;
 use App\Http\Controllers\Admin\PaymentController;
 use App\Http\Controllers\Admin\ManualPaymentController;
 use App\Http\Controllers\Admin\PageController;
+use App\Http\Controllers\Admin\PartnerController;
 use App\Http\Controllers\Trainee\TraineeAuthController;
 use App\Http\Controllers\Trainee\TraineeRegisterController;
 use App\Http\Controllers\Trainee\DashboardController as TraineeDashboardController;
@@ -126,6 +127,9 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'auth.admin'])->grou
     
     // Pages Management
     Route::resource('pages', PageController::class);
+    
+    // Partners Management
+    Route::resource('partners', PartnerController::class)->except(['show']);
     
     // Payments
     Route::get('/payments', [PaymentController::class, 'index'])->name('payments.index');

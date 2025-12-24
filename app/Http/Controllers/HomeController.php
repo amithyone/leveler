@@ -70,7 +70,8 @@ class HomeController extends Controller
     public function partners()
     {
         $page = Page::findBySlug('partners') ?? new Page(['title' => 'Partners', 'content' => '']);
-        return view('frontend.partners', compact('page'));
+        $partners = \App\Models\Partner::active()->ordered()->get();
+        return view('frontend.partners', compact('page', 'partners'));
     }
 
     public function tipsUpdates()

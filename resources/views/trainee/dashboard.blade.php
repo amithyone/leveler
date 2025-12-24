@@ -36,7 +36,7 @@
 </div>
 @endif
 
-@else
+@elseif(isset($stats))
 <!-- Statistics Cards -->
 <div class="stats-grid">
     <div class="stat-card">
@@ -44,7 +44,7 @@
             <i class="fas fa-book"></i>
         </div>
         <div class="stat-info">
-            <div class="stat-number">{{ $stats['enrolled_courses'] }}</div>
+            <div class="stat-number">{{ $stats['enrolled_courses'] ?? 0 }}</div>
             <div class="stat-label">Available Courses</div>
         </div>
     </div>
@@ -54,7 +54,7 @@
             <i class="fas fa-check-circle"></i>
         </div>
         <div class="stat-info">
-            <div class="stat-number">{{ $stats['completed_courses'] }}</div>
+            <div class="stat-number">{{ $stats['completed_courses'] ?? 0 }}</div>
             <div class="stat-label">Completed Courses</div>
         </div>
     </div>
@@ -64,7 +64,7 @@
             <i class="fas fa-clipboard-check"></i>
         </div>
         <div class="stat-info">
-            <div class="stat-number">{{ $stats['total_assessments'] }}</div>
+            <div class="stat-number">{{ $stats['total_assessments'] ?? 0 }}</div>
             <div class="stat-label">Assessments Taken</div>
         </div>
     </div>
@@ -74,7 +74,7 @@
             <i class="fas fa-certificate"></i>
         </div>
         <div class="stat-info">
-            <div class="stat-number">{{ $stats['certificates']->count() }}</div>
+            <div class="stat-number">{{ isset($stats['certificates']) ? $stats['certificates']->count() : 0 }}</div>
             <div class="stat-label">Certificates Earned</div>
         </div>
     </div>

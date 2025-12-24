@@ -144,9 +144,14 @@ use Illuminate\Support\Facades\Storage;
 }
 
 @media (max-width: 1200px) {
-    .partner-logo-item {
-        flex: 0 0 calc(25% - 30px) !important;
-        max-width: calc(25% - 30px) !important;
+    .partner-logos-grid {
+        grid-template-columns: repeat(4, 1fr) !important;
+    }
+}
+
+@media (max-width: 992px) {
+    .partner-logos-grid {
+        grid-template-columns: repeat(3, 1fr) !important;
     }
 }
 
@@ -167,17 +172,15 @@ use Illuminate\Support\Facades\Storage;
         font-size: 2rem !important;
     }
     
-    .partner-logo-item {
-        flex: 0 0 calc(50% - 20px) !important;
-        max-width: calc(50% - 20px) !important;
-        min-width: 120px !important;
+    .partner-logos-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 20px !important;
     }
 }
 
 @media (max-width: 480px) {
-    .partner-logo-item {
-        flex: 0 0 100% !important;
-        max-width: 100% !important;
+    .partner-logos-grid {
+        grid-template-columns: 1fr !important;
     }
 }
 </style>

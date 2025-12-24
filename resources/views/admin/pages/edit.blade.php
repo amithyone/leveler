@@ -1,5 +1,9 @@
 @extends('layouts.admin')
 
+@php
+use Illuminate\Support\Facades\Storage;
+@endphp
+
 @section('content')
 <div class="page-header">
     <h1 class="page-title"><i class="fas fa-pencil-alt"></i> Edit Page: {{ $page->title }}</h1>
@@ -924,6 +928,57 @@ function addBenefit() {
 
 function removeBenefit(element) {
     element.closest('.benefit-item').remove();
+}
+
+function addPartnerLogo() {
+    const container = document.getElementById('partner-logos-container');
+    const index = container.children.length;
+    const logoHtml = `
+        <div class="partner-logo-item" style="border: 1px solid #e0e0e0; padding: 20px; margin-bottom: 20px; border-radius: 8px; background: #f9f9f9;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <strong>Logo ${index + 1}</strong>
+                <button type="button" class="btn btn-danger btn-sm" onclick="removePartnerLogo(this)">Remove</button>
+            </div>
+            <div class="form-group">
+                <label>Partner Name</label>
+                <input type="text" name="partner_logos[${index}][name]" class="form-control" value="" placeholder="Partner name (for alt text)">
+            </div>
+            <div class="form-group">
+                <label>Logo Image</label>
+                <input type="file" name="partner_logos[${index}][image]" class="form-control" accept="image/*" onchange="previewPartnerLogo(this, 'partner_logo_preview_${index}')">
+                <small class="form-text">Recommended: PNG with transparent background, max 2MB. Logo will be displayed at max 200px width.</small>
+                <div id="partner_logo_preview_${index}" class="image-preview" style="margin-top: 10px; display: none;">
+                    <img src="" alt="Logo Preview" style="max-width: 200px; max-height: 100px; border-radius: 8px; border: 2px solid #e0e0e0; background: white; padding: 10px;">
+                </div>
+            </div>
+        </div>
+    `;
+    container.insertAdjacentHTML('beforeend', logoHtml);
+}
+
+function removePartnerLogo(element) {
+    if (confirm('Are you sure you want to remove this logo? The logo file will be deleted if saved.')) {
+        element.closest('.partner-logo-item').remove();
+    }
+}
+
+function previewPartnerLogo(input, previewId) {
+    const preview = document.getElementById(previewId);
+    if (!preview) return;
+    const img = preview.querySelector('img');
+    
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        
+        reader.onload = function(e) {
+            img.src = e.target.result;
+            preview.style.display = 'block';
+        }
+        
+        reader.readAsDataURL(input.files[0]);
+    } else {
+        preview.style.display = 'none';
+    }
 }
 </script>
 

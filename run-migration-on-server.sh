@@ -12,13 +12,19 @@ cd /var/www/leveler || exit
 echo "📥 Pulling latest code..."
 git pull origin main
 
+# Clear config cache first (in case it's using database cache)
+echo "🧹 Clearing config cache..."
+php artisan config:clear
+
+# Temporarily set cache to file to avoid database cache errors
+export CACHE_STORE=file
+
 # Run migration
 echo "🗄️  Running migration..."
 php artisan migrate
 
 # Clear caches
 echo "🧹 Clearing caches..."
-php artisan config:clear
 php artisan cache:clear
 php artisan route:clear
 php artisan view:clear

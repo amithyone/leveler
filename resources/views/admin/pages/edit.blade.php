@@ -834,6 +834,36 @@ function previewSliderImages(input) {
         preview.style.display = 'none';
     }
 }
+
+function addBenefit() {
+    const container = document.getElementById('benefits-container');
+    const index = container.children.length;
+    const benefitHtml = `
+        <div class="benefit-item" style="border: 1px solid #e0e0e0; padding: 15px; margin-bottom: 15px; border-radius: 8px;">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                <strong>Benefit ${index + 1}</strong>
+                <button type="button" class="btn btn-danger btn-sm" onclick="removeBenefit(this)">Remove</button>
+            </div>
+            <div class="form-group">
+                <label>Icon Class (Font Awesome)</label>
+                <input type="text" name="sections[benefits][${index}][icon]" class="form-control" value="" placeholder="e.g., fas fa-handshake">
+            </div>
+            <div class="form-group">
+                <label>Title</label>
+                <input type="text" name="sections[benefits][${index}][title]" class="form-control" value="" placeholder="Benefit title">
+            </div>
+            <div class="form-group">
+                <label>Description</label>
+                <textarea name="sections[benefits][${index}][text]" class="form-control" rows="2" placeholder="Benefit description"></textarea>
+            </div>
+        </div>
+    `;
+    container.insertAdjacentHTML('beforeend', benefitHtml);
+}
+
+function removeBenefit(element) {
+    element.closest('.benefit-item').remove();
+}
 </script>
 
 <style>

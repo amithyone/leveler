@@ -92,11 +92,23 @@
                         <span>Schedules</span>
                     </a>
 
-                    <a href="{{ route('admin.payments.index') }}" class="nav-item {{ request()->routeIs('admin.payments.*') ? 'active' : '' }}">
-                        <i class="fas fa-money-bill-wave"></i>
-                        <span>Payment Management</span>
-                        <i class="fas fa-chevron-right nav-arrow"></i>
-                    </a>
+                    <div class="nav-group">
+                        <div class="nav-item nav-parent {{ request()->routeIs('admin.payments.*') || request()->routeIs('admin.manual-payments.*') ? 'active' : '' }}">
+                            <i class="fas fa-money-bill-wave"></i>
+                            <span>Payments</span>
+                            <i class="fas fa-chevron-down nav-arrow"></i>
+                        </div>
+                        <div class="nav-submenu {{ request()->routeIs('admin.payments.*') || request()->routeIs('admin.manual-payments.*') ? 'show' : '' }}">
+                            <a href="{{ route('admin.payments.index') }}" class="nav-item nav-child {{ request()->routeIs('admin.payments.*') ? 'active' : '' }}">
+                                <i class="fas fa-list"></i>
+                                <span>Payment Records</span>
+                            </a>
+                            <a href="{{ route('admin.manual-payments.index') }}" class="nav-item nav-child {{ request()->routeIs('admin.manual-payments.*') ? 'active' : '' }}">
+                                <i class="fas fa-cog"></i>
+                                <span>Manual Payment Settings</span>
+                            </a>
+                        </div>
+                    </div>
 
                     <a href="{{ route('admin.question-pool.index') }}" class="nav-item {{ request()->routeIs('admin.question-pool.*') ? 'active' : '' }}">
                         <i class="fas fa-chart-bar"></i>

@@ -16,6 +16,7 @@ use App\Http\Controllers\Admin\ResultController;
 use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\TrainedController;
 use App\Http\Controllers\Admin\PaymentController;
+use App\Http\Controllers\Admin\ManualPaymentController;
 use App\Http\Controllers\Admin\PageController;
 use App\Http\Controllers\Trainee\TraineeAuthController;
 use App\Http\Controllers\Trainee\TraineeRegisterController;
@@ -128,6 +129,14 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'auth.admin'])->grou
     
     // Payments
     Route::get('/payments', [PaymentController::class, 'index'])->name('payments.index');
+    Route::get('/payments/create', [PaymentController::class, 'create'])->name('payments.create');
+    Route::post('/payments', [PaymentController::class, 'store'])->name('payments.store');
+    Route::get('/payments/{id}/edit', [PaymentController::class, 'edit'])->name('payments.edit');
+    Route::put('/payments/{id}', [PaymentController::class, 'update'])->name('payments.update');
+    Route::delete('/payments/{id}', [PaymentController::class, 'destroy'])->name('payments.destroy');
+    
+    // Manual Payment Settings
+    Route::resource('manual-payments', ManualPaymentController::class)->except(['show']);
     Route::get('/payments/create', [PaymentController::class, 'create'])->name('payments.create');
     Route::post('/payments', [PaymentController::class, 'store'])->name('payments.store');
     Route::get('/payments/{id}/edit', [PaymentController::class, 'edit'])->name('payments.edit');

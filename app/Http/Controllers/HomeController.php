@@ -10,7 +10,8 @@ class HomeController extends Controller
 {
     public function index()
     {
-        $page = Page::findBySlug('home') ?? new Page(['title' => 'Home', 'content' => '']);
+        // Get home page - don't filter by is_active for home page
+        $page = Page::where('slug', 'home')->first() ?? new Page(['title' => 'Home', 'content' => '']);
         $courses = Course::where('status', 'Active')->take(6)->get();
         return view('frontend.home', compact('page', 'courses'));
     }

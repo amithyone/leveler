@@ -7,7 +7,7 @@
     <div class="hero-slider">
         @if($page && $page->slider_images && count($page->slider_images) > 0)
             @foreach($page->slider_images as $index => $sliderImage)
-            <div class="hero-slide {{ $index === 0 ? 'active' : '' }}" style="background-image: url('{{ \Illuminate\Support\Facades\Storage::url($sliderImage) }}');">
+            <div class="hero-slide {{ $index === 0 ? 'active' : '' }}" style="background-image: url('{{ \Illuminate\Support\Facades\Storage::disk('public')->url($sliderImage) }}');">
                 <div class="hero-overlay"></div>
                 <div class="container">
                     <h1>Welcome to<br>Leveler<br>A Human Capacity Development Company</h1>

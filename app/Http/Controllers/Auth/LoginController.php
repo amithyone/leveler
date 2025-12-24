@@ -30,7 +30,15 @@ class LoginController extends Controller
         if (Auth::attempt($request->only('email', 'password'), $request->boolean('remember'))) {
             $request->session()->regenerate();
 
-            return redirect()->intended(route('admin.dashboard'));
+            $user = Auth::user();
+
+            // Redirect based on user role
+            if ($user->isAdmin()) {
+                return redirect()->intended(route('admin.dashboard'));
+            } else {
+                // Regular user/trainee - redirect to trainee dashboard
+                return redirect()->intended(route('trainee.dashboard'));
+            }
         }
 
         throw ValidationException::withMessages([

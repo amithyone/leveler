@@ -75,6 +75,13 @@
                             </span>
                         </td>
                         <td>{{ $payment->receipt_number ?? 'N/A' }}</td>
+                        <td>
+                            @if($payment->payment_method === 'Manual Payment' && $payment->manual_payment_details)
+                            <span style="color: #667eea; cursor: pointer;" title="View Payment Details" onclick="showManualPaymentDetails({{ $payment->id }})">
+                                <i class="fas fa-info-circle"></i>
+                            </span>
+                            @endif
+                        </td>
                         <td class="actions-cell">
                             <a href="{{ route('admin.payments.edit', $payment->id) }}" class="action-btn" title="Edit">
                                 <i class="fas fa-pencil-alt"></i>
@@ -117,5 +124,69 @@
     color: white;
 }
 </style>
+
+<!-- Manual Payment Details Modal -->
+<div id="manualPaymentModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; align-items: center; justify-content: center;">
+    <div style="background: white; padding: 30px; border-radius: 8px; max-width: 600px; width: 90%; max-height: 80vh; overflow-y: auto;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h2 style="margin: 0; color: #667eea;">Manual Payment Details</h2>
+            <button onclick="closeManualPaymentModal()" style="background: none; border: none; font-size: 24px; cursor: pointer; color: #666;">&times;</button>
+        </div>
+        <div id="manualPaymentContent"></div>
+        <div style="margin-top: 20px; text-align: right;">
+            <button onclick="closeManualPaymentModal()" class="btn btn-secondary">Close</button>
+        </div>
+    </div>
+</div>
+
+<script>
+const paymentDetails = @json($payments->map(function($p) {
+    return [
+        'id' => $p->id,
+        'details' => $p->manual_payment_details
+    ];
+})->keyBy('id'));
+
+function showManualPaymentDetails(paymentId) {
+    const details = paymentDetails[paymentId]?.details;
+    const modal = document.getElementById('manualPaymentModal');
+    const content = document.getElementById('manualPaymentContent');
+    
+    if (!details) {
+        content.innerHTML = '<p>No payment details available.</p>';
+        modal.style.display = 'flex';
+        return;
+    }
+    
+    let html = '<div style="line-height: 1.8;">';
+    if (details.bank_name) {
+        html += `<p><strong>Bank Name:</strong> ${details.bank_name}</p>`;
+    }
+    if (details.account_name) {
+        html += `<p><strong>Account Name:</strong> ${details.account_name}</p>`;
+    }
+    if (details.account_number) {
+        html += `<p><strong>Account Number:</strong> ${details.account_number}</p>`;
+    }
+    if (details.instructions) {
+        html += `<div style="margin-top: 15px;"><strong>Instructions:</strong><div style="background: #f5f5f5; padding: 15px; border-radius: 4px; margin-top: 10px; white-space: pre-wrap;">${details.instructions}</div></div>`;
+    }
+    html += '</div>';
+    
+    content.innerHTML = html;
+    modal.style.display = 'flex';
+}
+
+function closeManualPaymentModal() {
+    document.getElementById('manualPaymentModal').style.display = 'none';
+}
+
+// Close modal when clicking outside
+document.getElementById('manualPaymentModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeManualPaymentModal();
+    }
+});
+</script>
 @endsection
 

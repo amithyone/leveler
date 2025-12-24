@@ -52,7 +52,16 @@ class PaymentController extends Controller
             'notes' => 'nullable|string',
         ]);
 
-        $payment = Payment::create($request->all());
+        $data = $request->all();
+        
+        // Handle manual payment details
+        if ($request->payment_method === 'Manual Payment' && $request->has('manual_payment_details')) {
+            $data['manual_payment_details'] = $request->manual_payment_details;
+        } else {
+            $data['manual_payment_details'] = null;
+        }
+        
+        $payment = Payment::create($data);
 
         // If payment is completed, activate the trainee
         if ($payment->status === 'Completed') {
@@ -85,7 +94,16 @@ class PaymentController extends Controller
             'notes' => 'nullable|string',
         ]);
 
-        $payment->update($request->all());
+        $data = $request->all();
+        
+        // Handle manual payment details
+        if ($request->payment_method === 'Manual Payment' && $request->has('manual_payment_details')) {
+            $data['manual_payment_details'] = $request->manual_payment_details;
+        } else {
+            $data['manual_payment_details'] = null;
+        }
+        
+        $payment->update($data);
 
         // If payment status changed to Completed, activate the trainee
         if ($payment->status === 'Completed' && $oldStatus !== 'Completed') {

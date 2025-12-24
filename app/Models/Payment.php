@@ -23,6 +23,7 @@ class Payment extends Model
         'status',
         'notes',
         'receipt_number',
+        'manual_payment_details',
     ];
 
     protected $casts = [
@@ -30,6 +31,7 @@ class Payment extends Model
         'amount' => 'decimal:2',
         'total_required' => 'decimal:2',
         'is_installment' => 'boolean',
+        'manual_payment_details' => 'array',
     ];
 
     /**

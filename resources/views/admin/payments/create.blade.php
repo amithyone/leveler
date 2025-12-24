@@ -44,11 +44,12 @@
             <div class="form-row">
                 <div class="form-group">
                     <label for="payment_method">Payment Method *</label>
-                    <select name="payment_method" id="payment_method" required>
+                    <select name="payment_method" id="payment_method" required onchange="toggleManualPaymentDetails()">
                         <option value="Cash" {{ old('payment_method') === 'Cash' ? 'selected' : '' }}>Cash</option>
                         <option value="Bank Transfer" {{ old('payment_method') === 'Bank Transfer' ? 'selected' : '' }}>Bank Transfer</option>
                         <option value="Mobile Money" {{ old('payment_method') === 'Mobile Money' ? 'selected' : '' }}>Mobile Money</option>
                         <option value="Card" {{ old('payment_method') === 'Card' ? 'selected' : '' }}>Card</option>
+                        <option value="Manual Payment" {{ old('payment_method') === 'Manual Payment' ? 'selected' : '' }}>Manual Payment</option>
                         <option value="Other" {{ old('payment_method') === 'Other' ? 'selected' : '' }}>Other</option>
                     </select>
                 </div>
@@ -80,6 +81,37 @@
                 <div class="form-group" style="grid-column: 1 / -1;">
                     <label for="transaction_reference">Transaction Reference</label>
                     <input type="text" name="transaction_reference" id="transaction_reference" value="{{ old('transaction_reference') }}" placeholder="Optional - For bank transfers, mobile money, etc.">
+                </div>
+            </div>
+
+            <!-- Manual Payment Details Section -->
+            <div id="manual_payment_details_section" style="display: none; border: 1px solid #e0e0e0; padding: 20px; margin: 20px 0; border-radius: 8px; background: #f9f9f9;">
+                <h3 style="margin-top: 0; margin-bottom: 15px; color: #667eea;">Manual Payment Details</h3>
+                <p style="color: #666; margin-bottom: 20px; font-size: 14px;">Enter payment instructions and bank account details for manual payments.</p>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="manual_bank_name">Bank Name</label>
+                        <input type="text" name="manual_payment_details[bank_name]" id="manual_bank_name" value="{{ old('manual_payment_details.bank_name') }}" placeholder="e.g., First Bank, GTBank">
+                    </div>
+                    <div class="form-group">
+                        <label for="manual_account_name">Account Name</label>
+                        <input type="text" name="manual_payment_details[account_name]" id="manual_account_name" value="{{ old('manual_payment_details.account_name') }}" placeholder="Account holder name">
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="manual_account_number">Account Number</label>
+                        <input type="text" name="manual_payment_details[account_number]" id="manual_account_number" value="{{ old('manual_payment_details.account_number') }}" placeholder="Account number">
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group" style="grid-column: 1 / -1;">
+                        <label for="manual_instructions">Payment Instructions</label>
+                        <textarea name="manual_payment_details[instructions]" id="manual_instructions" rows="4" placeholder="Enter payment instructions for the trainee...">{{ old('manual_payment_details.instructions') }}</textarea>
+                    </div>
                 </div>
             </div>
 
@@ -115,5 +147,23 @@
     border-color: #6B46C1;
 }
 </style>
+
+<script>
+function toggleManualPaymentDetails() {
+    const paymentMethod = document.getElementById('payment_method').value;
+    const manualSection = document.getElementById('manual_payment_details_section');
+    
+    if (paymentMethod === 'Manual Payment') {
+        manualSection.style.display = 'block';
+    } else {
+        manualSection.style.display = 'none';
+    }
+}
+
+// Check on page load
+document.addEventListener('DOMContentLoaded', function() {
+    toggleManualPaymentDetails();
+});
+</script>
 @endsection
 

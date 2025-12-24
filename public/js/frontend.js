@@ -66,13 +66,21 @@ document.addEventListener('DOMContentLoaded', function() {
     let currentSlide = 0;
     let slideInterval = null;
 
-    // Preload images for better performance
+    // Preload images and ensure background styles are applied
     heroSlides.forEach(slide => {
         const bgImage = slide.getAttribute('data-bg-image');
         if (bgImage) {
             const img = new Image();
             img.src = bgImage;
-            // Ensure background styles are applied
+            img.onload = function() {
+                // Force background image after load
+                slide.style.backgroundImage = `url('${bgImage}')`;
+                slide.style.backgroundSize = 'cover';
+                slide.style.backgroundPosition = 'center';
+                slide.style.backgroundRepeat = 'no-repeat';
+            };
+            // Set immediately as well
+            slide.style.backgroundImage = `url('${bgImage}')`;
             slide.style.backgroundSize = 'cover';
             slide.style.backgroundPosition = 'center';
             slide.style.backgroundRepeat = 'no-repeat';

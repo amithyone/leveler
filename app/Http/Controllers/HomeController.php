@@ -37,6 +37,19 @@ class HomeController extends Controller
             } else {
                 $page->slider_images = [];
             }
+            
+            // Ensure sections is properly cast as array
+            if ($page->sections) {
+                if (is_string($page->sections)) {
+                    $page->sections = json_decode($page->sections, true) ?? [];
+                }
+                // Ensure it's an array
+                if (!is_array($page->sections)) {
+                    $page->sections = [];
+                }
+            } else {
+                $page->sections = [];
+            }
         }
         
         $courses = Course::where('status', 'Active')->take(6)->get();

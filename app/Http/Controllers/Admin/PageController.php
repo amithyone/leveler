@@ -142,6 +142,65 @@ class PageController extends Controller
             ];
         }
 
+        // Handle home page sections
+        if ($request->slug === 'home' || $page->slug === 'home') {
+            $sections = [];
+            
+            // Hero section
+            if ($request->has('sections.hero')) {
+                $sections['hero'] = $request->input('sections.hero');
+            }
+            
+            // Vulnerability section
+            if ($request->has('sections.vulnerability')) {
+                $sections['vulnerability'] = $request->input('sections.vulnerability');
+            }
+            
+            // Features section
+            if ($request->has('sections.features')) {
+                $sections['features'] = array_values($request->input('sections.features', []));
+            }
+            
+            // About section
+            if ($request->has('sections.about')) {
+                $sections['about'] = $request->input('sections.about');
+            }
+            
+            // Why section
+            if ($request->has('sections.why')) {
+                $whyData = $request->input('sections.why');
+                if (isset($whyData['items'])) {
+                    $whyData['items'] = array_values($whyData['items']);
+                }
+                $sections['why'] = $whyData;
+            }
+            
+            // Stats section
+            if ($request->has('sections.stats')) {
+                $statsData = $request->input('sections.stats');
+                if (isset($statsData['items'])) {
+                    $statsData['items'] = array_values($statsData['items']);
+                }
+                $sections['stats'] = $statsData;
+            }
+            
+            // Services section
+            if ($request->has('sections.services')) {
+                $servicesData = $request->input('sections.services');
+                if (isset($servicesData['items'])) {
+                    $servicesData['items'] = array_values($servicesData['items']);
+                }
+                $sections['services'] = $servicesData;
+            }
+            
+            // Newsletter section
+            if ($request->has('sections.newsletter')) {
+                $sections['newsletter'] = $request->input('sections.newsletter');
+            }
+            
+            $data['sections'] = $sections;
+        }
+
         // Handle featured image upload/removal
         if ($request->has('remove_featured_image') && $request->remove_featured_image) {
             if ($page->featured_image) {

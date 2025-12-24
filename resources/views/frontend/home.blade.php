@@ -24,41 +24,31 @@
             <div class="hero-slide {{ $index === 0 ? 'active' : '' }}" style="background-image: url('{{ $imageUrl }}');">
                 <div class="hero-overlay"></div>
                 <div class="container">
-                    <h1>Welcome to<br>Leveler<br>A Human Capacity Development Company</h1>
+                    @php
+                        $heroTitle = $page->sections['hero']['title'] ?? 'Welcome to<br>Leveler<br>A Human Capacity Development Company';
+                        $heroPrimaryBtn = $page->sections['hero']['primary_button'] ?? 'Get a quote';
+                        $heroSecondaryBtn = $page->sections['hero']['secondary_button'] ?? 'Contact us';
+                    @endphp
+                    <h1>{!! $heroTitle !!}</h1>
                     <div class="hero-buttons">
-                        <a href="{{ route('contact') }}" class="btn btn-primary">Get a quote</a>
-                        <a href="{{ route('contact') }}" class="btn btn-secondary">Contact us</a>
+                        <a href="{{ route('contact') }}" class="btn btn-primary">{{ $heroPrimaryBtn }}</a>
+                        <a href="{{ route('contact') }}" class="btn btn-secondary">{{ $heroSecondaryBtn }}</a>
                     </div>
                 </div>
             </div>
             @endforeach
         @else
+            @php
+                $heroTitle = $page->sections['hero']['title'] ?? 'Welcome to<br>Leveler<br>A Human Capacity Development Company';
+                $heroPrimaryBtn = $page->sections['hero']['primary_button'] ?? 'Get a quote';
+                $heroSecondaryBtn = $page->sections['hero']['secondary_button'] ?? 'Contact us';
+            @endphp
             <div class="hero-slide active">
                 <div class="container">
-                    <h1>Welcome to<br>Leveler<br>A Human Capacity Development Company</h1>
+                    <h1>{!! $heroTitle !!}</h1>
                     <div class="hero-buttons">
-                        <a href="{{ route('contact') }}" class="btn btn-primary">Get a quote</a>
-                        <a href="{{ route('contact') }}" class="btn btn-secondary">Contact us</a>
-                    </div>
-                </div>
-            </div>
-            <div class="hero-slide">
-                <div class="container">
-                    <h1>We project you to new<br>Heights of Excellence</h1>
-                    <p>Helping you to find and keep the right people, create the winning strategy using the appropriate technology within resource limits.</p>
-                    <div class="hero-buttons">
-                        <a href="{{ route('contact') }}" class="btn btn-primary">Get a quote</a>
-                        <a href="{{ route('contact') }}" class="btn btn-secondary">Contact us</a>
-                    </div>
-                </div>
-            </div>
-            <div class="hero-slide">
-                <div class="container">
-                    <h1>Let's help you<br>Translate Learning to results</h1>
-                    <p>Our reputation is based on providing relevant, practical and on-target learning solutions that are cost-effective and client-focused.</p>
-                    <div class="hero-buttons">
-                        <a href="{{ route('contact') }}" class="btn btn-primary">Get a quote</a>
-                        <a href="{{ route('contact') }}" class="btn btn-secondary">Contact us</a>
+                        <a href="{{ route('contact') }}" class="btn btn-primary">{{ $heroPrimaryBtn }}</a>
+                        <a href="{{ route('contact') }}" class="btn btn-secondary">{{ $heroSecondaryBtn }}</a>
                     </div>
                 </div>
             </div>
@@ -77,138 +67,170 @@
     </div>
 </section>
 
+@php
+    $vulnerability = $page->sections['vulnerability'] ?? null;
+@endphp
+@if($vulnerability)
 <section class="vulnerability-section">
     <div class="container">
-        <h2>Are you vulnerable to disruption?</h2>
-        <p>Having the right product or service is fundamental, but it is not enough. What differentiates businesses is how they manage change in a continuously changing business climate.</p>
-        <a href="{{ route('contact') }}" class="btn btn-primary">Reach Out</a>
+        <h2>{{ $vulnerability['title'] ?? 'Are you vulnerable to disruption?' }}</h2>
+        <p>{{ $vulnerability['text'] ?? 'Having the right product or service is fundamental, but it is not enough. What differentiates businesses is how they manage change in a continuously changing business climate.' }}</p>
+        <a href="{{ route('contact') }}" class="btn btn-primary">{{ $vulnerability['button'] ?? 'Reach Out' }}</a>
     </div>
 </section>
+@endif
 
+@php
+    $features = $page->sections['features'] ?? [];
+    if (empty($features)) {
+        $features = [
+            ['icon' => 'fas fa-users', 'title' => 'People', 'text' => 'Committed to developing and sourcing the right team for outstanding results.'],
+            ['icon' => 'fas fa-chart-line', 'title' => 'Strategy', 'text' => 'Optimizing processes, interconnected network of professionals for result.'],
+            ['icon' => 'fas fa-laptop-code', 'title' => 'Technology', 'text' => 'We partner with clients to work directly with them over the long-term.'],
+        ];
+    }
+@endphp
+@if(!empty($features))
 <section class="features-section">
     <div class="container">
         <div class="feature-grid">
+            @foreach($features as $feature)
             <div class="feature-card">
                 <div class="feature-icon">
-                    <i class="fas fa-users"></i>
+                    <i class="{{ $feature['icon'] ?? 'fas fa-star' }}"></i>
                 </div>
-                <h3>People</h3>
-                <p>Committed to developing and sourcing the right team for outstanding results.</p>
+                <h3>{{ $feature['title'] ?? '' }}</h3>
+                <p>{{ $feature['text'] ?? '' }}</p>
             </div>
-            <div class="feature-card">
-                <div class="feature-icon">
-                    <i class="fas fa-chart-line"></i>
-                </div>
-                <h3>Strategy</h3>
-                <p>Optimizing processes, interconnected network of professionals for result.</p>
-            </div>
-            <div class="feature-card">
-                <div class="feature-icon">
-                    <i class="fas fa-laptop-code"></i>
-                </div>
-                <h3>Technology</h3>
-                <p>We partner with clients to work directly with them over the long-term.</p>
-            </div>
+            @endforeach
         </div>
     </div>
 </section>
+@endif
 
+@php
+    $about = $page->sections['about'] ?? null;
+@endphp
+@if($about)
 <section class="about-section">
     <div class="container">
         <div class="about-content">
             <div class="about-text">
-                <h2>About Us</h2>
-                <h3>For over 10 years, we have supported businesses to accelerate growth.</h3>
-                <p>Leveler is a Business & Management consulting company whose mandate is to aid growth and sustainability of businesses through strategy development.</p>
-                <p>Our reputation is built on the foundation of providing business and management solutions that deliver growth, increase profit and boost efficiency.</p>
-                <a href="{{ route('about') }}" class="btn btn-primary">Know More</a>
+                <h2>{{ $about['title'] ?? 'About Us' }}</h2>
+                <h3>{{ $about['subtitle'] ?? 'For over 10 years, we have supported businesses to accelerate growth.' }}</h3>
+                @if(!empty($about['text']))
+                    @foreach(explode("\n", $about['text']) as $paragraph)
+                        @if(trim($paragraph))
+                            <p>{{ trim($paragraph) }}</p>
+                        @endif
+                    @endforeach
+                @endif
+                <a href="{{ route('about') }}" class="btn btn-primary">{{ $about['button'] ?? 'Know More' }}</a>
             </div>
         </div>
     </div>
 </section>
+@endif
 
+@php
+    $why = $page->sections['why'] ?? null;
+    $whyItems = $why['items'] ?? [];
+    if (empty($whyItems)) {
+        $whyItems = [
+            ['title' => 'Value', 'text' => 'We deliver value-driven and sustainable solutions that support the business growth aspirations of our clients.'],
+            ['title' => 'Unity of Purpose', 'text' => 'We work closely with our clients to uncover business gaps, and design solutions for profit optimization.'],
+        ];
+    }
+@endphp
+@if($why && !empty($whyItems))
 <section class="why-section">
     <div class="container">
-                <h2>Why Leveler</h2>
+        <h2>{{ $why['title'] ?? 'Why Leveler' }}</h2>
         <div class="why-grid">
+            @foreach($whyItems as $item)
             <div class="why-card">
-                <h3>Value</h3>
-                <p>We deliver value-driven and sustainable solutions that support the business growth aspirations of our clients.</p>
+                <h3>{{ $item['title'] ?? '' }}</h3>
+                <p>{{ $item['text'] ?? '' }}</p>
                 <a href="#" class="read-more">Read more</a>
             </div>
-            <div class="why-card">
-                <h3>Unity of Purpose</h3>
-                <p>We work closely with our clients to uncover business gaps, and design solutions for profit optimization.</p>
-                <a href="#" class="read-more">Read more</a>
-            </div>
+            @endforeach
         </div>
     </div>
 </section>
+@endif
 
+@php
+    $stats = $page->sections['stats'] ?? null;
+    $statItems = $stats['items'] ?? [];
+    if (empty($statItems)) {
+        $statItems = [
+            ['number' => '10+', 'label' => 'Years of Existence'],
+            ['number' => '25+', 'label' => 'Consultants Nationwide'],
+            ['number' => '70+', 'label' => 'Satisfied Clients'],
+            ['number' => '10K+', 'label' => 'Trained and Certified'],
+        ];
+    }
+@endphp
+@if($stats && !empty($statItems))
 <section class="stats-section">
     <div class="container">
-        <h2>Enabling businesses to attain desired growth aspirations</h2>
+        <h2>{{ $stats['title'] ?? 'Enabling businesses to attain desired growth aspirations' }}</h2>
         <div class="stats-grid">
+            @foreach($statItems as $stat)
             <div class="stat-card">
-                <div class="stat-number">10+</div>
-                <div class="stat-label">Years of Existence</div>
+                <div class="stat-number">{{ $stat['number'] ?? '' }}</div>
+                <div class="stat-label">{{ $stat['label'] ?? '' }}</div>
             </div>
-            <div class="stat-card">
-                <div class="stat-number">25+</div>
-                <div class="stat-label">Consultants Nationwide</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number">70+</div>
-                <div class="stat-label">Satisfied Clients</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number">10K+</div>
-                <div class="stat-label">Trained and Certified</div>
-            </div>
+            @endforeach
         </div>
     </div>
 </section>
+@endif
 
+@php
+    $services = $page->sections['services'] ?? null;
+    $serviceItems = $services['items'] ?? [];
+    if (empty($serviceItems)) {
+        $serviceItems = [
+            ['icon' => 'fas fa-chart-bar', 'title' => 'Business Advisory', 'text' => 'We provide organizations with the insight, methodology, and framework necessary to successfully execute their business strategy.'],
+            ['icon' => 'fas fa-users', 'title' => 'Training & Development', 'text' => 'The ability to learn and translate that learning to action rapidly is the ultimate accomplishment.'],
+            ['icon' => 'fas fa-user-tie', 'title' => 'Recruitment & Selection', 'text' => 'We source for the most competent candidates using reliable techniques for talent acquisition.'],
+        ];
+    }
+@endphp
+@if($services && !empty($serviceItems))
 <section class="services-section">
     <div class="container">
-        <h2>Our Services</h2>
+        <h2>{{ $services['title'] ?? 'Our Services' }}</h2>
         <div class="services-grid">
+            @foreach($serviceItems as $service)
             <div class="service-card">
                 <div class="service-icon">
-                    <i class="fas fa-chart-bar"></i>
+                    <i class="{{ $service['icon'] ?? 'fas fa-star' }}"></i>
                 </div>
-                <h3>Business Advisory</h3>
-                <p>We provide organizations with the insight, methodology, and framework necessary to successfully execute their business strategy.</p>
+                <h3>{{ $service['title'] ?? '' }}</h3>
+                <p>{{ $service['text'] ?? '' }}</p>
                 <a href="#" class="read-more">Read more</a>
             </div>
-            <div class="service-card">
-                <div class="service-icon">
-                    <i class="fas fa-users"></i>
-                </div>
-                <h3>Training & Development</h3>
-                <p>The ability to learn and translate that learning to action rapidly is the ultimate accomplishment.</p>
-                <a href="#" class="read-more">Read more</a>
-            </div>
-            <div class="service-card">
-                <div class="service-icon">
-                    <i class="fas fa-user-tie"></i>
-                </div>
-                <h3>Recruitment & Selection</h3>
-                <p>We source for the most competent candidates using reliable techniques for talent acquisition.</p>
-                <a href="#" class="read-more">Read more</a>
-            </div>
+            @endforeach
         </div>
     </div>
 </section>
+@endif
 
+@php
+    $newsletter = $page->sections['newsletter'] ?? null;
+@endphp
+@if($newsletter)
 <section class="newsletter-section">
     <div class="container">
-        <h2>Subscribing to our mailing list and receive weekly newsletter with latest news and offers.</h2>
+        <h2>{{ $newsletter['text'] ?? 'Subscribing to our mailing list and receive weekly newsletter with latest news and offers.' }}</h2>
         <form class="newsletter-form">
             <input type="email" placeholder="Enter your email" required>
-            <button type="submit" class="btn btn-primary">Subscribe</button>
+            <button type="submit" class="btn btn-primary">{{ $newsletter['button'] ?? 'Subscribe' }}</button>
         </form>
     </div>
 </section>
+@endif
 @endsection
 

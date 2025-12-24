@@ -19,7 +19,8 @@
         @if($hasSliderImages)
             @foreach($sliderImages as $index => $sliderImage)
             @php
-                $imageUrl = \Illuminate\Support\Facades\Storage::disk('public')->url($sliderImage);
+                // Generate the correct URL for the image
+                $imageUrl = asset('storage/' . $sliderImage);
             @endphp
             <div class="hero-slide {{ $index === 0 ? 'active' : '' }}" style="background-image: url('{{ $imageUrl }}'); min-height: 500px;">
                 <div class="hero-overlay"></div>

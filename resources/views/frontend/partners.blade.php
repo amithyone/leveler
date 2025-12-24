@@ -38,7 +38,7 @@ use Illuminate\Support\Facades\Storage;
         @endphp
         @if(!empty($partnerLogos))
         <div class="partner-logos-section" style="margin-bottom: 60px; text-align: center;">
-            <h2 style="margin-bottom: 40px; color: #667eea; font-size: 2.5rem;">Our Partners</h2>
+            <h2 style="margin-bottom: 40px; color: #3f3f40; font-size: 2.5rem;">Our Partners</h2>
             <div class="partner-logos-grid" style="display: flex; flex-wrap: wrap; justify-content: center; gap: 40px; max-width: 1200px; margin: 0 auto;">
                 @foreach($partnerLogos as $logo)
                 @if(isset($logo['image']) && $logo['image'])
@@ -59,7 +59,7 @@ use Illuminate\Support\Facades\Storage;
             </h2>
             <div class="partners-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 30px; margin-bottom: 40px;">
                 @foreach($partners as $partner)
-                <div class="partner-card" style="background: white; border-radius: 12px; padding: 30px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); text-align: center; transition: transform 0.3s ease, box-shadow 0.3s ease;">
+                <div class="partner-card" style="background: rgb(141, 136, 136); border-radius: 12px; padding: 30px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); text-align: center; transition: transform 0.3s ease, box-shadow 0.3s ease;">
                     @if($partner->logo)
                     <div class="partner-logo" style="margin-bottom: 20px; height: 120px; display: flex; align-items: center; justify-content: center;">
                         <img src="{{ Storage::url($partner->logo) }}" alt="{{ $partner->name }}" style="max-width: 100%; max-height: 100%; object-fit: contain;">
@@ -117,8 +117,8 @@ use Illuminate\Support\Facades\Storage;
             </div>
 
             @if($page && isset($page->sections['partnership_info']))
-            <div style="margin-top: 40px; padding-top: 40px; border-top: 1px solid rgba(255,255,255,0.2); max-width: 900px; margin-left: auto; margin-right: auto;">
-                <div style="text-align: left; line-height: 1.8; opacity: 0.95;">
+            <div style="margin-top: 40px; padding-top: 40px; border-top: 1px solid #e0e0e0; max-width: 900px; margin-left: auto; margin-right: auto;">
+                <div style="text-align: left; line-height: 1.8; color: #666;">
                     {!! $page->sections['partnership_info'] !!}
                 </div>
             </div>

@@ -73,17 +73,17 @@ document.addEventListener('DOMContentLoaded', function() {
             const img = new Image();
             img.src = bgImage;
             img.onload = function() {
-                // Force background image after load
-                slide.style.backgroundImage = `url('${bgImage}')`;
-                slide.style.backgroundSize = 'cover';
-                slide.style.backgroundPosition = 'center';
-                slide.style.backgroundRepeat = 'no-repeat';
+                // Force background image after load with !important
+                slide.style.setProperty('background-image', `url('${bgImage}')`, 'important');
+                slide.style.setProperty('background-size', 'cover', 'important');
+                slide.style.setProperty('background-position', 'center', 'important');
+                slide.style.setProperty('background-repeat', 'no-repeat', 'important');
             };
-            // Set immediately as well
-            slide.style.backgroundImage = `url('${bgImage}')`;
-            slide.style.backgroundSize = 'cover';
-            slide.style.backgroundPosition = 'center';
-            slide.style.backgroundRepeat = 'no-repeat';
+            // Set immediately as well with !important
+            slide.style.setProperty('background-image', `url('${bgImage}')`, 'important');
+            slide.style.setProperty('background-size', 'cover', 'important');
+            slide.style.setProperty('background-position', 'center', 'important');
+            slide.style.setProperty('background-repeat', 'no-repeat', 'important');
         }
     });
 

@@ -164,19 +164,20 @@ body {
     justify-content: center;
     opacity: 0;
     transition: opacity 0.5s ease-in-out;
+    z-index: 1;
+}
+
+/* Default background properties for all slides */
+.hero-slide {
     background-size: cover !important;
     background-position: center center !important;
     background-repeat: no-repeat !important;
     background-attachment: scroll !important;
-    z-index: 1;
 }
 
-/* Ensure background image is always visible */
-.hero-slide[data-bg-image] {
-    background-image: var(--bg-image) !important;
-}
-
+/* Ensure inline background-image styles take precedence */
 .hero-slide[style*="background-image"] {
+    background-image: inherit !important;
     background-size: cover !important;
     background-position: center !important;
     background-repeat: no-repeat !important;

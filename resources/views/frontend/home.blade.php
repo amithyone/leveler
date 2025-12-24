@@ -36,9 +36,9 @@
             <div class="hero-slide {{ $index === 0 ? 'active' : '' }}" 
                  @if($hasImage) 
                  data-bg-image="{{ $imageUrl }}" 
-                 style="background-image: url('{{ $imageUrl }}'); background-size: cover; background-position: center; background-repeat: no-repeat;"
+                 style="background-image: url('{{ $imageUrl }}') !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important;"
                  @else
-                 style="background: linear-gradient(135deg, #6B46C1 0%, #9333EA 100%);"
+                 style="background: linear-gradient(135deg, #6B46C1 0%, #9333EA 100%) !important; background-image: none !important;"
                  @endif>
                 @if($hasImage)
                 <div class="hero-overlay"></div>

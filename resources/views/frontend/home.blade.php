@@ -21,7 +21,7 @@
             @php
                 $imageUrl = \Illuminate\Support\Facades\Storage::disk('public')->url($sliderImage);
             @endphp
-            <div class="hero-slide {{ $index === 0 ? 'active' : '' }}" style="background-image: url('{{ $imageUrl }}');">
+            <div class="hero-slide {{ $index === 0 ? 'active' : '' }}" style="background-image: url('{{ $imageUrl }}'); min-height: 500px;">
                 <div class="hero-overlay"></div>
                 <div class="container">
                     @php

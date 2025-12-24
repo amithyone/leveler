@@ -171,6 +171,17 @@ body {
     z-index: 1;
 }
 
+/* Ensure background image is always visible */
+.hero-slide[data-bg-image] {
+    background-image: var(--bg-image) !important;
+}
+
+.hero-slide[style*="background-image"] {
+    background-size: cover !important;
+    background-position: center !important;
+    background-repeat: no-repeat !important;
+}
+
 .hero-slide.active {
     opacity: 1 !important;
     z-index: 2;

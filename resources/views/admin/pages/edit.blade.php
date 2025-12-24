@@ -11,6 +11,8 @@
             @csrf
             @method('PUT')
 
+            @if($page->slug !== 'home' && old('slug') !== 'home')
+            {{-- Regular page fields - hidden for home page --}}
             <div class="form-group">
                 <label for="slug">Slug <span class="required">*</span></label>
                 <input type="text" id="slug" name="slug" class="form-control @error('slug') is-invalid @enderror" value="{{ old('slug', $page->slug) }}" required>
@@ -58,7 +60,6 @@
                 @enderror
             </div>
 
-
             <div class="form-row">
                 <div class="form-group">
                     <label for="page_type">Page Type <span class="required">*</span></label>
@@ -81,6 +82,15 @@
                     @enderror
                 </div>
             </div>
+            @endif
+
+            {{-- Hidden fields for home page --}}
+            @if($page->slug === 'home' || old('slug') === 'home')
+            <input type="hidden" name="slug" value="home">
+            <input type="hidden" name="title" value="Home">
+            <input type="hidden" name="page_type" value="page">
+            <input type="hidden" name="order" value="1">
+            @endif
 
             <div class="form-group">
                 <label for="meta_description">Meta Description</label>

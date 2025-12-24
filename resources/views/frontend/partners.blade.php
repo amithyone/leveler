@@ -1,5 +1,9 @@
 @extends('layouts.frontend')
 
+@php
+use Illuminate\Support\Facades\Storage;
+@endphp
+
 @section('title', 'Partners - Leveler')
 
 @section('content')

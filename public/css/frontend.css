@@ -758,6 +758,25 @@ section {
     margin-bottom: 10px;
 }
 
+.footer-logo-section {
+    margin-bottom: 15px;
+}
+
+.footer-logo-section img {
+    filter: brightness(0) invert(1);
+    transition: opacity 0.3s ease;
+}
+
+.footer-logo-section img:hover {
+    opacity: 0.8;
+}
+
+.footer-social-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
 .footer-section i {
     margin-right: 10px;
     color: #6B46C1;

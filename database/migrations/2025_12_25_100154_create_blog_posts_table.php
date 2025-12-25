@@ -18,7 +18,7 @@ return new class extends Migration
             $table->text('excerpt')->nullable();
             $table->longText('content');
             $table->string('featured_image')->nullable();
-            $table->foreignId('category_id')->nullable()->constrained('blog_categories')->nullOnDelete();
+            $table->unsignedBigInteger('category_id')->nullable();
             $table->foreignId('author_id')->constrained('admin_users')->onDelete('cascade');
             $table->enum('status', ['draft', 'published', 'archived'])->default('draft');
             $table->boolean('is_featured')->default(false);
@@ -32,6 +32,11 @@ return new class extends Migration
             $table->index('status');
             $table->index('category_id');
             $table->index('published_at');
+        });
+        
+        // Add foreign key constraint after blog_categories table exists
+        Schema::table('blog_posts', function (Blueprint $table) {
+            $table->foreign('category_id')->references('id')->on('blog_categories')->onDelete('set null');
         });
     }
 

@@ -19,6 +19,7 @@ use App\Http\Controllers\Admin\PaymentController;
 use App\Http\Controllers\Admin\ManualPaymentController;
 use App\Http\Controllers\Admin\PageController;
 use App\Http\Controllers\Admin\PartnerController;
+use App\Http\Controllers\Admin\BlogController;
 use App\Http\Controllers\Trainee\TraineeAuthController;
 use App\Http\Controllers\Trainee\TraineeRegisterController;
 use App\Http\Controllers\Trainee\DashboardController as TraineeDashboardController;
@@ -130,6 +131,16 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'auth.admin'])->grou
     
     // Partners Management
     Route::resource('partners', PartnerController::class)->except(['show']);
+    
+    // Blog Management
+    Route::resource('blog', BlogController::class);
+    Route::get('/blog/categories/manage', [BlogController::class, 'categories'])->name('blog.categories');
+    Route::post('/blog/categories', [BlogController::class, 'storeCategory'])->name('blog.categories.store');
+    Route::put('/blog/categories/{id}', [BlogController::class, 'updateCategory'])->name('blog.categories.update');
+    Route::delete('/blog/categories/{id}', [BlogController::class, 'deleteCategory'])->name('blog.categories.destroy');
+    Route::get('/blog/tags/manage', [BlogController::class, 'tags'])->name('blog.tags');
+    Route::post('/blog/tags', [BlogController::class, 'storeTag'])->name('blog.tags.store');
+    Route::delete('/blog/tags/{id}', [BlogController::class, 'deleteTag'])->name('blog.tags.destroy');
     
     // Payments
     Route::get('/payments', [PaymentController::class, 'index'])->name('payments.index');

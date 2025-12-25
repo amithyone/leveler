@@ -6,7 +6,7 @@
 <section class="page-header">
     <div class="container">
         <h1>{{ $page->title ?? 'Our Courses' }}</h1>
-        <p style="margin-top: 10px; color: #666;">Professional development courses designed to enhance your skills and career</p>
+        <p style="margin-top: 10px; color: #ffffff;">Professional development courses designed to enhance your skills and career</p>
     </div>
 </section>
 

@@ -167,6 +167,32 @@
                         <i class="fas fa-chevron-right nav-arrow"></i>
                     </a>
 
+                    <div class="nav-group">
+                        <div class="nav-item nav-parent {{ request()->routeIs('admin.blog.*') ? 'active' : '' }}">
+                            <i class="fas fa-blog"></i>
+                            <span>Blog</span>
+                            <i class="fas fa-chevron-down nav-arrow"></i>
+                        </div>
+                        <div class="nav-submenu {{ request()->routeIs('admin.blog.*') ? 'show' : '' }}">
+                            <a href="{{ route('admin.blog.index') }}" class="nav-item nav-child">
+                                <i class="fas fa-list"></i>
+                                <span>All Posts</span>
+                            </a>
+                            <a href="{{ route('admin.blog.create') }}" class="nav-item nav-child">
+                                <i class="fas fa-plus"></i>
+                                <span>New Post</span>
+                            </a>
+                            <a href="{{ route('admin.blog.categories') }}" class="nav-item nav-child">
+                                <i class="fas fa-folder"></i>
+                                <span>Categories</span>
+                            </a>
+                            <a href="{{ route('admin.blog.tags') }}" class="nav-item nav-child">
+                                <i class="fas fa-tags"></i>
+                                <span>Tags</span>
+                            </a>
+                        </div>
+                    </div>
+
                     <a href="{{ route('admin.partners.index') }}" class="nav-item {{ request()->routeIs('admin.partners.*') ? 'active' : '' }}">
                         <i class="fas fa-handshake"></i>
                         <span>Partners Management</span>

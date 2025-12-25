@@ -43,6 +43,7 @@
             ['label' => 'About DHC', 'url' => route('about')],
             ['label' => 'Our Services', 'url' => route('services')],
             ['label' => 'Courses', 'url' => route('courses')],
+            ['label' => 'Blog', 'url' => route('blog.index')],
             ['label' => 'Partners', 'url' => route('partners')],
             ['label' => 'Tips & Updates', 'url' => route('tips-updates')],
             ['label' => 'Contact', 'url' => route('contact')],
@@ -166,12 +167,14 @@
                 <div class="footer-section">
                     <h4>Site Navigation</h4>
                     <ul>
-                        <li><a href="{{ route('faqs') }}">FAQs</a></li>
-                        <li><a href="{{ route('careers') }}">Careers</a></li>
+                        <li><a href="{{ route('about') }}">About Us</a></li>
+                        <li><a href="{{ route('services') }}">Services</a></li>
                         <li><a href="{{ route('courses') }}">Courses</a></li>
-                        <li><a href="{{ route('e-learning') }}">e-Learning</a></li>
+                        <li><a href="{{ route('blog.index') }}">Blog</a></li>
+                        <li><a href="{{ route('partners') }}">Partners</a></li>
+                        <li><a href="{{ route('contact') }}">Contact</a></li>
+                        <li><a href="{{ route('faqs') }}">FAQs</a></li>
                         <li><a href="{{ route('trainee.login') }}">Trainee Login</a></li>
-                        <li><a href="{{ route('trainee.register') }}">Register For Course</a></li>
                     </ul>
                 </div>
                 <div class="footer-section">

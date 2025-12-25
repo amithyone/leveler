@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\BlogController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
@@ -40,6 +41,13 @@ Route::get('/faqs', [HomeController::class, 'faqs'])->name('faqs');
 Route::get('/careers', [HomeController::class, 'careers'])->name('careers');
 Route::get('/courses', [HomeController::class, 'courses'])->name('courses');
 Route::get('/courses/{id}', [HomeController::class, 'courseDetails'])->name('course.details');
+
+// Blog Routes
+Route::get('/blog', [BlogController::class, 'index'])->name('blog.index');
+Route::get('/blog/{slug}', [BlogController::class, 'show'])->name('blog.show');
+Route::get('/blog/category/{slug}', [BlogController::class, 'category'])->name('blog.category');
+Route::get('/blog/tag/{slug}', [BlogController::class, 'tag'])->name('blog.tag');
+
 Route::get('/e-learning', [HomeController::class, 'eLearning'])->name('e-learning');
 Route::get('/register', [HomeController::class, 'register'])->name('register');
 Route::get('/news', [HomeController::class, 'news'])->name('news');

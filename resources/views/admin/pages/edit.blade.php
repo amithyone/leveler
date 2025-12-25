@@ -638,6 +638,88 @@ Our reputation is built on the foundation of providing business and management s
             </div>
             @endif
 
+            {{-- Header Management Section --}}
+            @php
+                $headerSettings = $page->sections['header'] ?? [];
+                if (is_string($headerSettings)) {
+                    $headerSettings = json_decode($headerSettings, true) ?? [];
+                }
+                if (!is_array($headerSettings)) {
+                    $headerSettings = [];
+                }
+                $headerLogo = $headerSettings['logo'] ?? '';
+                $headerMenuItems = $headerSettings['menu_items'] ?? [
+                    ['label' => 'About DHC', 'url' => route('about'), 'order' => 1],
+                    ['label' => 'Our Services', 'url' => route('services'), 'order' => 2],
+                    ['label' => 'Courses', 'url' => route('courses'), 'order' => 3],
+                    ['label' => 'Partners', 'url' => route('partners'), 'order' => 4],
+                    ['label' => 'Tips & Updates', 'url' => route('tips-updates'), 'order' => 5],
+                    ['label' => 'Contact', 'url' => route('contact'), 'order' => 6],
+                ];
+            @endphp
+            
+            <div class="header-management-section" style="margin-top: 40px; padding-top: 30px; border-top: 2px solid #e0e0e0;">
+                <h3 style="margin-bottom: 20px; color: #667eea;">
+                    <i class="fas fa-header"></i> Header Management
+                </h3>
+                
+                <div class="form-group">
+                    <label>Header Logo</label>
+                    @if(!empty($headerLogo))
+                    <div class="current-image" style="margin-bottom: 15px;">
+                        <img src="{{ Storage::url($headerLogo) }}" alt="Current Header Logo" style="max-width: 200px; max-height: 80px; border-radius: 8px; border: 2px solid #e0e0e0; display: block; margin-bottom: 10px; object-fit: contain; background: white; padding: 10px;">
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="header[remove_logo]" value="1">
+                            <span>Remove current logo</span>
+                        </label>
+                        <input type="hidden" name="header[existing_logo]" value="{{ $headerLogo }}">
+                    </div>
+                    @endif
+                    <input type="file" name="header[logo]" class="form-control" accept="image/*" onchange="previewHeaderLogo(this, 'header_logo_preview')">
+                    <small class="form-text">Upload header logo (Recommended: PNG with transparent background, max 2MB, max height 80px)</small>
+                    <div id="header_logo_preview" class="image-preview" style="margin-top: 10px; display: none;">
+                        <img src="" alt="Logo Preview" style="max-width: 200px; max-height: 80px; border-radius: 8px; border: 2px solid #e0e0e0; background: white; padding: 10px; object-fit: contain;">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Brand Name</label>
+                    <input type="text" name="header[brand_name]" class="form-control" value="{{ old('header.brand_name', $headerSettings['brand_name'] ?? 'Leveler') }}" placeholder="e.g., Leveler">
+                    <small class="form-text">Text to display if no logo is uploaded</small>
+                </div>
+
+                <div class="form-group">
+                    <label>Menu Items</label>
+                    <p class="form-text" style="margin-bottom: 20px;">Manage navigation menu items. Drag to reorder.</p>
+                    
+                    <div id="header-menu-items-container">
+                        @foreach($headerMenuItems as $index => $item)
+                        <div class="menu-item-row" style="border: 1px solid #e0e0e0; padding: 15px; margin-bottom: 15px; border-radius: 8px; background: #f9f9f9;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                                <strong>Menu Item {{ $index + 1 }}</strong>
+                                <button type="button" class="btn btn-danger btn-sm" onclick="removeMenuItem(this)">Remove</button>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group" style="flex: 1;">
+                                    <label>Label</label>
+                                    <input type="text" name="header[menu_items][{{ $index }}][label]" class="form-control" value="{{ old("header.menu_items.{$index}.label", $item['label'] ?? '') }}" placeholder="e.g., About Us" required>
+                                </div>
+                                <div class="form-group" style="flex: 2;">
+                                    <label>URL</label>
+                                    <input type="text" name="header[menu_items][{{ $index }}][url]" class="form-control" value="{{ old("header.menu_items.{$index}.url", $item['url'] ?? '') }}" placeholder="e.g., /about or {{ route('about') }}" required>
+                                </div>
+                                <div class="form-group" style="flex: 0 0 80px;">
+                                    <label>Order</label>
+                                    <input type="number" name="header[menu_items][{{ $index }}][order]" class="form-control" value="{{ old("header.menu_items.{$index}.order", $item['order'] ?? $index + 1) }}" min="1">
+                                </div>
+                            </div>
+                        </div>
+                        @endforeach
+                    </div>
+                    <button type="button" class="btn btn-secondary btn-sm" onclick="addMenuItem()">Add Menu Item</button>
+                </div>
+            </div>
+
             <div class="form-actions">
                 <button type="submit" class="btn btn-primary">
                     <i class="fas fa-save"></i> Update Page
@@ -978,6 +1060,62 @@ function previewPartnerLogo(input, previewId) {
         reader.readAsDataURL(input.files[0]);
     } else {
         preview.style.display = 'none';
+    }
+}
+
+function previewHeaderLogo(input, previewId) {
+    const preview = document.getElementById(previewId);
+    if (!preview) return;
+    const img = preview.querySelector('img');
+    
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        
+        reader.onload = function(e) {
+            img.src = e.target.result;
+            preview.style.display = 'block';
+        }
+        
+        reader.readAsDataURL(input.files[0]);
+    } else {
+        preview.style.display = 'none';
+    }
+}
+
+let menuItemIndex = {{ count($headerMenuItems) }};
+
+function addMenuItem() {
+    const container = document.getElementById('header-menu-items-container');
+    const index = menuItemIndex;
+    const menuItemHtml = `
+        <div class="menu-item-row" style="border: 1px solid #e0e0e0; padding: 15px; margin-bottom: 15px; border-radius: 8px; background: #f9f9f9;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <strong>Menu Item ${index + 1}</strong>
+                <button type="button" class="btn btn-danger btn-sm" onclick="removeMenuItem(this)">Remove</button>
+            </div>
+            <div class="form-row">
+                <div class="form-group" style="flex: 1;">
+                    <label>Label</label>
+                    <input type="text" name="header[menu_items][${index}][label]" class="form-control" value="" placeholder="e.g., About Us" required>
+                </div>
+                <div class="form-group" style="flex: 2;">
+                    <label>URL</label>
+                    <input type="text" name="header[menu_items][${index}][url]" class="form-control" value="" placeholder="e.g., /about or {{ route('about') }}" required>
+                </div>
+                <div class="form-group" style="flex: 0 0 80px;">
+                    <label>Order</label>
+                    <input type="number" name="header[menu_items][${index}][order]" class="form-control" value="${index + 1}" min="1">
+                </div>
+            </div>
+        </div>
+    `;
+    container.insertAdjacentHTML('beforeend', menuItemHtml);
+    menuItemIndex++;
+}
+
+function removeMenuItem(element) {
+    if (confirm('Are you sure you want to remove this menu item?')) {
+        element.closest('.menu-item-row').remove();
     }
 }
 </script>

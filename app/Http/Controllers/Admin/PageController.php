@@ -265,6 +265,63 @@ class PageController extends Controller
             $data['sections'] = $sections;
         }
 
+        // Handle header settings (for all pages)
+        if ($request->has('header')) {
+            $currentSections = $page->sections ?? [];
+            if (is_string($currentSections)) {
+                $currentSections = json_decode($currentSections, true) ?? [];
+            }
+            if (!is_array($currentSections)) {
+                $currentSections = [];
+            }
+            
+            $headerSettings = [];
+            
+            // Handle logo upload/removal
+            if ($request->has('header.remove_logo') && $request->input('header.remove_logo')) {
+                if (!empty($request->input('header.existing_logo'))) {
+                    Storage::disk('public')->delete($request->input('header.existing_logo'));
+                }
+                $headerSettings['logo'] = null;
+            } elseif ($request->hasFile('header.logo')) {
+                // Delete old logo if exists
+                if (!empty($request->input('header.existing_logo'))) {
+                    Storage::disk('public')->delete($request->input('header.existing_logo'));
+                }
+                $headerSettings['logo'] = $request->file('header.logo')->store('header', 'public');
+            } elseif (!empty($request->input('header.existing_logo'))) {
+                // Keep existing logo
+                $headerSettings['logo'] = $request->input('header.existing_logo');
+            }
+            
+            // Handle brand name
+            if ($request->has('header.brand_name')) {
+                $headerSettings['brand_name'] = $request->input('header.brand_name');
+            }
+            
+            // Handle menu items
+            if ($request->has('header.menu_items') && is_array($request->input('header.menu_items'))) {
+                $menuItems = [];
+                foreach ($request->input('header.menu_items') as $item) {
+                    if (!empty($item['label']) && !empty($item['url'])) {
+                        $menuItems[] = [
+                            'label' => $item['label'],
+                            'url' => $item['url'],
+                            'order' => isset($item['order']) ? (int)$item['order'] : 999,
+                        ];
+                    }
+                }
+                // Sort by order
+                usort($menuItems, function($a, $b) {
+                    return $a['order'] <=> $b['order'];
+                });
+                $headerSettings['menu_items'] = $menuItems;
+            }
+            
+            $currentSections['header'] = $headerSettings;
+            $data['sections'] = $currentSections;
+        }
+
         // Handle featured image upload/removal
         if ($request->has('remove_featured_image') && $request->remove_featured_image) {
             if ($page->featured_image) {

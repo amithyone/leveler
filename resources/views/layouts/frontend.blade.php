@@ -9,21 +9,43 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
+    @php
+        // Get header settings from any page (prefer home page, but any page with header settings will work)
+        $headerPage = \App\Models\Page::where('slug', 'home')->first() ?? \App\Models\Page::whereNotNull('sections')->first();
+        $headerSettings = [];
+        if ($headerPage && isset($headerPage->sections['header'])) {
+            $headerSettings = $headerPage->sections['header'];
+        }
+        
+        $headerLogo = $headerSettings['logo'] ?? '';
+        $brandName = $headerSettings['brand_name'] ?? 'Leveler';
+        $menuItems = $headerSettings['menu_items'] ?? [
+            ['label' => 'About DHC', 'url' => route('about')],
+            ['label' => 'Our Services', 'url' => route('services')],
+            ['label' => 'Courses', 'url' => route('courses')],
+            ['label' => 'Partners', 'url' => route('partners')],
+            ['label' => 'Tips & Updates', 'url' => route('tips-updates')],
+            ['label' => 'Contact', 'url' => route('contact')],
+        ];
+    @endphp
     <nav class="navbar">
         <div class="container">
             <div class="nav-brand">
-                <a href="{{ route('home') }}">Leveler</a>
+                <a href="{{ route('home') }}">
+                    @if(!empty($headerLogo))
+                        <img src="{{ \Illuminate\Support\Facades\Storage::url($headerLogo) }}" alt="{{ $brandName }}" style="max-height: 50px; width: auto;">
+                    @else
+                        {{ $brandName }}
+                    @endif
+                </a>
             </div>
             <button class="mobile-menu-toggle" id="mobileMenuToggle">
                 <i class="fas fa-bars"></i>
             </button>
             <ul class="nav-menu" id="navMenu">
-                <li><a href="{{ route('about') }}">About DHC</a></li>
-                <li><a href="{{ route('services') }}">Our Services</a></li>
-                <li><a href="{{ route('courses') }}">Courses</a></li>
-                <li><a href="{{ route('partners') }}">Partners</a></li>
-                <li><a href="{{ route('tips-updates') }}">Tips & Updates</a></li>
-                <li><a href="{{ route('contact') }}">Contact</a></li>
+                @foreach($menuItems as $item)
+                <li><a href="{{ $item['url'] }}">{{ $item['label'] }}</a></li>
+                @endforeach
                 @auth('web')
                     {{-- Admin is logged in --}}
                     <li><a href="{{ route('trainee.dashboard') }}" class="nav-portal-btn"><i class="fas fa-user-graduate"></i> Portal</a></li>

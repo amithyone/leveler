@@ -265,61 +265,76 @@ class PageController extends Controller
             $data['sections'] = $sections;
         }
 
-        // Handle header settings (for all pages)
+        // Handle header settings (always save to home page for global settings)
         if ($request->has('header')) {
-            $currentSections = $page->sections ?? [];
-            if (is_string($currentSections)) {
-                $currentSections = json_decode($currentSections, true) ?? [];
-            }
-            if (!is_array($currentSections)) {
-                $currentSections = [];
-            }
+            $homePage = Page::where('slug', 'home')->first();
             
-            $headerSettings = [];
-            
-            // Handle logo upload/removal
-            if ($request->has('header.remove_logo') && $request->input('header.remove_logo')) {
-                if (!empty($request->input('header.existing_logo'))) {
-                    Storage::disk('public')->delete($request->input('header.existing_logo'));
+            if ($homePage) {
+                $currentSections = $homePage->sections ?? [];
+                if (is_string($currentSections)) {
+                    $currentSections = json_decode($currentSections, true) ?? [];
                 }
-                $headerSettings['logo'] = null;
-            } elseif ($request->hasFile('header.logo')) {
-                // Delete old logo if exists
-                if (!empty($request->input('header.existing_logo'))) {
-                    Storage::disk('public')->delete($request->input('header.existing_logo'));
+                if (!is_array($currentSections)) {
+                    $currentSections = [];
                 }
-                $headerSettings['logo'] = $request->file('header.logo')->store('header', 'public');
-            } elseif (!empty($request->input('header.existing_logo'))) {
-                // Keep existing logo
-                $headerSettings['logo'] = $request->input('header.existing_logo');
-            }
-            
-            // Handle brand name
-            if ($request->has('header.brand_name')) {
-                $headerSettings['brand_name'] = $request->input('header.brand_name');
-            }
-            
-            // Handle menu items
-            if ($request->has('header.menu_items') && is_array($request->input('header.menu_items'))) {
-                $menuItems = [];
-                foreach ($request->input('header.menu_items') as $item) {
-                    if (!empty($item['label']) && !empty($item['url'])) {
-                        $menuItems[] = [
-                            'label' => $item['label'],
-                            'url' => $item['url'],
-                            'order' => isset($item['order']) ? (int)$item['order'] : 999,
-                        ];
+                
+                $headerSettings = [];
+                
+                // Handle logo upload/removal
+                if ($request->has('header.remove_logo') && $request->input('header.remove_logo')) {
+                    if (!empty($request->input('header.existing_logo'))) {
+                        Storage::disk('public')->delete($request->input('header.existing_logo'));
                     }
+                    $headerSettings['logo'] = null;
+                } elseif ($request->hasFile('header.logo')) {
+                    // Delete old logo if exists
+                    $oldLogo = $currentSections['header']['logo'] ?? $request->input('header.existing_logo');
+                    if (!empty($oldLogo)) {
+                        Storage::disk('public')->delete($oldLogo);
+                    }
+                    $headerSettings['logo'] = $request->file('header.logo')->store('header', 'public');
+                } elseif (!empty($request->input('header.existing_logo'))) {
+                    // Keep existing logo
+                    $headerSettings['logo'] = $request->input('header.existing_logo');
+                } elseif (isset($currentSections['header']['logo'])) {
+                    // Keep existing logo from home page
+                    $headerSettings['logo'] = $currentSections['header']['logo'];
                 }
-                // Sort by order
-                usort($menuItems, function($a, $b) {
-                    return $a['order'] <=> $b['order'];
-                });
-                $headerSettings['menu_items'] = $menuItems;
+                
+                // Handle brand name
+                if ($request->has('header.brand_name')) {
+                    $headerSettings['brand_name'] = $request->input('header.brand_name');
+                } elseif (isset($currentSections['header']['brand_name'])) {
+                    $headerSettings['brand_name'] = $currentSections['header']['brand_name'];
+                }
+                
+                // Handle menu items
+                if ($request->has('header.menu_items') && is_array($request->input('header.menu_items'))) {
+                    $menuItems = [];
+                    foreach ($request->input('header.menu_items') as $item) {
+                        if (!empty($item['label']) && !empty($item['url'])) {
+                            $menuItems[] = [
+                                'label' => $item['label'],
+                                'url' => $item['url'],
+                                'order' => isset($item['order']) ? (int)$item['order'] : 999,
+                            ];
+                        }
+                    }
+                    // Sort by order
+                    usort($menuItems, function($a, $b) {
+                        return $a['order'] <=> $b['order'];
+                    });
+                    $headerSettings['menu_items'] = $menuItems;
+                } elseif (isset($currentSections['header']['menu_items'])) {
+                    $headerSettings['menu_items'] = $currentSections['header']['menu_items'];
+                }
+                
+                $currentSections['header'] = $headerSettings;
+                
+                // Update home page with header settings
+                $homePage->sections = $currentSections;
+                $homePage->save();
             }
-            
-            $currentSections['header'] = $headerSettings;
-            $data['sections'] = $currentSections;
         }
 
         // Handle featured image upload/removal

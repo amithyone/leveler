@@ -101,8 +101,67 @@
         <div class="container">
             <div class="footer-content">
                 <div class="footer-section">
-                    <h3>Leveler</h3>
-                    <p>Leveler is a development and management consulting company.</p>
+                    @php
+                        // Get site settings for footer
+                        $homePage = \App\Models\Page::where('slug', 'home')->first();
+                        $siteSettings = [];
+                        if ($homePage && isset($homePage->sections['site_settings'])) {
+                            $siteSettings = $homePage->sections['site_settings'];
+                            if (is_string($siteSettings)) {
+                                $siteSettings = json_decode($siteSettings, true) ?? [];
+                            }
+                        }
+                        if (!is_array($siteSettings)) {
+                            $siteSettings = [];
+                        }
+                        $footerLogo = $siteSettings['logo'] ?? '';
+                        $footerSiteName = $siteSettings['site_name'] ?? 'Leveler';
+                        $footerTagline = $siteSettings['site_tagline'] ?? 'Leveler is a development and management consulting company.';
+                        $socialLinks = $siteSettings['social_links'] ?? [];
+                    @endphp
+                    <div class="footer-logo-section">
+                        @if(!empty($footerLogo))
+                            <a href="{{ route('home') }}" style="display: inline-block; margin-bottom: 15px;">
+                                <img src="{{ \Illuminate\Support\Facades\Storage::url($footerLogo) }}" alt="{{ $footerSiteName }}" style="max-height: 60px; width: auto; max-width: 200px;">
+                            </a>
+                        @else
+                            <h3>{{ $footerSiteName }}</h3>
+                        @endif
+                    </div>
+                    @if(!empty($footerTagline))
+                    <p>{{ $footerTagline }}</p>
+                    @endif
+                    
+                    {{-- Social Media Links --}}
+                    @if(!empty($socialLinks) && (isset($socialLinks['facebook']) || isset($socialLinks['twitter']) || isset($socialLinks['instagram']) || isset($socialLinks['linkedin']) || isset($socialLinks['youtube'])))
+                    <div class="footer-social-links" style="margin-top: 20px;">
+                        @if(!empty($socialLinks['facebook']))
+                        <a href="{{ $socialLinks['facebook'] }}" target="_blank" rel="noopener noreferrer" style="display: inline-block; margin-right: 15px; color: #cbd5e0; font-size: 20px; transition: color 0.3s ease;" onmouseover="this.style.color='#667eea'" onmouseout="this.style.color='#cbd5e0'">
+                            <i class="fab fa-facebook"></i>
+                        </a>
+                        @endif
+                        @if(!empty($socialLinks['twitter']))
+                        <a href="{{ $socialLinks['twitter'] }}" target="_blank" rel="noopener noreferrer" style="display: inline-block; margin-right: 15px; color: #cbd5e0; font-size: 20px; transition: color 0.3s ease;" onmouseover="this.style.color='#667eea'" onmouseout="this.style.color='#cbd5e0'">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                        @endif
+                        @if(!empty($socialLinks['instagram']))
+                        <a href="{{ $socialLinks['instagram'] }}" target="_blank" rel="noopener noreferrer" style="display: inline-block; margin-right: 15px; color: #cbd5e0; font-size: 20px; transition: color 0.3s ease;" onmouseover="this.style.color='#667eea'" onmouseout="this.style.color='#cbd5e0'">
+                            <i class="fab fa-instagram"></i>
+                        </a>
+                        @endif
+                        @if(!empty($socialLinks['linkedin']))
+                        <a href="{{ $socialLinks['linkedin'] }}" target="_blank" rel="noopener noreferrer" style="display: inline-block; margin-right: 15px; color: #cbd5e0; font-size: 20px; transition: color 0.3s ease;" onmouseover="this.style.color='#667eea'" onmouseout="this.style.color='#cbd5e0'">
+                            <i class="fab fa-linkedin"></i>
+                        </a>
+                        @endif
+                        @if(!empty($socialLinks['youtube']))
+                        <a href="{{ $socialLinks['youtube'] }}" target="_blank" rel="noopener noreferrer" style="display: inline-block; margin-right: 15px; color: #cbd5e0; font-size: 20px; transition: color 0.3s ease;" onmouseover="this.style.color='#667eea'" onmouseout="this.style.color='#cbd5e0'">
+                            <i class="fab fa-youtube"></i>
+                        </a>
+                        @endif
+                    </div>
+                    @endif
                 </div>
                 <div class="footer-section">
                     <h4>Site Navigation</h4>
@@ -153,7 +212,7 @@
                 </div>
             </div>
             <div class="footer-bottom">
-                <p>Copyright © 2024 Leveler</p>
+                <p>Copyright © {{ date('Y') }} {{ $footerSiteName ?? 'Leveler' }}</p>
                 <div class="footer-links">
                     <a href="{{ route('terms') }}">Terms of Use</a>
                     <a href="{{ route('privacy') }}">Privacy Policy</a>

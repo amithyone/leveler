@@ -33,11 +33,6 @@ return new class extends Migration
             $table->index('category_id');
             $table->index('published_at');
         });
-        
-        // Add foreign key constraint after blog_categories table exists
-        Schema::table('blog_posts', function (Blueprint $table) {
-            $table->foreign('category_id')->references('id')->on('blog_categories')->onDelete('set null');
-        });
     }
 
     /**

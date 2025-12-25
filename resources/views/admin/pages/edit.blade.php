@@ -640,9 +640,14 @@ Our reputation is built on the foundation of providing business and management s
 
             {{-- Header Management Section --}}
             @php
-                $headerSettings = $page->sections['header'] ?? [];
-                if (is_string($headerSettings)) {
-                    $headerSettings = json_decode($headerSettings, true) ?? [];
+                // Always get header settings from home page (global settings)
+                $homePage = \App\Models\Page::where('slug', 'home')->first();
+                $headerSettings = [];
+                if ($homePage && isset($homePage->sections['header'])) {
+                    $headerSettings = $homePage->sections['header'];
+                    if (is_string($headerSettings)) {
+                        $headerSettings = json_decode($headerSettings, true) ?? [];
+                    }
                 }
                 if (!is_array($headerSettings)) {
                     $headerSettings = [];
@@ -662,6 +667,9 @@ Our reputation is built on the foundation of providing business and management s
                 <h3 style="margin-bottom: 20px; color: #667eea;">
                     <i class="fas fa-header"></i> Header Management
                 </h3>
+                <p class="form-text" style="margin-bottom: 20px; color: #666;">
+                    <strong>Note:</strong> Header settings are global and will be applied site-wide. Changes are saved to the Home page.
+                </p>
                 
                 <div class="form-group">
                     <label>Header Logo</label>

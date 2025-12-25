@@ -4,7 +4,27 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>@yield('title', 'Leveler')</title>
+    @php
+        // Get site settings from home page
+        $homePage = \App\Models\Page::where('slug', 'home')->first();
+        $siteSettings = [];
+        if ($homePage && isset($homePage->sections['site_settings'])) {
+            $siteSettings = $homePage->sections['site_settings'];
+            if (is_string($siteSettings)) {
+                $siteSettings = json_decode($siteSettings, true) ?? [];
+            }
+        }
+        if (!is_array($siteSettings)) {
+            $siteSettings = [];
+        }
+        $siteName = $siteSettings['site_name'] ?? 'Leveler';
+        $favicon = $siteSettings['favicon'] ?? '';
+    @endphp
+    <title>@yield('title', $siteName)</title>
+    @if(!empty($favicon))
+    <link rel="icon" type="image/x-icon" href="{{ \Illuminate\Support\Facades\Storage::url($favicon) }}">
+    <link rel="shortcut icon" type="image/x-icon" href="{{ \Illuminate\Support\Facades\Storage::url($favicon) }}">
+    @endif
     <link rel="stylesheet" href="{{ asset('css/frontend.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>

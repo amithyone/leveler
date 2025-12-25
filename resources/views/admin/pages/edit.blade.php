@@ -728,6 +728,138 @@ Our reputation is built on the foundation of providing business and management s
                 </div>
             </div>
 
+            {{-- Basic Site Settings Section --}}
+            @php
+                // Always get site settings from home page (global settings)
+                $homePage = \App\Models\Page::where('slug', 'home')->first();
+                $siteSettings = [];
+                if ($homePage && isset($homePage->sections['site_settings'])) {
+                    $siteSettings = $homePage->sections['site_settings'];
+                    if (is_string($siteSettings)) {
+                        $siteSettings = json_decode($siteSettings, true) ?? [];
+                    }
+                }
+                if (!is_array($siteSettings)) {
+                    $siteSettings = [];
+                }
+                $siteLogo = $siteSettings['logo'] ?? '';
+                $favicon = $siteSettings['favicon'] ?? '';
+                $siteName = $siteSettings['site_name'] ?? 'Leveler';
+                $siteTagline = $siteSettings['site_tagline'] ?? '';
+                $contactEmail = $siteSettings['contact_email'] ?? '';
+                $contactPhone = $siteSettings['contact_phone'] ?? '';
+                $socialLinks = $siteSettings['social_links'] ?? [
+                    'facebook' => '',
+                    'twitter' => '',
+                    'instagram' => '',
+                    'linkedin' => '',
+                    'youtube' => '',
+                ];
+            @endphp
+            
+            <div class="basic-site-settings-section" style="margin-top: 40px; padding-top: 30px; border-top: 2px solid #e0e0e0;">
+                <h3 style="margin-bottom: 20px; color: #667eea;">
+                    <i class="fas fa-cog"></i> Basic Site Settings
+                </h3>
+                <p class="form-text" style="margin-bottom: 20px; color: #666;">
+                    <strong>Note:</strong> Site settings are global and will be applied site-wide. Changes are saved to the Home page.
+                </p>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Site Logo</label>
+                        @if(!empty($siteLogo))
+                        <div class="current-image" style="margin-bottom: 15px;">
+                            <img src="{{ Storage::url($siteLogo) }}" alt="Current Site Logo" style="max-width: 200px; max-height: 150px; border-radius: 8px; border: 2px solid #e0e0e0; display: block; margin-bottom: 10px; object-fit: contain; background: white; padding: 10px;">
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="site_settings[remove_logo]" value="1">
+                                <span>Remove current logo</span>
+                            </label>
+                            <input type="hidden" name="site_settings[existing_logo]" value="{{ $siteLogo }}">
+                        </div>
+                        @endif
+                        <input type="file" name="site_settings[logo]" class="form-control" accept="image/*" onchange="previewSiteLogo(this, 'site_logo_preview')">
+                        <small class="form-text">Upload main site logo (Recommended: PNG with transparent background, max 2MB)</small>
+                        <div id="site_logo_preview" class="image-preview" style="margin-top: 10px; display: none;">
+                            <img src="" alt="Logo Preview" style="max-width: 200px; max-height: 150px; border-radius: 8px; border: 2px solid #e0e0e0; background: white; padding: 10px; object-fit: contain;">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Favicon</label>
+                        @if(!empty($favicon))
+                        <div class="current-image" style="margin-bottom: 15px;">
+                            <img src="{{ Storage::url($favicon) }}" alt="Current Favicon" style="max-width: 32px; max-height: 32px; border-radius: 4px; border: 2px solid #e0e0e0; display: block; margin-bottom: 10px; object-fit: contain; background: white; padding: 5px;">
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="site_settings[remove_favicon]" value="1">
+                                <span>Remove current favicon</span>
+                            </label>
+                            <input type="hidden" name="site_settings[existing_favicon]" value="{{ $favicon }}">
+                        </div>
+                        @endif
+                        <input type="file" name="site_settings[favicon]" class="form-control" accept="image/x-icon,image/png,image/jpeg" onchange="previewFavicon(this, 'favicon_preview')">
+                        <small class="form-text">Upload favicon (Recommended: ICO or PNG, 32x32px, max 500KB)</small>
+                        <div id="favicon_preview" class="image-preview" style="margin-top: 10px; display: none;">
+                            <img src="" alt="Favicon Preview" style="max-width: 32px; max-height: 32px; border-radius: 4px; border: 2px solid #e0e0e0; background: white; padding: 5px; object-fit: contain;">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Site Name</label>
+                        <input type="text" name="site_settings[site_name]" class="form-control" value="{{ old('site_settings.site_name', $siteName) }}" placeholder="e.g., Leveler">
+                        <small class="form-text">Main site name displayed throughout the website</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Site Tagline</label>
+                        <input type="text" name="site_settings[site_tagline]" class="form-control" value="{{ old('site_settings.site_tagline', $siteTagline) }}" placeholder="e.g., A Human Capacity Development Company">
+                        <small class="form-text">Short tagline or description</small>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Contact Email</label>
+                        <input type="email" name="site_settings[contact_email]" class="form-control" value="{{ old('site_settings.contact_email', $contactEmail) }}" placeholder="e.g., info@levelercc.com">
+                        <small class="form-text">Primary contact email address</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Contact Phone</label>
+                        <input type="text" name="site_settings[contact_phone]" class="form-control" value="{{ old('site_settings.contact_phone', $contactPhone) }}" placeholder="e.g., (+234) 806-141-3675">
+                        <small class="form-text">Primary contact phone number</small>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Social Media Links</label>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label><i class="fab fa-facebook"></i> Facebook</label>
+                            <input type="url" name="site_settings[social_links][facebook]" class="form-control" value="{{ old('site_settings.social_links.facebook', $socialLinks['facebook'] ?? '') }}" placeholder="https://facebook.com/yourpage">
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fab fa-twitter"></i> Twitter</label>
+                            <input type="url" name="site_settings[social_links][twitter]" class="form-control" value="{{ old('site_settings.social_links.twitter', $socialLinks['twitter'] ?? '') }}" placeholder="https://twitter.com/yourhandle">
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fab fa-instagram"></i> Instagram</label>
+                            <input type="url" name="site_settings[social_links][instagram]" class="form-control" value="{{ old('site_settings.social_links.instagram', $socialLinks['instagram'] ?? '') }}" placeholder="https://instagram.com/yourhandle">
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fab fa-linkedin"></i> LinkedIn</label>
+                            <input type="url" name="site_settings[social_links][linkedin]" class="form-control" value="{{ old('site_settings.social_links.linkedin', $socialLinks['linkedin'] ?? '') }}" placeholder="https://linkedin.com/company/yourcompany">
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fab fa-youtube"></i> YouTube</label>
+                            <input type="url" name="site_settings[social_links][youtube]" class="form-control" value="{{ old('site_settings.social_links.youtube', $socialLinks['youtube'] ?? '') }}" placeholder="https://youtube.com/yourchannel">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <div class="form-actions">
                 <button type="submit" class="btn btn-primary">
                     <i class="fas fa-save"></i> Update Page
@@ -1124,6 +1256,44 @@ function addMenuItem() {
 function removeMenuItem(element) {
     if (confirm('Are you sure you want to remove this menu item?')) {
         element.closest('.menu-item-row').remove();
+    }
+}
+
+function previewSiteLogo(input, previewId) {
+    const preview = document.getElementById(previewId);
+    if (!preview) return;
+    const img = preview.querySelector('img');
+    
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        
+        reader.onload = function(e) {
+            img.src = e.target.result;
+            preview.style.display = 'block';
+        }
+        
+        reader.readAsDataURL(input.files[0]);
+    } else {
+        preview.style.display = 'none';
+    }
+}
+
+function previewFavicon(input, previewId) {
+    const preview = document.getElementById(previewId);
+    if (!preview) return;
+    const img = preview.querySelector('img');
+    
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        
+        reader.onload = function(e) {
+            img.src = e.target.result;
+            preview.style.display = 'block';
+        }
+        
+        reader.readAsDataURL(input.files[0]);
+    } else {
+        preview.style.display = 'none';
     }
 }
 </script>

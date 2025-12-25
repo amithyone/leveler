@@ -337,6 +337,103 @@ class PageController extends Controller
             }
         }
 
+        // Handle basic site settings (always save to home page for global settings)
+        if ($request->has('site_settings')) {
+            $homePage = Page::where('slug', 'home')->first();
+            
+            if ($homePage) {
+                $currentSections = $homePage->sections ?? [];
+                if (is_string($currentSections)) {
+                    $currentSections = json_decode($currentSections, true) ?? [];
+                }
+                if (!is_array($currentSections)) {
+                    $currentSections = [];
+                }
+                
+                $siteSettings = [];
+                
+                // Handle site logo upload/removal
+                if ($request->has('site_settings.remove_logo') && $request->input('site_settings.remove_logo')) {
+                    if (!empty($request->input('site_settings.existing_logo'))) {
+                        Storage::disk('public')->delete($request->input('site_settings.existing_logo'));
+                    }
+                    $siteSettings['logo'] = null;
+                } elseif ($request->hasFile('site_settings.logo')) {
+                    // Delete old logo if exists
+                    $oldLogo = $currentSections['site_settings']['logo'] ?? $request->input('site_settings.existing_logo');
+                    if (!empty($oldLogo)) {
+                        Storage::disk('public')->delete($oldLogo);
+                    }
+                    $siteSettings['logo'] = $request->file('site_settings.logo')->store('site', 'public');
+                } elseif (!empty($request->input('site_settings.existing_logo'))) {
+                    // Keep existing logo
+                    $siteSettings['logo'] = $request->input('site_settings.existing_logo');
+                } elseif (isset($currentSections['site_settings']['logo'])) {
+                    // Keep existing logo from home page
+                    $siteSettings['logo'] = $currentSections['site_settings']['logo'];
+                }
+                
+                // Handle favicon upload/removal
+                if ($request->has('site_settings.remove_favicon') && $request->input('site_settings.remove_favicon')) {
+                    if (!empty($request->input('site_settings.existing_favicon'))) {
+                        Storage::disk('public')->delete($request->input('site_settings.existing_favicon'));
+                    }
+                    $siteSettings['favicon'] = null;
+                } elseif ($request->hasFile('site_settings.favicon')) {
+                    // Delete old favicon if exists
+                    $oldFavicon = $currentSections['site_settings']['favicon'] ?? $request->input('site_settings.existing_favicon');
+                    if (!empty($oldFavicon)) {
+                        Storage::disk('public')->delete($oldFavicon);
+                    }
+                    $siteSettings['favicon'] = $request->file('site_settings.favicon')->store('site', 'public');
+                } elseif (!empty($request->input('site_settings.existing_favicon'))) {
+                    // Keep existing favicon
+                    $siteSettings['favicon'] = $request->input('site_settings.existing_favicon');
+                } elseif (isset($currentSections['site_settings']['favicon'])) {
+                    // Keep existing favicon from home page
+                    $siteSettings['favicon'] = $currentSections['site_settings']['favicon'];
+                }
+                
+                // Handle other site settings
+                if ($request->has('site_settings.site_name')) {
+                    $siteSettings['site_name'] = $request->input('site_settings.site_name');
+                } elseif (isset($currentSections['site_settings']['site_name'])) {
+                    $siteSettings['site_name'] = $currentSections['site_settings']['site_name'];
+                }
+                
+                if ($request->has('site_settings.site_tagline')) {
+                    $siteSettings['site_tagline'] = $request->input('site_settings.site_tagline');
+                } elseif (isset($currentSections['site_settings']['site_tagline'])) {
+                    $siteSettings['site_tagline'] = $currentSections['site_settings']['site_tagline'];
+                }
+                
+                if ($request->has('site_settings.contact_email')) {
+                    $siteSettings['contact_email'] = $request->input('site_settings.contact_email');
+                } elseif (isset($currentSections['site_settings']['contact_email'])) {
+                    $siteSettings['contact_email'] = $currentSections['site_settings']['contact_email'];
+                }
+                
+                if ($request->has('site_settings.contact_phone')) {
+                    $siteSettings['contact_phone'] = $request->input('site_settings.contact_phone');
+                } elseif (isset($currentSections['site_settings']['contact_phone'])) {
+                    $siteSettings['contact_phone'] = $currentSections['site_settings']['contact_phone'];
+                }
+                
+                // Handle social links
+                if ($request->has('site_settings.social_links') && is_array($request->input('site_settings.social_links'))) {
+                    $siteSettings['social_links'] = $request->input('site_settings.social_links');
+                } elseif (isset($currentSections['site_settings']['social_links'])) {
+                    $siteSettings['social_links'] = $currentSections['site_settings']['social_links'];
+                }
+                
+                $currentSections['site_settings'] = $siteSettings;
+                
+                // Update home page with site settings
+                $homePage->sections = $currentSections;
+                $homePage->save();
+            }
+        }
+
         // Handle featured image upload/removal
         if ($request->has('remove_featured_image') && $request->remove_featured_image) {
             if ($page->featured_image) {

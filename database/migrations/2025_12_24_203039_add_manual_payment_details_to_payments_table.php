@@ -12,8 +12,11 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('payments', function (Blueprint $table) {
-            //
+            $table->json('manual_payment_details')->nullable()->after('notes');
         });
+        
+        // Update enum values for payment_method to include Manual Payment
+        DB::statement("ALTER TABLE payments MODIFY COLUMN payment_method ENUM('Cash', 'Bank Transfer', 'Mobile Money', 'Card', 'Other', 'Manual Payment') DEFAULT 'Cash'");
     }
 
     /**

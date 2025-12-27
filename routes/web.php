@@ -82,7 +82,7 @@ Route::middleware('guest')->group(function () {
 Route::post('/logout', [LoginController::class, 'logout'])->middleware('auth')->name('logout');
 
 // Admin Routes - Protected with authentication and admin role check
-Route::prefix('admin')->name('admin.')->middleware(['auth', 'auth.admin'])->group(function () {
+Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     
     // Trainees

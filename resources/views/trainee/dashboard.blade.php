@@ -4,7 +4,7 @@
 
 @section('content')
 <div class="dashboard-header">
-    <h1>Welcome, {{ Auth::guard('trainee')->user()->full_name }}</h1>
+    <h1>Welcome, {{ $trainee ? $trainee->full_name : ($user->name ?? 'User') }}</h1>
     <p>Track your learning progress and achievements</p>
 </div>
 
@@ -51,6 +51,7 @@
     </div>
 </div>
 
+@if(!isset($showEnrollment) || !$showEnrollment)
 <!-- Available Courses -->
 <div class="section">
     <div class="section-header">
@@ -58,7 +59,7 @@
         <a href="{{ route('trainee.courses.index') }}" class="btn-link">View All <i class="fas fa-arrow-right"></i></a>
     </div>
     
-    @if($availableCourses->count() > 0)
+    @if(isset($availableCourses) && $availableCourses->count() > 0)
     <div class="courses-grid">
         @foreach($availableCourses->take(6) as $course)
         <div class="course-card">
@@ -103,7 +104,7 @@
 </div>
 
 <!-- Recent Results -->
-@if($recentResults->count() > 0)
+@if(isset($recentResults) && $recentResults->count() > 0)
 <div class="section">
     <div class="section-header">
         <h2><i class="fas fa-chart-line"></i> Recent Assessment Results</h2>

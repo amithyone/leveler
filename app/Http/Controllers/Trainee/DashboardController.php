@@ -18,11 +18,17 @@ class DashboardController extends Controller
         
         // If user doesn't have a trainee record yet, show enrollment message
         if (!$trainee) {
-            $courses = Course::where('status', 'Active')->take(6)->get();
             return view('trainee.dashboard', [
                 'trainee' => null,
                 'user' => $user,
-                'courses' => $courses,
+                'stats' => [
+                    'enrolled_courses' => 0,
+                    'completed_courses' => 0,
+                    'total_assessments' => 0,
+                    'certificates' => collect([]),
+                ],
+                'recentResults' => collect([]),
+                'availableCourses' => collect([]),
                 'showEnrollment' => true
             ]);
         }

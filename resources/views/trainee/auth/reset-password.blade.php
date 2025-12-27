@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trainee Login - Leveler</title>
+    <title>Reset Password - Leveler</title>
     <link rel="stylesheet" href="{{ asset('css/trainee-auth.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
@@ -15,7 +15,7 @@
                     <i class="fas fa-graduation-cap"></i>
                 </div>
                 <h1>Leveler</h1>
-                <p>Trainee Portal</p>
+                <p>Trainee Portal - Reset Password</p>
             </div>
 
             @if($errors->any())
@@ -29,46 +29,38 @@
             </div>
             @endif
 
-            @if(session('status'))
-            <div class="alert alert-success">
-                <i class="fas fa-check-circle"></i>
-                {{ session('status') }}
-            </div>
-            @endif
-
-            <form method="POST" action="{{ route('trainee.login') }}" class="auth-form">
+            <form method="POST" action="{{ route('trainee.password.update') }}" class="auth-form">
                 @csrf
+                <input type="hidden" name="token" value="{{ $token }}">
 
                 <div class="form-group">
                     <label for="email">
                         <i class="fas fa-envelope"></i> Email Address
                     </label>
-                    <input type="email" id="email" name="email" value="{{ old('email') }}" required autofocus placeholder="Enter your email address">
+                    <input type="email" id="email" name="email" value="{{ $email ?? old('email') }}" required autofocus placeholder="Enter your email address">
                 </div>
 
                 <div class="form-group">
                     <label for="password">
-                        <i class="fas fa-lock"></i> Password
+                        <i class="fas fa-lock"></i> New Password
                     </label>
-                    <input type="password" id="password" name="password" required placeholder="Enter your password">
+                    <input type="password" id="password" name="password" required placeholder="Enter your new password">
                 </div>
 
-                <div class="form-group checkbox-group">
-                    <label>
-                        <input type="checkbox" name="remember">
-                        <span>Remember me</span>
+                <div class="form-group">
+                    <label for="password_confirmation">
+                        <i class="fas fa-lock"></i> Confirm New Password
                     </label>
-                    <a href="{{ route('trainee.password.request') }}" class="forgot-password-link">Forgot Password?</a>
+                    <input type="password" id="password_confirmation" name="password_confirmation" required placeholder="Confirm your new password">
                 </div>
 
                 <button type="submit" class="btn btn-primary btn-block">
-                    <i class="fas fa-sign-in-alt"></i> Sign In
+                    <i class="fas fa-key"></i> Reset Password
                 </button>
             </form>
 
             <div class="auth-footer">
-                <p>Don't have an account? <a href="{{ route('trainee.register') }}">Register Here</a></p>
-                <p><a href="{{ route('home') }}"><i class="fas fa-arrow-left"></i> Back to Home</a></p>
+                <p><a href="{{ route('trainee.login') }}"><i class="fas fa-arrow-left"></i> Back to Login</a></p>
             </div>
         </div>
     </div>

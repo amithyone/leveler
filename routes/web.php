@@ -23,6 +23,8 @@ use App\Http\Controllers\Admin\PartnerController;
 use App\Http\Controllers\Admin\BlogController as AdminBlogController;
 use App\Http\Controllers\Trainee\TraineeAuthController;
 use App\Http\Controllers\Trainee\TraineeRegisterController;
+use App\Http\Controllers\Trainee\TraineeForgotPasswordController;
+use App\Http\Controllers\Trainee\TraineeResetPasswordController;
 use App\Http\Controllers\Trainee\DashboardController as TraineeDashboardController;
 use App\Http\Controllers\Trainee\CourseController as TraineeCourseController;
 use App\Http\Controllers\Trainee\AssessmentController;
@@ -65,6 +67,14 @@ Route::get('/trainee/register/form', [TraineeRegisterController::class, 'showReg
 Route::post('/trainee/register/nysc', [TraineeRegisterController::class, 'registerNysc'])->name('trainee.register.nysc');
 Route::post('/trainee/register/working-class', [TraineeRegisterController::class, 'registerWorkingClass'])->name('trainee.register.working-class');
 Route::post('/trainee/logout', [TraineeAuthController::class, 'logout'])->name('trainee.logout');
+
+// Trainee Password Reset Routes
+Route::middleware('guest')->group(function () {
+    Route::get('/trainee/forgot-password', [TraineeForgotPasswordController::class, 'showLinkRequestForm'])->name('trainee.password.request');
+    Route::post('/trainee/forgot-password', [TraineeForgotPasswordController::class, 'sendResetLinkEmail'])->name('trainee.password.email');
+    Route::get('/trainee/reset-password/{token}', [TraineeResetPasswordController::class, 'showResetForm'])->name('trainee.password.reset');
+    Route::post('/trainee/reset-password', [TraineeResetPasswordController::class, 'reset'])->name('trainee.password.update');
+});
 Route::get('/page/{slug}', [HomeController::class, 'showPage'])->name('page');
 
 // Authentication Routes

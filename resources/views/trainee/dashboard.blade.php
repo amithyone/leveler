@@ -51,7 +51,62 @@
     </div>
 </div>
 
-@if(!isset($showEnrollment) || !$showEnrollment)
+@if(isset($showEnrollment) && $showEnrollment)
+<!-- Enrollment Message -->
+<div class="section">
+    <div class="alert alert-info" style="text-align: center; padding: 2rem;">
+        <i class="fas fa-info-circle" style="font-size: 3rem; margin-bottom: 1rem;"></i>
+        <h3>Welcome to Leveler!</h3>
+        <p>You need to complete your registration and make a payment to access courses.</p>
+        <a href="{{ route('trainee.register') }}" class="btn btn-primary" style="margin-top: 1rem;">
+            <i class="fas fa-user-plus"></i> Complete Registration
+        </a>
+    </div>
+</div>
+@else
+<!-- Statistics Cards -->
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-icon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+            <i class="fas fa-book"></i>
+        </div>
+        <div class="stat-info">
+            <div class="stat-number">{{ $stats['enrolled_courses'] ?? 0 }}</div>
+            <div class="stat-label">Available Courses</div>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+            <i class="fas fa-check-circle"></i>
+        </div>
+        <div class="stat-info">
+            <div class="stat-number">{{ $stats['completed_courses'] ?? 0 }}</div>
+            <div class="stat-label">Completed Courses</div>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+            <i class="fas fa-clipboard-check"></i>
+        </div>
+        <div class="stat-info">
+            <div class="stat-number">{{ $stats['total_assessments'] ?? 0 }}</div>
+            <div class="stat-label">Assessments Taken</div>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
+            <i class="fas fa-certificate"></i>
+        </div>
+        <div class="stat-info">
+            <div class="stat-number">{{ isset($stats['certificates']) ? $stats['certificates']->count() : 0 }}</div>
+            <div class="stat-label">Certificates Earned</div>
+        </div>
+    </div>
+</div>
+
 <!-- Available Courses -->
 <div class="section">
     <div class="section-header">
@@ -140,6 +195,7 @@
         @endforeach
     </div>
 </div>
+@endif
 @endif
 @endsection
 

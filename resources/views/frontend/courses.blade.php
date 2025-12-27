@@ -56,11 +56,20 @@
                     <span><i class="fas fa-star"></i> {{ number_format($course->rating, 1) }}</span>
                     @endif
                 </div>
-                @if($course->what_you_will_learn && count($course->what_you_will_learn) > 0)
+                @php
+                    $whatYouWillLearn = $course->what_you_will_learn ?? null;
+                    if (is_string($whatYouWillLearn)) {
+                        $whatYouWillLearn = json_decode($whatYouWillLearn, true);
+                    }
+                    if (!is_array($whatYouWillLearn)) {
+                        $whatYouWillLearn = [];
+                    }
+                @endphp
+                @if(!empty($whatYouWillLearn) && count($whatYouWillLearn) > 0)
                 <div class="course-highlights">
                     <strong>You'll learn:</strong>
                     <ul>
-                        @foreach(array_slice($course->what_you_will_learn, 0, 3) as $item)
+                        @foreach(array_slice($whatYouWillLearn, 0, 3) as $item)
                             @if(!empty($item))
                             <li>{{ $item }}</li>
                             @endif

@@ -369,6 +369,175 @@ Our reputation is built on the foundation of providing business and management s
                         <input type="text" id="newsletter_button" name="sections[newsletter][button]" class="form-control" value="{{ $sections['newsletter']['button'] ?? 'Subscribe' }}" placeholder="Button text">
                     </div>
                 </div>
+
+                <!-- Site Settings Section -->
+                <div class="form-group" style="margin-top: 40px; padding-top: 30px; border-top: 2px solid #e0e0e0;">
+                    <h3 style="margin-bottom: 20px; color: #667eea;">
+                        <i class="fas fa-cog"></i> Basic Site Settings
+                    </h3>
+                    
+                    @php
+                        $siteSettings = $sections['site_settings'] ?? [];
+                    @endphp
+
+                    <div class="form-group">
+                        <label for="site_logo">Site Logo</label>
+                        @if(!empty($siteSettings['site_logo']))
+                        <div class="current-image" style="margin-bottom: 15px;">
+                            <img src="{{ \Illuminate\Support\Facades\Storage::url($siteSettings['site_logo']) }}" alt="Site Logo" style="max-width: 200px; max-height: 100px; border-radius: 8px; border: 2px solid #e0e0e0; display: block; margin-bottom: 10px;">
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="remove_site_logo" value="1">
+                                <span>Remove current logo</span>
+                            </label>
+                        </div>
+                        @endif
+                        <input type="file" id="site_logo" name="site_logo" class="form-control" accept="image/*" onchange="previewImage(this, 'site_logo_preview')">
+                        <div id="site_logo_preview" class="image-preview" style="margin-top: 10px; display: none;">
+                            <img src="" alt="Site Logo Preview" style="max-width: 200px; max-height: 100px; border-radius: 8px; border: 2px solid #e0e0e0;">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="favicon">Favicon</label>
+                        @if(!empty($siteSettings['favicon']))
+                        <div class="current-image" style="margin-bottom: 15px;">
+                            <img src="{{ \Illuminate\Support\Facades\Storage::url($siteSettings['favicon']) }}" alt="Favicon" style="max-width: 32px; max-height: 32px; border-radius: 4px; border: 2px solid #e0e0e0; display: block; margin-bottom: 10px;">
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="remove_favicon" value="1">
+                                <span>Remove current favicon</span>
+                            </label>
+                        </div>
+                        @endif
+                        <input type="file" id="favicon" name="favicon" class="form-control" accept="image/*" onchange="previewImage(this, 'favicon_preview')">
+                        <div id="favicon_preview" class="image-preview" style="margin-top: 10px; display: none;">
+                            <img src="" alt="Favicon Preview" style="max-width: 32px; max-height: 32px; border-radius: 4px; border: 2px solid #e0e0e0;">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="site_name">Site Name</label>
+                            <input type="text" id="site_name" name="sections[site_settings][site_name]" class="form-control" value="{{ $siteSettings['site_name'] ?? 'Leveler' }}" placeholder="e.g., Leveler">
+                        </div>
+                        <div class="form-group">
+                            <label for="site_tagline">Tagline</label>
+                            <input type="text" id="site_tagline" name="sections[site_settings][tagline]" class="form-control" value="{{ $siteSettings['tagline'] ?? '' }}" placeholder="e.g., A Human Capacity Development Company">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="contact_email">Contact Email</label>
+                            <input type="email" id="contact_email_site" name="sections[site_settings][contact_email]" class="form-control" value="{{ $siteSettings['contact_email'] ?? '' }}" placeholder="e.g., info@levelercc.com">
+                        </div>
+                        <div class="form-group">
+                            <label for="contact_phone">Contact Phone</label>
+                            <input type="text" id="contact_phone_site" name="sections[site_settings][contact_phone]" class="form-control" value="{{ $siteSettings['contact_phone'] ?? '' }}" placeholder="e.g., (+234) 806-141-3675">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Social Media Links</label>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="social_facebook">Facebook</label>
+                                <input type="url" id="social_facebook" name="sections[site_settings][social_facebook]" class="form-control" value="{{ $siteSettings['social_facebook'] ?? '' }}" placeholder="https://facebook.com/...">
+                            </div>
+                            <div class="form-group">
+                                <label for="social_twitter">Twitter</label>
+                                <input type="url" id="social_twitter" name="sections[site_settings][social_twitter]" class="form-control" value="{{ $siteSettings['social_twitter'] ?? '' }}" placeholder="https://twitter.com/...">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="social_linkedin">LinkedIn</label>
+                                <input type="url" id="social_linkedin" name="sections[site_settings][social_linkedin]" class="form-control" value="{{ $siteSettings['social_linkedin'] ?? '' }}" placeholder="https://linkedin.com/...">
+                            </div>
+                            <div class="form-group">
+                                <label for="social_instagram">Instagram</label>
+                                <input type="url" id="social_instagram" name="sections[site_settings][social_instagram]" class="form-control" value="{{ $siteSettings['social_instagram'] ?? '' }}" placeholder="https://instagram.com/...">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Header Management Section -->
+                <div class="form-group" style="margin-top: 40px; padding-top: 30px; border-top: 2px solid #e0e0e0;">
+                    <h3 style="margin-bottom: 20px; color: #667eea;">
+                        <i class="fas fa-heading"></i> Header Management
+                    </h3>
+                    
+                    @php
+                        $headerSettings = $sections['header'] ?? [];
+                    @endphp
+
+                    <div class="form-group">
+                        <label for="header_logo">Header Logo</label>
+                        @if(!empty($headerSettings['logo']))
+                        <div class="current-image" style="margin-bottom: 15px;">
+                            <img src="{{ \Illuminate\Support\Facades\Storage::url($headerSettings['logo']) }}" alt="Header Logo" style="max-width: 200px; max-height: 100px; border-radius: 8px; border: 2px solid #e0e0e0; display: block; margin-bottom: 10px;">
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="remove_header_logo" value="1">
+                                <span>Remove current logo</span>
+                            </label>
+                        </div>
+                        @endif
+                        <input type="file" id="header_logo" name="header_logo" class="form-control" accept="image/*" onchange="previewImage(this, 'header_logo_preview')">
+                        <div id="header_logo_preview" class="image-preview" style="margin-top: 10px; display: none;">
+                            <img src="" alt="Header Logo Preview" style="max-width: 200px; max-height: 100px; border-radius: 8px; border: 2px solid #e0e0e0;">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="brand_name">Brand Name</label>
+                        <input type="text" id="brand_name" name="sections[header][brand_name]" class="form-control" value="{{ $headerSettings['brand_name'] ?? 'Leveler' }}" placeholder="e.g., Leveler">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Menu Items</label>
+                        <div id="menu-items-container">
+                            @php
+                                $menuItems = $headerSettings['menu_items'] ?? [
+                                    ['label' => 'About DHC', 'url' => route('about'), 'order' => 1],
+                                    ['label' => 'Our Services', 'url' => route('services'), 'order' => 2],
+                                    ['label' => 'Courses', 'url' => route('courses'), 'order' => 3],
+                                    ['label' => 'Blog', 'url' => route('blog.index'), 'order' => 4],
+                                    ['label' => 'Partners', 'url' => route('partners'), 'order' => 5],
+                                    ['label' => 'Tips & Updates', 'url' => route('tips-updates'), 'order' => 6],
+                                    ['label' => 'Contact', 'url' => route('contact'), 'order' => 7],
+                                ];
+                                usort($menuItems, function($a, $b) {
+                                    return ($a['order'] ?? 999) <=> ($b['order'] ?? 999);
+                                });
+                            @endphp
+                            @foreach($menuItems as $index => $item)
+                            <div class="menu-item" style="border: 1px solid #e0e0e0; padding: 15px; margin-bottom: 15px; border-radius: 8px;">
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                                    <strong>Menu Item {{ $index + 1 }}</strong>
+                                    @if($index > 0)
+                                    <button type="button" class="btn btn-danger btn-sm" onclick="removeMenuItem(this)">Remove</button>
+                                    @endif
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label>Label</label>
+                                        <input type="text" name="sections[header][menu_items][{{ $index }}][label]" class="form-control" value="{{ $item['label'] ?? '' }}" placeholder="e.g., About Us">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>URL</label>
+                                        <input type="text" name="sections[header][menu_items][{{ $index }}][url]" class="form-control" value="{{ $item['url'] ?? '' }}" placeholder="e.g., /about">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Order</label>
+                                        <input type="number" name="sections[header][menu_items][{{ $index }}][order]" class="form-control" value="{{ $item['order'] ?? $index + 1 }}" min="1">
+                                    </div>
+                                </div>
+                            </div>
+                            @endforeach
+                        </div>
+                        <button type="button" class="btn btn-secondary btn-sm" onclick="addMenuItem()">Add Menu Item</button>
+                    </div>
+                </div>
             </div>
             @endif
 
@@ -436,6 +605,44 @@ function previewImage(input, previewId) {
     } else {
         preview.style.display = 'none';
     }
+}
+
+function addMenuItem() {
+    const container = document.getElementById('menu-items-container');
+    const index = container.children.length;
+    const div = document.createElement('div');
+    div.className = 'menu-item';
+    div.style.cssText = 'border: 1px solid #e0e0e0; padding: 15px; margin-bottom: 15px; border-radius: 8px;';
+    div.innerHTML = `
+        <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+            <strong>Menu Item ${index + 1}</strong>
+            <button type="button" class="btn btn-danger btn-sm" onclick="removeMenuItem(this)">Remove</button>
+        </div>
+        <div class="form-row">
+            <div class="form-group">
+                <label>Label</label>
+                <input type="text" name="sections[header][menu_items][${index}][label]" class="form-control" placeholder="e.g., About Us">
+            </div>
+            <div class="form-group">
+                <label>URL</label>
+                <input type="text" name="sections[header][menu_items][${index}][url]" class="form-control" placeholder="e.g., /about">
+            </div>
+            <div class="form-group">
+                <label>Order</label>
+                <input type="number" name="sections[header][menu_items][${index}][order]" class="form-control" value="${index + 1}" min="1">
+            </div>
+        </div>
+    `;
+    container.appendChild(div);
+}
+
+function removeMenuItem(button) {
+    button.closest('.menu-item').remove();
+    // Renumber remaining items
+    const container = document.getElementById('menu-items-container');
+    Array.from(container.children).forEach((item, index) => {
+        item.querySelector('strong').textContent = `Menu Item ${index + 1}`;
+    });
 }
 
 function previewSliderImages(input) {

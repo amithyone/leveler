@@ -166,10 +166,30 @@ class PageSeeder extends Seeder
         ];
 
         foreach ($pages as $pageData) {
-            Page::updateOrCreate(
-                ['slug' => $pageData['slug']],
-                $pageData
-            );
+            $existingPage = Page::where('slug', $pageData['slug'])->first();
+            
+            if ($existingPage) {
+                // Preserve existing sections, header, site_settings, and contact_details
+                $preservedData = [];
+                
+                // Preserve sections (especially for home page)
+                if ($existingPage->sections && !empty($existingPage->sections)) {
+                    $preservedData['sections'] = $existingPage->sections;
+                }
+                
+                // Preserve contact_details (for contact page)
+                if ($existingPage->contact_details && !empty($existingPage->contact_details)) {
+                    $preservedData['contact_details'] = $existingPage->contact_details;
+                }
+                
+                // Merge preserved data with new page data
+                $updateData = array_merge($pageData, $preservedData);
+                
+                $existingPage->update($updateData);
+            } else {
+                // Create new page
+                Page::create($pageData);
+            }
         }
 
         $this->command->info('Pages seeded successfully!');

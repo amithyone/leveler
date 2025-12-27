@@ -27,6 +27,7 @@ class Trainee extends Authenticatable
         'user_type',
         'state_code',
         'nysc_start_date',
+        'package_type',
     ];
 
     protected $hidden = [

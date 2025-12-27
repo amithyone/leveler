@@ -34,13 +34,11 @@
                 $hasImage = !empty($slide['image']);
             @endphp
             <div class="hero-slide {{ $index === 0 ? 'active' : '' }}" 
-                 data-slide-index="{{ $index }}"
-                 data-duration="{{ $slide['duration'] ?? 5 }}"
                  @if($hasImage) 
                  data-bg-image="{{ $imageUrl }}" 
-                 style="background-image: url('{{ $imageUrl }}') !important; background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important;"
+                 style="background-image: url('{{ $imageUrl }}');"
                  @else
-                 style="background: linear-gradient(135deg, #6B46C1 0%, #9333EA 100%) !important; background-image: none !important;"
+                 style="background: linear-gradient(135deg, #6B46C1 0%, #9333EA 100%);"
                  @endif>
                 @if($hasImage)
                 <div class="hero-overlay"></div>
@@ -65,12 +63,6 @@
         @endforeach
     </div>
     @if(count($heroSlides) > 1)
-    <button class="hero-nav hero-nav-prev" aria-label="Previous slide">
-        <i class="fas fa-chevron-left"></i>
-    </button>
-    <button class="hero-nav hero-nav-next" aria-label="Next slide">
-        <i class="fas fa-chevron-right"></i>
-    </button>
     <div class="hero-indicators">
         @foreach($heroSlides as $index => $slide)
         <span class="indicator {{ $index === 0 ? 'active' : '' }}" data-slide="{{ $index }}"></span>

@@ -19,88 +19,40 @@
     <div class="payment-form-card">
         <h2 class="form-title">Payment Details</h2>
         
+        @if(isset($packageInfo))
+        <div class="package-info-box" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 1.5rem; border-radius: 12px; margin-bottom: 2rem;">
+            <h3 style="margin: 0 0 0.5rem 0;"><i class="fas fa-gift"></i> Package {{ $packageInfo['type'] }}</h3>
+            <p style="margin: 0.25rem 0; opacity: 0.9;">Total Package Amount: <strong>₦{{ number_format($packageInfo['total_amount']) }}</strong></p>
+            @if($packageInfo['type'] === 'A')
+                <p style="margin: 0.25rem 0; opacity: 0.9;">Payment: Full payment of ₦10,000</p>
+            @else
+                <p style="margin: 0.25rem 0; opacity: 0.9;">Initial Payment: ₦10,000 (Remaining balance can be paid later)</p>
+            @endif
+        </div>
+        @endif
+        
         <form method="POST" action="{{ route('trainee.payments.store') }}" id="payment-form">
             @csrf
             
+            <input type="hidden" name="amount" id="amount" value="{{ isset($packageInfo) && $packageInfo['type'] === 'A' ? '10000' : '10000' }}">
+            
             <div class="form-group">
                 <label>
-                    <i class="fas fa-graduation-cap"></i> Select Package
+                    <i class="fas fa-money-bill-wave"></i> Payment Amount
                 </label>
-                <div class="package-options">
-                    <div class="package-option" onclick="selectPackage('package', 22500, 4)">
-                        <input type="radio" name="package_type" id="package" value="package" required>
-                        <label for="package" class="package-label">
-                            <div class="package-header">
-                                <h3>4 Courses Package</h3>
-                                <span class="package-badge">Best Value</span>
-                            </div>
-                            <div class="package-price">₦22,500</div>
-                            <div class="package-details">
-                                <p>Get access to 4 courses</p>
-                                <p class="package-savings">Save ₦17,500 compared to individual courses</p>
-                            </div>
-                        </label>
+                <div class="payment-amount-display" style="background: #f8f9fa; padding: 1.5rem; border-radius: 8px; text-align: center;">
+                    <div style="font-size: 2.5rem; font-weight: 700; color: #667eea; margin-bottom: 0.5rem;">
+                        ₦{{ isset($packageInfo) ? number_format($packageInfo['type'] === 'A' ? 10000 : 10000) : '10,000' }}
                     </div>
-
-                    <div class="package-option" onclick="selectPackage('single', 10000, 1)">
-                        <input type="radio" name="package_type" id="single" value="single" required>
-                        <label for="single" class="package-label">
-                            <div class="package-header">
-                                <h3>Single Course</h3>
-                            </div>
-                            <div class="package-price">₦10,000</div>
-                            <div class="package-details">
-                                <p>Get access to 1 course</p>
-                            </div>
-                        </label>
-                    </div>
+                    @if(isset($packageInfo) && $packageInfo['type'] === 'A')
+                        <p style="margin: 0; color: #666;">Full payment for Package A</p>
+                    @elseif(isset($packageInfo))
+                        <p style="margin: 0; color: #666;">Initial deposit for Package {{ $packageInfo['type'] }}</p>
+                        <p style="margin: 0.5rem 0 0 0; color: #666; font-size: 0.9rem;">
+                            Remaining: ₦{{ number_format($packageInfo['total_amount'] - 10000) }}
+                        </p>
+                    @endif
                 </div>
-                <input type="hidden" name="amount" id="amount" value="">
-                <input type="hidden" name="course_access_count" id="course_access_count" value="">
-                @error('package_type')
-                    <span class="error-message">{{ $message }}</span>
-                @enderror
-            </div>
-
-            <div class="form-group">
-                <label>
-                    <i class="fas fa-money-bill-wave"></i> Payment Type
-                </label>
-                <div class="payment-type-options">
-                    <label class="payment-type-option">
-                        <input type="radio" name="payment_type" value="full" checked onchange="toggleInstallmentOptions()">
-                        <div class="type-content">
-                            <i class="fas fa-check-circle"></i>
-                            <span>Full Payment</span>
-                        </div>
-                    </label>
-                    <label class="payment-type-option">
-                        <input type="radio" name="payment_type" value="installment" onchange="toggleInstallmentOptions()">
-                        <div class="type-content">
-                            <i class="fas fa-calendar-alt"></i>
-                            <span>Pay in Installments</span>
-                        </div>
-                    </label>
-                </div>
-                <input type="hidden" name="is_installment" id="is_installment" value="0">
-                <small class="form-help">Note: Certificates are only available after full payment is completed</small>
-            </div>
-
-            <div class="form-group" id="installment-amount-group" style="display: none;">
-                <label for="installment_amount">
-                    <i class="fas fa-money-bill"></i> Installment Amount (₦)
-                </label>
-                <input 
-                    type="number" 
-                    id="installment_amount" 
-                    name="installment_amount" 
-                    class="form-control"
-                    min="100" 
-                    step="0.01"
-                    placeholder="Enter installment amount (minimum ₦100)"
-                    required
-                >
-                <small class="form-help">Minimum: ₦100. You can pay the remaining balance later. Course access is granted immediately, but certificates require full payment.</small>
             </div>
 
             <div class="form-group">

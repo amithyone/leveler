@@ -4,105 +4,62 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\ManualPaymentSetting;
 
 class ManualPaymentController extends Controller
 {
     /**
-     * Display a listing of the manual payment settings.
+     * Display a listing of the resource.
      */
     public function index()
     {
-        $settings = ManualPaymentSetting::ordered()->get();
-        return view('admin.manual-payments.index', compact('settings'));
+        //
     }
 
     /**
-     * Show the form for creating a new manual payment setting.
+     * Show the form for creating a new resource.
      */
     public function create()
     {
-        return view('admin.manual-payments.create');
+        //
     }
 
     /**
-     * Store a newly created manual payment setting in storage.
+     * Store a newly created resource in storage.
      */
     public function store(Request $request)
     {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'bank_name' => 'nullable|string|max:255',
-            'account_name' => 'nullable|string|max:255',
-            'account_number' => 'nullable|string|max:255',
-            'instructions' => 'nullable|string',
-            'is_active' => 'boolean',
-            'display_order' => 'nullable|integer|min:0',
-        ]);
-
-        ManualPaymentSetting::create([
-            'name' => $request->name,
-            'bank_name' => $request->bank_name,
-            'account_name' => $request->account_name,
-            'account_number' => $request->account_number,
-            'instructions' => $request->instructions,
-            'is_active' => $request->has('is_active') ? true : false,
-            'display_order' => $request->display_order ?? 0,
-        ]);
-
-        return redirect()->route('admin.manual-payments.index')
-            ->with('success', 'Manual payment setting created successfully.');
+        //
     }
 
     /**
-     * Show the form for editing the specified manual payment setting.
+     * Display the specified resource.
      */
-    public function edit($id)
+    public function show(string $id)
     {
-        $setting = ManualPaymentSetting::findOrFail($id);
-        return view('admin.manual-payments.edit', compact('setting'));
+        //
     }
 
     /**
-     * Update the specified manual payment setting in storage.
+     * Show the form for editing the specified resource.
      */
-    public function update(Request $request, $id)
+    public function edit(string $id)
     {
-        $setting = ManualPaymentSetting::findOrFail($id);
-
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'bank_name' => 'nullable|string|max:255',
-            'account_name' => 'nullable|string|max:255',
-            'account_number' => 'nullable|string|max:255',
-            'instructions' => 'nullable|string',
-            'is_active' => 'boolean',
-            'display_order' => 'nullable|integer|min:0',
-        ]);
-
-        $setting->update([
-            'name' => $request->name,
-            'bank_name' => $request->bank_name,
-            'account_name' => $request->account_name,
-            'account_number' => $request->account_number,
-            'instructions' => $request->instructions,
-            'is_active' => $request->has('is_active') ? true : false,
-            'display_order' => $request->display_order ?? 0,
-        ]);
-
-        return redirect()->route('admin.manual-payments.index')
-            ->with('success', 'Manual payment setting updated successfully.');
+        //
     }
 
     /**
-     * Remove the specified manual payment setting from storage.
+     * Update the specified resource in storage.
      */
-    public function destroy($id)
+    public function update(Request $request, string $id)
     {
-        $setting = ManualPaymentSetting::findOrFail($id);
-        $setting->delete();
+        //
+    }
 
-        return redirect()->route('admin.manual-payments.index')
-            ->with('success', 'Manual payment setting deleted successfully.');
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function destroy(string $id)
+    {
+        //
     }
 }

@@ -12,30 +12,9 @@ class Course extends Model
     protected $fillable = [
         'title',
         'description',
-        'overview',
-        'objectives',
-        'what_you_will_learn',
-        'requirements',
-        'who_is_this_for',
-        'level',
-        'language',
-        'instructor',
-        'image',
-        'curriculum',
         'code',
         'duration_hours',
         'status',
-        'rating',
-        'total_reviews',
-        'total_enrollments',
-    ];
-
-    protected $casts = [
-        'objectives' => 'array',
-        'what_you_will_learn' => 'array',
-        'requirements' => 'array',
-        'curriculum' => 'array',
-        'rating' => 'decimal:2',
     ];
 
     public function schedules()

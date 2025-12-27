@@ -23,10 +23,7 @@ class DashboardController extends Controller
                 'trainee' => null,
                 'user' => $user,
                 'courses' => $courses,
-                'showEnrollment' => true,
-                'stats' => null,
-                'recentResults' => collect([]),
-                'availableCourses' => collect([]),
+                'showEnrollment' => true
             ]);
         }
         

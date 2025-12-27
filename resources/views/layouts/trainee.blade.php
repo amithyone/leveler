@@ -15,7 +15,7 @@
         <div class="impersonation-banner">
             <div class="banner-content">
                 <i class="fas fa-user-shield"></i>
-                <span>You are viewing as <strong>{{ Auth::guard('trainee')->user() ? Auth::guard('trainee')->user()->full_name : 'Trainee' }}</strong></span>
+                <span>You are viewing as <strong>{{ Auth::guard('trainee')->user()->full_name }}</strong></span>
                 <a href="{{ route('admin.trainees.stop-impersonating') }}" class="btn-exit-impersonation">
                     <i class="fas fa-times"></i> Exit View
                 </a>
@@ -36,7 +36,7 @@
                     <div class="user-menu">
                         <div class="user-info">
                             <i class="fas fa-user-circle"></i>
-                            <span>{{ Auth::guard('trainee')->user() ? Auth::guard('trainee')->user()->full_name : 'User' }}</span>
+                            <span>{{ Auth::guard('trainee')->user()->full_name }}</span>
                         </div>
                         <div class="user-dropdown">
                             <a href="{{ route('trainee.dashboard') }}">

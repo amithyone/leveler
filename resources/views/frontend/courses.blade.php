@@ -69,7 +69,7 @@
                 </div>
                 @endif
                 <div class="course-actions" onclick="event.stopPropagation();">
-                    <a href="{{ route('register') }}" class="btn btn-primary btn-sm">Register Now</a>
+                    <a href="{{ route('trainee.register') }}" class="btn btn-primary btn-sm">Register Now</a>
                     <a href="{{ route('course.details', $course->id) }}" class="btn btn-secondary btn-sm">View Details</a>
                 </div>
             </div>

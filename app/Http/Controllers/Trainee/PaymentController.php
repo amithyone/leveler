@@ -61,7 +61,21 @@ class PaymentController extends Controller
      */
     public function create()
     {
-        return view('trainee.payments.create');
+        $user = Auth::user();
+        $trainee = TraineeHelper::getCurrentTrainee();
+        
+        // Get package info from session if available (from registration)
+        $packageInfo = session('package_info');
+        
+        // If trainee exists and has package type, use that
+        if ($trainee && $trainee->package_type) {
+            $packageInfo = [
+                'type' => $trainee->package_type,
+                'total_amount' => $trainee->total_required ?? 0,
+            ];
+        }
+        
+        return view('trainee.payments.create', compact('packageInfo', 'trainee'));
     }
 
     /**
@@ -69,97 +83,86 @@ class PaymentController extends Controller
      */
     public function store(Request $request)
     {
+        $user = Auth::user();
+        $trainee = TraineeHelper::getCurrentTrainee();
+        
+        if (!$trainee) {
+            return redirect()->route('trainee.register.category')
+                ->with('error', 'Please complete registration first');
+        }
+
+        // Get package info from trainee or session
+        $packageInfo = session('package_info');
+        if (!$packageInfo && $trainee->package_type) {
+            $packageInfo = [
+                'type' => $trainee->package_type,
+                'total_amount' => $trainee->total_required ?? 0,
+            ];
+        }
+
+        if (!$packageInfo) {
+            return redirect()->route('trainee.register.category')
+                ->with('error', 'Package information not found. Please register again.');
+        }
+
+        $packageType = $packageInfo['type']; // A, B, C, or D
+        $totalRequired = $packageInfo['total_amount'];
+        
+        // For Package A: full payment of ₦10,000
+        // For Packages B, C, D: initial deposit of ₦10,000
+        $initialAmount = $packageType === 'A' ? 10000 : 10000;
+        
         $request->validate([
-            'package_type' => 'required|in:single,package',
             'amount' => 'required|numeric|min:100',
-            'course_access_count' => 'required|integer|min:1|max:4',
-            'is_installment' => 'nullable|boolean',
-            'installment_amount' => 'nullable|numeric|min:100',
         ]);
 
         try {
-            $user = Auth::user();
+            $amount = $request->amount;
             
-            // Get or create trainee when they enroll
-            $trainee = TraineeHelper::getOrCreateTrainee($user);
-            
-            $packageType = $request->package_type;
-            $courseAccessCount = $request->course_access_count;
-            $isInstallment = $request->has('is_installment') && $request->is_installment;
-            
-            // Determine total required based on package
-            $totalRequired = $packageType === 'package' ? 22500 : 10000;
-
-            // Check if this is an installment payment
-            if ($isInstallment) {
-                // For installments, use installment_amount or amount field
-                $amount = $request->installment_amount ?? $request->amount;
-                
-                // Validate installment amount
-                if ($amount < 100) {
+            // Validate amount based on package type
+            if ($packageType === 'A') {
+                // Package A: must pay full amount
+                if ($amount != 10000) {
                     return redirect()->back()
                         ->withInput()
-                        ->with('error', 'Installment amount must be at least ₦100');
+                        ->with('error', 'Package A requires full payment of ₦10,000');
                 }
-                
-                // Check if amount exceeds remaining balance
-                $remainingBalance = $trainee->getRemainingBalance();
-                if ($remainingBalance > 0 && $amount > $remainingBalance) {
-                    return redirect()->back()
-                        ->withInput()
-                        ->with('error', 'Installment amount cannot exceed remaining balance of ₦' . number_format($remainingBalance, 2));
-                }
-                
-                // Calculate installment number
-                $completedPayments = $trainee->payments()
-                    ->where('status', 'Completed')
-                    ->where('package_type', $packageType)
-                    ->count();
-                $installmentNumber = $completedPayments + 1;
             } else {
-                // Full payment - use amount field
-                $amount = $request->amount;
-                
-                // Validate full payment amount
-                if ($packageType === 'package' && $amount != 22500) {
+                // Packages B, C, D: initial deposit of ₦10,000
+                if ($amount != 10000) {
                     return redirect()->back()
                         ->withInput()
-                        ->with('error', 'Full package payment must be exactly ₦22,500');
+                        ->with('error', 'Initial payment for this package is ₦10,000');
                 }
-
-                if ($packageType === 'single' && $amount != 10000) {
-                    return redirect()->back()
-                        ->withInput()
-                        ->with('error', 'Full single course payment must be exactly ₦10,000');
-                }
-                $installmentNumber = null;
+            }
+            
+            $courseAccessCount = count(session('selected_courses', []));
+            if ($courseAccessCount == 0) {
+                $courseAccessCount = 1; // Default
             }
 
-            // Update trainee's total required based on package type
-            // Only update if not set or if it's a different package (to avoid overwriting)
-            if ($trainee->total_required == 0) {
+            // Determine if this is an installment payment
+            // Package A: full payment (not installment)
+            // Packages B, C, D: initial deposit (is installment if total > 10000)
+            $isInstallment = ($packageType !== 'A' && $totalRequired > 10000);
+            $installmentNumber = $isInstallment ? 1 : null;
+
+            // Update trainee's total required if not set
+            if ($trainee->total_required == 0 || $trainee->total_required != $totalRequired) {
                 $trainee->total_required = $totalRequired;
+                $trainee->package_type = $packageType;
                 $trainee->save();
-            } elseif ($trainee->total_required != $totalRequired) {
-                // Check if trainee has any completed payments for the new package
-                $existingPayments = $trainee->payments()
-                    ->where('status', 'Completed')
-                    ->where('package_type', $packageType)
-                    ->exists();
-                
-                // Only update if they're switching packages or starting fresh
-                if (!$existingPayments) {
-                    $trainee->total_required = $totalRequired;
-                    $trainee->save();
-                }
             }
 
             // Generate virtual account
+            // For payment tracking, we'll use 'nysc_package_' + package type
+            $paymentPackageType = 'nysc_package_' . strtolower($packageType);
+            
             $result = $this->payVibeService->generateVirtualAccount(
                 $trainee, 
                 $amount, 
                 $courseAccessCount, 
-                $packageType,
+                $paymentPackageType,
                 $isInstallment,
                 $installmentNumber,
                 $totalRequired

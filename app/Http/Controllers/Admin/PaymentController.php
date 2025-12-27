@@ -44,29 +44,15 @@ class PaymentController extends Controller
         $request->validate([
             'trainee_id' => 'required|exists:trainees,id',
             'amount' => 'required|numeric|min:0',
-            'payment_method' => 'required|in:Cash,Bank Transfer,Mobile Money,Card,Manual Payment,Other',
+            'payment_method' => 'required|in:Cash,Bank Transfer,Mobile Money,Card,Other',
             'payment_date' => 'required|date',
             'status' => 'required|in:Pending,Completed,Failed,Refunded',
             'transaction_reference' => 'nullable|string|max:255',
             'receipt_number' => 'nullable|string|max:255',
             'notes' => 'nullable|string',
-            'manual_payment_details' => 'nullable|array',
-            'manual_payment_details.bank_name' => 'nullable|string|max:255',
-            'manual_payment_details.account_name' => 'nullable|string|max:255',
-            'manual_payment_details.account_number' => 'nullable|string|max:255',
-            'manual_payment_details.instructions' => 'nullable|string',
         ]);
 
-        $data = $request->all();
-        
-        // Handle manual payment details
-        if ($request->payment_method === 'Manual Payment' && $request->has('manual_payment_details')) {
-            $data['manual_payment_details'] = $request->manual_payment_details;
-        } else {
-            $data['manual_payment_details'] = null;
-        }
-        
-        $payment = Payment::create($data);
+        $payment = Payment::create($request->all());
 
         // If payment is completed, activate the trainee
         if ($payment->status === 'Completed') {
@@ -91,29 +77,15 @@ class PaymentController extends Controller
         $request->validate([
             'trainee_id' => 'required|exists:trainees,id',
             'amount' => 'required|numeric|min:0',
-            'payment_method' => 'required|in:Cash,Bank Transfer,Mobile Money,Card,Manual Payment,Other',
+            'payment_method' => 'required|in:Cash,Bank Transfer,Mobile Money,Card,Other',
             'payment_date' => 'required|date',
             'status' => 'required|in:Pending,Completed,Failed,Refunded',
             'transaction_reference' => 'nullable|string|max:255',
             'receipt_number' => 'nullable|string|max:255',
             'notes' => 'nullable|string',
-            'manual_payment_details' => 'nullable|array',
-            'manual_payment_details.bank_name' => 'nullable|string|max:255',
-            'manual_payment_details.account_name' => 'nullable|string|max:255',
-            'manual_payment_details.account_number' => 'nullable|string|max:255',
-            'manual_payment_details.instructions' => 'nullable|string',
         ]);
 
-        $data = $request->all();
-        
-        // Handle manual payment details
-        if ($request->payment_method === 'Manual Payment' && $request->has('manual_payment_details')) {
-            $data['manual_payment_details'] = $request->manual_payment_details;
-        } else {
-            $data['manual_payment_details'] = null;
-        }
-        
-        $payment->update($data);
+        $payment->update($request->all());
 
         // If payment status changed to Completed, activate the trainee
         if ($payment->status === 'Completed' && $oldStatus !== 'Completed') {

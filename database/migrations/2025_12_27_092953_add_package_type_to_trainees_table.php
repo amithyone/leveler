@@ -11,8 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('pages', function (Blueprint $table) {
-            $table->json('contact_details')->nullable()->after('sections');
+        Schema::table('trainees', function (Blueprint $table) {
+            $table->string('package_type', 1)->nullable()->after('user_type')->comment('A, B, C, or D for NYSC packages');
         });
     }
 
@@ -21,11 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('pages', function (Blueprint $table) {
-            $table->dropColumn('contact_details');
+        Schema::table('trainees', function (Blueprint $table) {
+            $table->dropColumn('package_type');
         });
     }
 };
-
-
-

@@ -58,7 +58,6 @@
                         <input type="checkbox" name="remember">
                         <span>Remember me</span>
                     </label>
-                    <a href="{{ route('trainee.password.request') }}" class="forgot-password-link">Forgot Password?</a>
                 </div>
 
                 <button type="submit" class="btn btn-primary btn-block">
@@ -67,6 +66,7 @@
             </form>
 
             <div class="auth-footer">
+                <p><a href="{{ route('trainee.password.request') }}"><i class="fas fa-key"></i> Forgot Password?</a></p>
                 <p>Don't have an account? <a href="{{ route('trainee.register') }}">Register Here</a></p>
                 <p><a href="{{ route('home') }}"><i class="fas fa-arrow-left"></i> Back to Home</a></p>
             </div>

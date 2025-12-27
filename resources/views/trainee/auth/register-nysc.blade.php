@@ -278,7 +278,7 @@
             </form>
 
             <div class="auth-footer">
-                <p><a href="{{ route('trainee.register.category') }}"><i class="fas fa-arrow-left"></i> Back to Category Selection</a></p>
+                <p><a href="{{ route('trainee.register') }}"><i class="fas fa-arrow-left"></i> Back to Category Selection</a></p>
             </div>
         </div>
     </div>

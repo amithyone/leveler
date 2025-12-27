@@ -55,7 +55,7 @@ class TraineeRegisterController extends Controller
         $userType = $request->session()->get('registration_user_type');
         
         if (!$userType) {
-            return redirect()->route('trainee.register.category');
+            return redirect()->route('trainee.register');
         }
 
         // Get courses for selection (limit to 9 for NYSC packages)
@@ -64,7 +64,7 @@ class TraineeRegisterController extends Controller
         if ($userType === 'nysc') {
             $package = $request->session()->get('registration_package');
             if (!$package) {
-                return redirect()->route('trainee.register.category')
+                return redirect()->route('trainee.register')
                     ->with('error', 'Please select a package first');
             }
             return view('trainee.auth.register-nysc', compact('courses', 'package'));
@@ -80,7 +80,7 @@ class TraineeRegisterController extends Controller
     {
         $package = $request->session()->get('registration_package');
         if (!$package) {
-            return redirect()->route('trainee.register.category')
+            return redirect()->route('trainee.register')
                 ->with('error', 'Please select a package first');
         }
 

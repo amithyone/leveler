@@ -87,7 +87,7 @@ class PaymentController extends Controller
         $trainee = TraineeHelper::getCurrentTrainee();
         
         if (!$trainee) {
-            return redirect()->route('trainee.register.category')
+            return redirect()->route('trainee.register')
                 ->with('error', 'Please complete registration first');
         }
 
@@ -101,7 +101,7 @@ class PaymentController extends Controller
         }
 
         if (!$packageInfo) {
-            return redirect()->route('trainee.register.category')
+            return redirect()->route('trainee.register')
                 ->with('error', 'Package information not found. Please register again.');
         }
 

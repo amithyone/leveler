@@ -16,14 +16,23 @@
 </div>
 
 @php
-    $trainee = Auth::guard('trainee')->user();
-    $packageType = $trainee->getCurrentPackageType();
-    $totalRequired = $trainee->getTotalRequiredForPackage();
-    $totalPaidForPackage = $trainee->getTotalPaid($packageType);
-    $remainingBalance = $trainee->getRemainingBalance();
-    $paymentProgress = $trainee->getPaymentProgress();
-    $hasFullyPaid = $trainee->hasFullyPaid();
-    $packageName = $packageType === 'package' ? '4 Courses Package' : ($packageType === 'single' ? 'Single Course' : 'No Package');
+    $packageType = $trainee ? $trainee->getCurrentPackageType() : null;
+    $totalRequired = $trainee ? $trainee->getTotalRequiredForPackage() : 0;
+    $totalPaidForPackage = $trainee && $packageType ? $trainee->getTotalPaid($packageType) : 0;
+    $remainingBalance = $trainee ? $trainee->getRemainingBalance() : 0;
+    $paymentProgress = $trainee ? $trainee->getPaymentProgress() : 0;
+    $hasFullyPaid = $trainee ? $trainee->hasFullyPaid() : false;
+    
+    // Handle package name based on package_type field
+    if ($trainee && $trainee->package_type) {
+        $packageName = 'Package ' . $trainee->package_type;
+    } elseif ($packageType === 'package') {
+        $packageName = '4 Courses Package';
+    } elseif ($packageType === 'single') {
+        $packageName = 'Single Course';
+    } else {
+        $packageName = 'No Package';
+    }
 @endphp
 
 <!-- Payment Summary -->

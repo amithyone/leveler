@@ -30,6 +30,15 @@ class ManualPaymentSetting extends Model
 
     public function scopeOrdered($query)
     {
-        return $query->orderBy('order')->orderBy('name');
+        // Check if order column exists before ordering by it
+        $connection = $this->getConnection();
+        $schema = $connection->getSchemaBuilder();
+        
+        if ($schema->hasColumn($this->getTable(), 'order')) {
+            return $query->orderBy('order')->orderBy('name');
+        }
+        
+        // Fallback to ordering by name only if order column doesn't exist
+        return $query->orderBy('name');
     }
 }

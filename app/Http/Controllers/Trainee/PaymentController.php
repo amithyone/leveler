@@ -75,7 +75,10 @@ class PaymentController extends Controller
             ];
         }
         
-        return view('trainee.payments.create', compact('packageInfo', 'trainee'));
+        // Get active manual payment settings
+        $manualPaymentSettings = \App\Models\ManualPaymentSetting::active()->ordered()->get();
+        
+        return view('trainee.payments.create', compact('packageInfo', 'trainee', 'manualPaymentSettings'));
     }
 
     /**
@@ -112,12 +115,22 @@ class PaymentController extends Controller
         // For Packages B, C, D: initial deposit of ₦10,000
         $initialAmount = $packageType === 'A' ? 10000 : 10000;
         
+        $paymentMethod = $request->input('payment_method', 'payvibe');
+        
         $request->validate([
             'amount' => 'required|numeric|min:100',
+            'payment_method' => 'required|in:payvibe,manual',
+            'payment_receipt' => 'required_if:payment_method,manual|file|mimes:jpeg,jpg,png,pdf|max:5120',
+            'payment_reference' => 'nullable|string|max:255',
         ]);
 
         try {
             $amount = $request->amount;
+            
+            // Handle manual payment
+            if ($paymentMethod === 'manual') {
+                return $this->handleManualPayment($request, $trainee, $packageInfo, $amount);
+            }
             
             // Validate amount based on package type
             if ($packageType === 'A') {
@@ -196,6 +209,59 @@ class PaymentController extends Controller
             return redirect()->back()
                 ->withInput()
                 ->with('error', 'Something went wrong. Please try again.');
+        }
+    }
+
+    /**
+     * Handle manual payment submission
+     */
+    private function handleManualPayment(Request $request, $trainee, $packageInfo, $amount)
+    {
+        try {
+            $packageType = $packageInfo['type'];
+            $totalRequired = $packageInfo['total_amount'];
+            $courseAccessCount = count(session('selected_courses', []));
+            if ($courseAccessCount == 0) {
+                $courseAccessCount = 1;
+            }
+
+            // Determine if this is an installment payment
+            $isInstallment = ($packageType !== 'A' && $totalRequired > 10000);
+            $installmentNumber = $isInstallment ? 1 : null;
+
+            // Upload receipt
+            $receiptPath = null;
+            if ($request->hasFile('payment_receipt')) {
+                $receiptPath = $request->file('payment_receipt')->store('payment-receipts', 'public');
+            }
+
+            // Create payment record
+            $payment = Payment::create([
+                'trainee_id' => $trainee->id,
+                'amount' => $amount,
+                'total_required' => $totalRequired,
+                'course_access_count' => $courseAccessCount,
+                'package_type' => 'nysc_package_' . strtolower($packageType),
+                'is_installment' => $isInstallment,
+                'installment_number' => $installmentNumber,
+                'payment_method' => 'Manual Payment',
+                'transaction_reference' => $request->payment_reference,
+                'payment_date' => now(),
+                'status' => 'Pending',
+                'notes' => $receiptPath ? 'Receipt uploaded: ' . basename($receiptPath) . ' | Path: ' . $receiptPath : 'Manual payment submitted',
+            ]);
+
+            return redirect()->route('trainee.payments.index')
+                ->with('success', 'Manual payment submitted successfully! Your payment receipt has been uploaded and is pending verification. You will be notified once it\'s confirmed.');
+                
+        } catch (\Exception $e) {
+            Log::error('Manual payment error', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'Failed to submit manual payment. Please try again.');
         }
     }
 

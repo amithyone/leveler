@@ -31,7 +31,7 @@
         </div>
         @endif
         
-        <form method="POST" action="{{ route('trainee.payments.store') }}" id="payment-form">
+        <form method="POST" action="{{ route('trainee.payments.store') }}" id="payment-form" enctype="multipart/form-data">
             @csrf
             
             <input type="hidden" name="amount" id="amount" value="{{ isset($packageInfo) && $packageInfo['type'] === 'A' ? '10000' : '10000' }}">
@@ -57,22 +57,106 @@
 
             <div class="form-group">
                 <label>
-                    <i class="fas fa-credit-card"></i> Payment Method
+                    <i class="fas fa-credit-card"></i> Payment Method <span class="required">*</span>
                 </label>
-                <div class="payment-method-info">
-                    <div class="method-badge">
-                        <i class="fas fa-university"></i>
-                        <span>PayVibe Bank Transfer</span>
+                <div class="payment-method-options">
+                    <label class="payment-method-option">
+                        <input type="radio" name="payment_method" value="payvibe" checked onchange="togglePaymentMethod()">
+                        <div class="method-content">
+                            <i class="fas fa-university"></i>
+                            <span>PayVibe Bank Transfer</span>
+                            <small>Automatic verification</small>
+                        </div>
+                    </label>
+                    <label class="payment-method-option">
+                        <input type="radio" name="payment_method" value="manual" onchange="togglePaymentMethod()">
+                        <div class="method-content">
+                            <i class="fas fa-hand-holding-usd"></i>
+                            <span>Manual Payment</span>
+                            <small>Bank transfer details</small>
+                        </div>
+                    </label>
+                </div>
+            </div>
+
+            <!-- PayVibe Payment Info -->
+            <div id="payvibe-info" class="payment-method-info">
+                <div class="method-badge">
+                    <i class="fas fa-university"></i>
+                    <span>PayVibe Bank Transfer</span>
+                </div>
+                <p class="method-description">
+                    Transfer directly to our bank account. Course access will be granted automatically once payment is confirmed.
+                </p>
+            </div>
+
+            <!-- Manual Payment Info -->
+            <div id="manual-info" class="payment-method-info" style="display: none;">
+                <div class="method-badge" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">
+                    <i class="fas fa-hand-holding-usd"></i>
+                    <span>Manual Payment</span>
+                </div>
+                <p class="method-description">
+                    Transfer directly to our bank account using the details below. After payment, upload your receipt for verification.
+                </p>
+                
+                @if(isset($manualPaymentSettings) && $manualPaymentSettings->count() > 0)
+                <div class="manual-payment-accounts">
+                    @foreach($manualPaymentSettings as $setting)
+                    <div class="manual-account-card">
+                        <h4><i class="fas fa-university"></i> {{ $setting->name }}</h4>
+                        <div class="account-details">
+                            <div class="detail-row">
+                                <span class="detail-label">Bank Name:</span>
+                                <span class="detail-value">{{ $setting->bank_name }}</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Account Name:</span>
+                                <span class="detail-value">{{ $setting->account_name }}</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Account Number:</span>
+                                <span class="detail-value account-number">{{ $setting->account_number }}</span>
+                                <button type="button" class="copy-btn" onclick="copyToClipboard('{{ $setting->account_number }}', this)">
+                                    <i class="fas fa-copy"></i> Copy
+                                </button>
+                            </div>
+                            @if($setting->payment_instructions)
+                            <div class="payment-instructions">
+                                <strong><i class="fas fa-info-circle"></i> Instructions:</strong>
+                                <p>{{ $setting->payment_instructions }}</p>
+                            </div>
+                            @endif
+                        </div>
                     </div>
-                    <p class="method-description">
-                        Transfer directly to our bank account. Course access will be granted automatically once payment is confirmed.
-                    </p>
+                    @endforeach
+                </div>
+                @else
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    No manual payment accounts configured. Please contact support.
+                </div>
+                @endif
+
+                <div class="manual-payment-upload" style="margin-top: 20px;">
+                    <label for="payment_receipt">
+                        <i class="fas fa-file-upload"></i> Upload Payment Receipt <span class="required">*</span>
+                    </label>
+                    <input type="file" id="payment_receipt" name="payment_receipt" accept="image/*,.pdf" class="form-control" required>
+                    <small class="form-help">Upload a screenshot or PDF of your payment receipt (Max: 5MB)</small>
+                </div>
+
+                <div class="form-group" style="margin-top: 15px;">
+                    <label for="payment_reference">
+                        <i class="fas fa-hashtag"></i> Transaction Reference
+                    </label>
+                    <input type="text" id="payment_reference" name="payment_reference" class="form-control" placeholder="Enter your transaction reference (optional)">
                 </div>
             </div>
 
             <div class="form-actions">
-                <button type="submit" class="btn btn-primary btn-large">
-                    <i class="fas fa-arrow-right"></i> Continue to Payment
+                <button type="submit" class="btn btn-primary btn-large" id="submitBtn">
+                    <i class="fas fa-arrow-right"></i> <span id="submitBtnText">Continue to Payment</span>
                 </button>
                 <a href="{{ route('trainee.payments.index') }}" class="btn btn-secondary">
                     <i class="fas fa-times"></i> Cancel
@@ -168,7 +252,75 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
+    
+    // Initialize payment method display
+    togglePaymentMethod();
 });
+
+function togglePaymentMethod() {
+    const paymentMethod = document.querySelector('input[name="payment_method"]:checked');
+    if (!paymentMethod) return;
+    
+    const method = paymentMethod.value;
+    const payvibeInfo = document.getElementById('payvibe-info');
+    const manualInfo = document.getElementById('manual-info');
+    const receiptInput = document.getElementById('payment_receipt');
+    const submitBtnText = document.getElementById('submitBtnText');
+    
+    if (method === 'manual') {
+        if (payvibeInfo) payvibeInfo.style.display = 'none';
+        if (manualInfo) manualInfo.style.display = 'block';
+        if (receiptInput) {
+            receiptInput.required = true;
+        }
+        if (submitBtnText) {
+            submitBtnText.textContent = 'Submit Payment';
+        }
+    } else {
+        if (payvibeInfo) payvibeInfo.style.display = 'block';
+        if (manualInfo) manualInfo.style.display = 'none';
+        if (receiptInput) {
+            receiptInput.required = false;
+            receiptInput.value = '';
+        }
+        if (submitBtnText) {
+            submitBtnText.textContent = 'Continue to Payment';
+        }
+    }
+}
+
+function copyToClipboard(text, button) {
+    navigator.clipboard.writeText(text).then(function() {
+        const originalHTML = button.innerHTML;
+        button.innerHTML = '<i class="fas fa-check"></i> Copied!';
+        button.style.background = '#10b981';
+        setTimeout(function() {
+            button.innerHTML = originalHTML;
+            button.style.background = '';
+        }, 2000);
+    }).catch(function(err) {
+        // Fallback for older browsers
+        const textArea = document.createElement('textarea');
+        textArea.value = text;
+        textArea.style.position = 'fixed';
+        textArea.style.opacity = '0';
+        document.body.appendChild(textArea);
+        textArea.select();
+        try {
+            document.execCommand('copy');
+            const originalHTML = button.innerHTML;
+            button.innerHTML = '<i class="fas fa-check"></i> Copied!';
+            button.style.background = '#10b981';
+            setTimeout(function() {
+                button.innerHTML = originalHTML;
+                button.style.background = '';
+            }, 2000);
+        } catch (err) {
+            alert('Failed to copy: ' + err);
+        }
+        document.body.removeChild(textArea);
+    });
+}
 </script>
 
 <style>
@@ -299,6 +451,161 @@ document.addEventListener('DOMContentLoaded', function() {
     border-color: #667eea;
     background: #f0f4ff;
     box-shadow: 0 2px 8px rgba(102, 126, 234, 0.15);
+}
+
+.payment-method-options {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    margin-top: 10px;
+}
+
+.payment-method-option {
+    position: relative;
+}
+
+.payment-method-option input[type="radio"] {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.method-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 20px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s;
+    background: white;
+    text-align: center;
+}
+
+.method-content i {
+    font-size: 32px;
+    color: #667eea;
+}
+
+.method-content span {
+    font-weight: 600;
+    color: #333;
+    font-size: 16px;
+}
+
+.method-content small {
+    font-size: 12px;
+    color: #666;
+}
+
+.payment-method-option input[type="radio"]:checked + .method-content,
+.payment-method-option:hover .method-content {
+    border-color: #667eea;
+    background: #f0f4ff;
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.15);
+}
+
+.manual-payment-accounts {
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.manual-account-card {
+    background: white;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 20px;
+}
+
+.manual-account-card h4 {
+    margin: 0 0 15px 0;
+    color: #333;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.account-details {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.detail-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.detail-label {
+    font-weight: 600;
+    color: #666;
+    min-width: 120px;
+}
+
+.detail-value {
+    color: #333;
+    font-weight: 500;
+}
+
+.account-number {
+    font-family: monospace;
+    font-size: 16px;
+    background: #f5f7fa;
+    padding: 5px 10px;
+    border-radius: 4px;
+}
+
+.copy-btn {
+    background: #667eea;
+    color: white;
+    border: none;
+    padding: 5px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    transition: background 0.3s;
+}
+
+.copy-btn:hover {
+    background: #5568d3;
+}
+
+.payment-instructions {
+    margin-top: 15px;
+    padding: 15px;
+    background: #f0f4ff;
+    border-left: 4px solid #667eea;
+    border-radius: 4px;
+}
+
+.payment-instructions strong {
+    display: block;
+    margin-bottom: 8px;
+    color: #667eea;
+}
+
+.payment-instructions p {
+    margin: 0;
+    color: #555;
+    line-height: 1.6;
+}
+
+.manual-payment-upload {
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 8px;
+    border: 2px dashed #e0e0e0;
+}
+
+.required {
+    color: #ef4444;
 }
 </style>
 @endsection

@@ -13,6 +13,13 @@ return new class extends Migration
     {
         Schema::create('manual_payment_settings', function (Blueprint $table) {
             $table->id();
+            $table->string('name');
+            $table->string('bank_name');
+            $table->string('account_name');
+            $table->string('account_number');
+            $table->text('payment_instructions')->nullable();
+            $table->boolean('is_active')->default(true);
+            $table->integer('order')->default(0);
             $table->timestamps();
         });
     }

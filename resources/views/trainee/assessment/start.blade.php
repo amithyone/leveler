@@ -65,7 +65,7 @@
     <div class="file-upload-section">
         <div class="file-upload-card">
             <h3><i class="fas fa-paperclip"></i> Optional File Submission</h3>
-            <p class="file-upload-note">You can optionally upload a file or provide a link to a file sharing service (e.g., transfernow.org)</p>
+            <p class="file-upload-note">You can optionally upload a file or provide a link to a file sharing service (e.g., transfernow.net)</p>
             
             <div class="file-upload-options">
                 <div class="file-option">
@@ -97,9 +97,9 @@
                         id="file_link" 
                         name="file_link" 
                         class="form-control file-link-input"
-                        placeholder="https://transfernow.org/..."
+                        placeholder="https://www.transfernow.net/..."
                     >
-                    <small class="file-help">Paste the link to your file on transfernow.org or other file sharing service</small>
+                    <small class="file-help">Paste the link to your file on transfernow.net or other file sharing service</small>
                 </div>
             </div>
         </div>

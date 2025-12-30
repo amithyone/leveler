@@ -211,6 +211,106 @@ class TraineeRegisterController extends Controller
     }
 
     /**
+     * Show course selection page for existing trainees who haven't selected courses
+     */
+    public function showCourseSelection(Request $request)
+    {
+        $user = Auth::user();
+        $trainee = Trainee::where('user_id', $user->id)->first();
+        
+        if (!$trainee) {
+            return redirect()->route('trainee.register')
+                ->with('error', 'Please complete registration first');
+        }
+        
+        // Get package type and determine course limits
+        $packageType = $trainee->package_type;
+        if (strpos($packageType, 'nysc_package_') === 0) {
+            $packageType = strtoupper(str_replace('nysc_package_', '', $packageType));
+        }
+        
+        $packageInfo = [
+            'type' => $packageType,
+            'total_amount' => $trainee->total_required ?? 0,
+        ];
+        
+        // Determine max and min courses based on package type
+        if (in_array($packageType, ['A', 'B', 'C', 'D'])) {
+            $packageInfo['max_courses'] = $packageType === 'A' ? 1 : ($packageType === 'B' ? 3 : ($packageType === 'C' ? 6 : 9));
+            $packageInfo['min_courses'] = $packageType === 'A' ? 1 : ($packageType === 'B' ? 2 : ($packageType === 'C' ? 4 : 7));
+        } elseif ($packageType === 'package') {
+            $packageInfo['max_courses'] = 4;
+            $packageInfo['min_courses'] = 4;
+        } elseif ($packageType === 'single') {
+            $packageInfo['max_courses'] = 1;
+            $packageInfo['min_courses'] = 1;
+        } else {
+            // Default fallback
+            $packageInfo['max_courses'] = 9;
+            $packageInfo['min_courses'] = 1;
+        }
+        
+        // Get available courses
+        $courses = \App\Models\Course::where('status', 'Active')->orderBy('title')->get();
+        
+        // Get currently selected courses if any
+        $selectedCourses = $trainee->selected_courses ?? [];
+        
+        return view('trainee.auth.select-courses', compact('courses', 'packageInfo', 'selectedCourses', 'trainee'));
+    }
+    
+    /**
+     * Save course selection for existing trainee
+     */
+    public function saveCourseSelection(Request $request)
+    {
+        $user = Auth::user();
+        $trainee = Trainee::where('user_id', $user->id)->first();
+        
+        if (!$trainee) {
+            return redirect()->route('trainee.register')
+                ->with('error', 'Please complete registration first');
+        }
+        
+        // Get package type and determine course limits
+        $packageType = $trainee->package_type;
+        if (strpos($packageType, 'nysc_package_') === 0) {
+            $packageType = strtoupper(str_replace('nysc_package_', '', $packageType));
+        }
+        
+        // Determine max and min courses based on package type
+        $minCourses = 1;
+        $maxCourses = 9;
+        
+        if (in_array($packageType, ['A', 'B', 'C', 'D'])) {
+            $minCourses = $packageType === 'A' ? 1 : ($packageType === 'B' ? 2 : ($packageType === 'C' ? 4 : 7));
+            $maxCourses = $packageType === 'A' ? 1 : ($packageType === 'B' ? 3 : ($packageType === 'C' ? 6 : 9));
+        } elseif ($packageType === 'package') {
+            $minCourses = 4;
+            $maxCourses = 4;
+        } elseif ($packageType === 'single') {
+            $minCourses = 1;
+            $maxCourses = 1;
+        }
+        
+        $request->validate([
+            'courses' => "required|array|min:{$minCourses}|max:{$maxCourses}",
+            'courses.*' => 'required|exists:courses,id',
+        ]);
+        
+        // Update trainee with selected courses
+        $trainee->update([
+            'selected_courses' => $request->courses
+        ]);
+        
+        // Store in session for payment page
+        $request->session()->put('selected_courses', $request->courses);
+        
+        return redirect()->route('trainee.payments.create')
+            ->with('success', 'Courses selected successfully! Please proceed to make payment.');
+    }
+
+    /**
      * Generate a unique username (format: BCD/XXXXXX)
      * Used when creating trainee record from user
      */

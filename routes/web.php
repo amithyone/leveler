@@ -208,6 +208,10 @@ Route::prefix('trainee')->name('trainee.')->group(function () {
         Route::get('/certificates/{resultId}/view', [CertificateController::class, 'view'])->name('certificates.view');
         Route::get('/certificates/{resultId}/download', [CertificateController::class, 'download'])->name('certificates.download');
         
+        // Course Selection (before payment)
+        Route::get('/courses/select', [TraineeRegisterController::class, 'showCourseSelection'])->name('courses.select');
+        Route::post('/courses/select', [TraineeRegisterController::class, 'saveCourseSelection'])->name('courses.select.save');
+        
         // Payments
         Route::get('/payments', [TraineePaymentController::class, 'index'])->name('payments.index');
         Route::get('/payments/create', [TraineePaymentController::class, 'create'])->name('payments.create');

@@ -64,15 +64,47 @@ class PaymentController extends Controller
         $user = Auth::user();
         $trainee = TraineeHelper::getCurrentTrainee();
         
+        if (!$trainee) {
+            return redirect()->route('trainee.register')
+                ->with('error', 'Please complete registration first');
+        }
+        
         // Get package info from session if available (from registration)
         $packageInfo = session('package_info');
         
         // If trainee exists and has package type, use that
-        if ($trainee && $trainee->package_type) {
+        if ($trainee->package_type) {
+            // Extract package type (handle both 'A' and 'nysc_package_a' formats)
+            $packageType = $trainee->package_type;
+            if (strpos($packageType, 'nysc_package_') === 0) {
+                $packageType = strtoupper(str_replace('nysc_package_', '', $packageType));
+            }
+            
             $packageInfo = [
-                'type' => $trainee->package_type,
+                'type' => $packageType,
                 'total_amount' => $trainee->total_required ?? 0,
             ];
+            
+            // Determine max courses based on package type
+            if (in_array($packageType, ['A', 'B', 'C', 'D'])) {
+                $packageInfo['max_courses'] = $packageType === 'A' ? 1 : ($packageType === 'B' ? 3 : ($packageType === 'C' ? 6 : 9));
+                $packageInfo['min_courses'] = $packageType === 'A' ? 1 : ($packageType === 'B' ? 2 : ($packageType === 'C' ? 4 : 7));
+            } elseif ($packageType === 'package') {
+                $packageInfo['max_courses'] = 4;
+                $packageInfo['min_courses'] = 4;
+            } elseif ($packageType === 'single') {
+                $packageInfo['max_courses'] = 1;
+                $packageInfo['min_courses'] = 1;
+            }
+        }
+        
+        // Check if trainee has selected courses
+        $hasSelectedCourses = $trainee->selected_courses && count($trainee->selected_courses) > 0;
+        
+        // If no selected courses and package info exists, redirect to course selection
+        if (!$hasSelectedCourses && $packageInfo) {
+            return redirect()->route('trainee.courses.select')
+                ->with('info', 'Please select your courses before making payment.');
         }
         
         // Get active manual payment settings

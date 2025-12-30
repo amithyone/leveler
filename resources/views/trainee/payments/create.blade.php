@@ -107,17 +107,20 @@
                         <h4><i class="fas fa-university"></i> {{ $setting->name }}</h4>
                         <div class="account-details">
                             <div class="detail-row">
-                                <span class="detail-label">Bank Name:</span>
+                                <span class="detail-label"><i class="fas fa-building"></i> Bank Name:</span>
                                 <span class="detail-value">{{ $setting->bank_name }}</span>
                             </div>
-                            <div class="detail-row">
-                                <span class="detail-label">Account Name:</span>
-                                <span class="detail-value">{{ $setting->account_name }}</span>
+                            <div class="detail-row highlight-row">
+                                <span class="detail-label"><i class="fas fa-user"></i> Bank Account Name:</span>
+                                <span class="detail-value account-name">{{ $setting->account_name }}</span>
+                                <button type="button" class="copy-btn" onclick="copyToClipboard('{{ $setting->account_name }}', this)" title="Copy Account Name">
+                                    <i class="fas fa-copy"></i> Copy
+                                </button>
                             </div>
-                            <div class="detail-row">
-                                <span class="detail-label">Account Number:</span>
+                            <div class="detail-row highlight-row">
+                                <span class="detail-label"><i class="fas fa-hashtag"></i> Bank Account Number:</span>
                                 <span class="detail-value account-number">{{ $setting->account_number }}</span>
-                                <button type="button" class="copy-btn" onclick="copyToClipboard('{{ $setting->account_number }}', this)">
+                                <button type="button" class="copy-btn" onclick="copyToClipboard('{{ $setting->account_number }}', this)" title="Copy Account Number">
                                     <i class="fas fa-copy"></i> Copy
                                 </button>
                             </div>
@@ -554,12 +557,32 @@ function copyToClipboard(text, button) {
     font-weight: 500;
 }
 
-.account-number {
+.account-number,
+.account-name {
     font-family: monospace;
     font-size: 16px;
     background: #f5f7fa;
     padding: 5px 10px;
     border-radius: 4px;
+}
+
+.highlight-row {
+    background: #f0f4ff;
+    padding: 12px;
+    border-radius: 6px;
+    border-left: 4px solid #667eea;
+    margin: 5px 0;
+}
+
+.highlight-row .detail-label {
+    color: #667eea;
+    font-weight: 700;
+}
+
+.highlight-row .detail-value {
+    color: #333;
+    font-weight: 600;
+    font-size: 16px;
 }
 
 .copy-btn {

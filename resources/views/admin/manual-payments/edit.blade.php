@@ -25,8 +25,9 @@
 
             <div class="form-row">
                 <div class="form-group">
-                    <label for="name">Account Name *</label>
+                    <label for="name">Payment Account Name *</label>
                     <input type="text" name="name" id="name" value="{{ old('name', $setting->name) }}" required placeholder="e.g., Main Account">
+                    <small style="display: block; margin-top: 5px; color: #666;">Display name for this payment option</small>
                 </div>
 
                 <div class="form-group">
@@ -37,13 +38,15 @@
 
             <div class="form-row">
                 <div class="form-group">
-                    <label for="account_name">Account Holder Name *</label>
+                    <label for="account_name">Bank Account Name *</label>
                     <input type="text" name="account_name" id="account_name" value="{{ old('account_name', $setting->account_name) }}" required placeholder="e.g., Leveler CC">
+                    <small style="display: block; margin-top: 5px; color: #666;">Name on the bank account</small>
                 </div>
 
                 <div class="form-group">
-                    <label for="account_number">Account Number *</label>
+                    <label for="account_number">Bank Account Number *</label>
                     <input type="text" name="account_number" id="account_number" value="{{ old('account_number', $setting->account_number) }}" required placeholder="e.g., 1234567890">
+                    <small style="display: block; margin-top: 5px; color: #666;">Bank account number</small>
                 </div>
             </div>
 

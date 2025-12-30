@@ -28,10 +28,15 @@ class Trainee extends Authenticatable
         'state_code',
         'nysc_start_date',
         'package_type',
+        'selected_courses',
     ];
 
     protected $hidden = [
         'password',
+    ];
+
+    protected $casts = [
+        'selected_courses' => 'array',
     ];
 
     /**

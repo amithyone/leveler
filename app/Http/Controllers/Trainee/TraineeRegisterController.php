@@ -132,6 +132,7 @@ class TraineeRegisterController extends Controller
             'nysc_start_date' => now(), // Start countdown timer
             'package_type' => $package['type'], // Store package type
             'total_required' => $package['total_amount'], // Store total package amount
+            'selected_courses' => $request->courses, // Store selected course IDs
         ]);
 
         // Store selected courses in session for payment page
@@ -189,6 +190,7 @@ class TraineeRegisterController extends Controller
             'password' => $request->password, // Store plain text for backward compatibility
             'status' => 'Inactive', // Will be activated when payment is made
             'user_type' => 'working_class',
+            'selected_courses' => $request->courses ?? [], // Store selected course IDs
         ]);
 
         // Store selected courses in session for payment page

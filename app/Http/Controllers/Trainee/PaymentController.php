@@ -158,7 +158,15 @@ class PaymentController extends Controller
                 }
             }
             
-            $courseAccessCount = count(session('selected_courses', []));
+            // Get selected courses from trainee record or session
+            $selectedCourses = $trainee->selected_courses ?? session('selected_courses', []);
+            if (empty($selectedCourses) && session('selected_courses')) {
+                // Update trainee record with selected courses from session if not already saved
+                $trainee->update(['selected_courses' => session('selected_courses')]);
+                $selectedCourses = session('selected_courses');
+            }
+            
+            $courseAccessCount = count($selectedCourses);
             if ($courseAccessCount == 0) {
                 $courseAccessCount = 1; // Default
             }
@@ -229,7 +237,16 @@ class PaymentController extends Controller
         try {
             $packageType = $packageInfo['type'];
             $totalRequired = $packageInfo['total_amount'];
-            $courseAccessCount = count(session('selected_courses', []));
+            
+            // Get selected courses from trainee record or session
+            $selectedCourses = $trainee->selected_courses ?? session('selected_courses', []);
+            if (empty($selectedCourses) && session('selected_courses')) {
+                // Update trainee record with selected courses from session if not already saved
+                $trainee->update(['selected_courses' => session('selected_courses')]);
+                $selectedCourses = session('selected_courses');
+            }
+            
+            $courseAccessCount = count($selectedCourses);
             if ($courseAccessCount == 0) {
                 $courseAccessCount = 1;
             }

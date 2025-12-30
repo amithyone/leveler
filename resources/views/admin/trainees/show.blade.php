@@ -181,14 +181,60 @@
             @endif
         </div>
 
-        <!-- Selected Courses -->
+        <!-- Courses Selected During Registration -->
+        @php
+            $selectedCourseIds = $trainee->selected_courses ?? [];
+            $selectedCourses = $selectedCourseIds ? \App\Models\Course::whereIn('id', $selectedCourseIds)->get() : collect([]);
+        @endphp
+        
+        @if($selectedCourses->count() > 0)
+        <div class="content-section" style="margin-top: 30px;">
+            <div class="section-header">
+                <h2 class="section-title">
+                    <i class="fas fa-check-circle"></i> Courses Selected During Registration
+                </h2>
+                <span class="badge badge-primary">{{ $selectedCourses->count() }} Course(s)</span>
+            </div>
+
+            <div class="courses-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; margin-top: 20px;">
+                @foreach($selectedCourses as $course)
+                <div class="course-card" style="background: linear-gradient(135deg, #f0f4ff 0%, #e0e7ff 100%); border: 2px solid #667eea; border-radius: 8px; padding: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 15px;">
+                        <div>
+                            <h4 style="margin: 0 0 5px 0; color: #333; font-size: 16px; font-weight: 600;">{{ $course->title }}</h4>
+                            <p style="margin: 0; color: #667eea; font-weight: 700; font-size: 12px;">{{ $course->code }}</p>
+                        </div>
+                        @if($trainee->hasAccessToCourse($course->id))
+                            <span class="badge badge-success" style="font-size: 10px;">
+                                <i class="fas fa-check"></i> Access Granted
+                            </span>
+                        @else
+                            <span class="badge badge-warning" style="font-size: 10px; background: #f59e0b;">
+                                <i class="fas fa-clock"></i> Pending Payment
+                            </span>
+                        @endif
+                    </div>
+                    @if($course->description)
+                    <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(102, 126, 234, 0.2);">
+                        <small style="color: #666; font-size: 12px;">
+                            {{ \Illuminate\Support\Str::limit($course->description, 100) }}
+                        </small>
+                    </div>
+                    @endif
+                </div>
+                @endforeach
+            </div>
+        </div>
+        @endif
+
+        <!-- Courses with Access Granted -->
         @if($trainee->accessibleCourses->count() > 0)
         <div class="content-section" style="margin-top: 30px;">
             <div class="section-header">
                 <h2 class="section-title">
-                    <i class="fas fa-book"></i> Selected Courses
+                    <i class="fas fa-unlock"></i> Courses with Access Granted
                 </h2>
-                <span class="badge badge-info">{{ $trainee->accessibleCourses->count() }} Course(s)</span>
+                <span class="badge badge-success">{{ $trainee->accessibleCourses->count() }} Course(s)</span>
             </div>
 
             <div class="courses-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; margin-top: 20px;">
@@ -210,18 +256,6 @@
                     @endif
                 </div>
                 @endforeach
-            </div>
-        </div>
-        @else
-        <div class="content-section" style="margin-top: 30px;">
-            <div class="section-header">
-                <h2 class="section-title">
-                    <i class="fas fa-book"></i> Selected Courses
-                </h2>
-            </div>
-            <div style="padding: 20px; text-align: center; color: #666;">
-                <i class="fas fa-info-circle" style="font-size: 48px; color: #ccc; margin-bottom: 10px;"></i>
-                <p>No courses have been granted access yet.</p>
             </div>
         </div>
         @endif

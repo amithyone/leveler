@@ -145,8 +145,9 @@
                         <th>Phone</th>
                         <th>Status</th>
                         <th>Payment Status</th>
+                        <th>Remaining Balance</th>
                         <th>Package</th>
-                        <th>Courses</th>
+                        <th>Course Access</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
@@ -176,24 +177,28 @@
                         </td>
                         <td>
                             @if($trainee->has_payment)
-                                <div style="display: flex; flex-direction: column; gap: 4px;">
-                                    <span class="status-badge status-active" style="font-size: 11px;">
-                                        <i class="fas fa-check"></i> Paid
-                                    </span>
-                                    @if($trainee->remaining_balance > 0)
-                                    <small style="color: #f59e0b; font-size: 11px;">
-                                        Balance: ₦{{ number_format($trainee->remaining_balance, 2) }}
-                                    </small>
-                                    @else
-                                    <small style="color: #10b981; font-size: 11px;">
-                                        Fully Paid
-                                    </small>
-                                    @endif
-                                </div>
+                                <span class="status-badge status-active" style="font-size: 11px;">
+                                    <i class="fas fa-check"></i> Paid
+                                </span>
                             @else
                                 <span class="status-badge status-inactive" style="font-size: 11px;">
                                     <i class="fas fa-times"></i> Not Paid
                                 </span>
+                            @endif
+                        </td>
+                        <td>
+                            @if($trainee->has_payment)
+                                @if($trainee->remaining_balance > 0)
+                                    <span style="color: #f59e0b; font-weight: 600; font-size: 13px;">
+                                        ₦{{ number_format($trainee->remaining_balance, 2) }}
+                                    </span>
+                                @else
+                                    <span style="color: #10b981; font-weight: 600; font-size: 13px;">
+                                        ₦0.00
+                                    </span>
+                                @endif
+                            @else
+                                <span class="text-muted" style="font-size: 12px;">-</span>
                             @endif
                         </td>
                         <td>
@@ -220,9 +225,21 @@
                             @endif
                         </td>
                         <td>
-                            <span class="badge badge-secondary" style="font-size: 11px;">
-                                <i class="fas fa-book"></i> {{ $trainee->accessible_courses_count }}
-                            </span>
+                            <div style="display: flex; flex-direction: column; gap: 4px;">
+                                <span class="badge badge-secondary" style="font-size: 11px;">
+                                    <i class="fas fa-book"></i> {{ $trainee->accessible_courses_count ?? 0 }} Access
+                                </span>
+                                @if($trainee->selected_courses)
+                                    @php
+                                        $selectedCount = is_array($trainee->selected_courses) ? count($trainee->selected_courses) : 0;
+                                    @endphp
+                                    @if($selectedCount > 0)
+                                        <small style="color: #666; font-size: 10px;">
+                                            {{ $selectedCount }} Selected
+                                        </small>
+                                    @endif
+                                @endif
+                            </div>
                         </td>
                         <td class="actions-cell">
                             <div class="action-buttons">

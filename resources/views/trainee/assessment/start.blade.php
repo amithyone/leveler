@@ -11,11 +11,11 @@
     <p class="assessment-info">
         <i class="fas fa-question-circle"></i> {{ $questions->count() }} Questions
         <span class="separator">|</span>
-        <i class="fas fa-percentage"></i> Passing Score: 70%
+        <i class="fas fa-percentage"></i> Passing Score: {{ $course->passing_score ?? 70 }}%
     </p>
 </div>
 
-<form id="assessmentForm" method="POST" action="{{ route('trainee.assessment.submit', $course->id) }}">
+<form id="assessmentForm" method="POST" action="{{ route('trainee.assessment.submit', $course->id) }}" enctype="multipart/form-data">
     @csrf
     
     <div class="assessment-container">
@@ -59,6 +59,50 @@
             </div>
         </div>
         @endforeach
+    </div>
+
+    <!-- Optional File Upload Section -->
+    <div class="file-upload-section">
+        <div class="file-upload-card">
+            <h3><i class="fas fa-paperclip"></i> Optional File Submission</h3>
+            <p class="file-upload-note">You can optionally upload a file or provide a link to a file sharing service (e.g., transfernow.org)</p>
+            
+            <div class="file-upload-options">
+                <div class="file-option">
+                    <label for="assessment_file" class="file-upload-label">
+                        <i class="fas fa-upload"></i>
+                        <span>Upload File</span>
+                    </label>
+                    <input 
+                        type="file" 
+                        id="assessment_file" 
+                        name="assessment_file" 
+                        class="file-input"
+                        accept=".pdf,.doc,.docx,.txt,.jpg,.jpeg,.png,.zip,.rar"
+                    >
+                    <small class="file-help">Accepted formats: PDF, DOC, DOCX, TXT, JPG, PNG, ZIP, RAR (Max: 10MB)</small>
+                </div>
+                
+                <div class="file-divider">
+                    <span>OR</span>
+                </div>
+                
+                <div class="file-option">
+                    <label for="file_link" class="file-link-label">
+                        <i class="fas fa-link"></i>
+                        <span>File Link</span>
+                    </label>
+                    <input 
+                        type="url" 
+                        id="file_link" 
+                        name="file_link" 
+                        class="form-control file-link-input"
+                        placeholder="https://transfernow.org/..."
+                    >
+                    <small class="file-help">Paste the link to your file on transfernow.org or other file sharing service</small>
+                </div>
+            </div>
+        </div>
     </div>
 
     <div class="assessment-footer">

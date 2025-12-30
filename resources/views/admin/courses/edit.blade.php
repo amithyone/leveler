@@ -144,6 +144,29 @@
 
             <div class="form-row">
                 <div class="form-group">
+                    <label for="passing_score">
+                        <i class="fas fa-trophy"></i> Passing Score (%) <span class="required">*</span>
+                    </label>
+                    <input 
+                        type="number" 
+                        id="passing_score" 
+                        name="passing_score" 
+                        class="form-control @error('passing_score') error @enderror"
+                        value="{{ old('passing_score', $course->passing_score ?? 70) }}"
+                        min="0"
+                        max="100"
+                        required
+                        placeholder="e.g., 70"
+                    >
+                    @error('passing_score')
+                        <span class="error-message">{{ $message }}</span>
+                    @enderror
+                    <small class="form-help">Minimum percentage score required to pass the assessment (0-100)</small>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
                     <label for="status">
                         <i class="fas fa-toggle-on"></i> Status <span class="required">*</span>
                     </label>

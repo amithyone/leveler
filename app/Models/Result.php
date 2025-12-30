@@ -15,6 +15,8 @@ class Result extends Model
         'score',
         'total_questions',
         'questions_asked',
+        'file_path',
+        'file_link',
         'percentage',
         'status',
         'completed_at',

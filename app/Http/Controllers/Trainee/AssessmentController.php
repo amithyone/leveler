@@ -10,6 +10,7 @@ use App\Models\Trainee;
 use App\Helpers\TraineeHelper;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class AssessmentController extends Controller
 {
@@ -123,6 +124,8 @@ class AssessmentController extends Controller
         $request->validate([
             'answers' => 'required|array',
             'answers.*' => 'required',
+            'assessment_file' => 'nullable|file|max:10240|mimes:pdf,doc,docx,txt,jpg,jpeg,png,zip,rar',
+            'file_link' => 'nullable|url|max:500',
         ]);
 
         // Get the questions that were actually asked (from the submitted answers)
@@ -155,8 +158,19 @@ class AssessmentController extends Controller
         }
 
         $percentage = $totalPoints > 0 ? ($score / $totalPoints) * 100 : 0;
-        $passingScore = 70; // 70% passing score
+        $passingScore = $course->passing_score ?? 70; // Use course-specific passing score or default to 70%
         $status = $percentage >= $passingScore ? 'Pass' : 'Fail';
+
+        // Handle file upload
+        $filePath = null;
+        if ($request->hasFile('assessment_file')) {
+            $file = $request->file('assessment_file');
+            $fileName = 'assessment_' . $trainee->id . '_' . $courseId . '_' . time() . '.' . $file->getClientOriginalExtension();
+            $filePath = $file->storeAs('assessment_files', $fileName, 'public');
+        }
+
+        // Get file link if provided
+        $fileLink = $request->input('file_link');
 
         // Save result
         $result = Result::create([
@@ -165,6 +179,8 @@ class AssessmentController extends Controller
             'score' => $score,
             'total_questions' => $totalQuestions,
             'questions_asked' => $questionsAskedIds,
+            'file_path' => $filePath,
+            'file_link' => $fileLink,
             'percentage' => round($percentage, 2),
             'status' => $status,
             'completed_at' => now(),

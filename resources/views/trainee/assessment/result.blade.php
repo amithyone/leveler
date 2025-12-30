@@ -9,9 +9,9 @@
 </div>
 
 <div class="result-container">
-    <div class="result-card {{ $result->status === 'passed' ? 'result-passed' : 'result-failed' }}">
+    <div class="result-card {{ $result->status === 'Pass' ? 'result-passed' : 'result-failed' }}">
         <div class="result-icon">
-            @if($result->status === 'passed')
+            @if($result->status === 'Pass')
                 <i class="fas fa-check-circle"></i>
             @else
                 <i class="fas fa-times-circle"></i>
@@ -19,7 +19,7 @@
         </div>
         
         <div class="result-title">
-            @if($result->status === 'passed')
+            @if($result->status === 'Pass')
                 <h2>Congratulations! You Passed!</h2>
                 <p>You have successfully completed the assessment</p>
             @else
@@ -29,7 +29,7 @@
         </div>
 
         <div class="result-score">
-            <div class="score-circle {{ $result->status === 'passed' ? 'score-passed' : 'score-failed' }}">
+            <div class="score-circle {{ $result->status === 'Pass' ? 'score-passed' : 'score-failed' }}">
                 <div class="score-value">{{ number_format($result->percentage, 1) }}%</div>
                 <div class="score-label">Score</div>
             </div>
@@ -46,7 +46,7 @@
             </div>
             <div class="detail-item">
                 <span class="detail-label">Passing Score</span>
-                <span class="detail-value">70%</span>
+                <span class="detail-value">{{ $result->course->passing_score ?? 70 }}%</span>
             </div>
             <div class="detail-item">
                 <span class="detail-label">Date Completed</span>
@@ -54,8 +54,40 @@
             </div>
         </div>
 
+        @if($result->file_path || $result->file_link)
+        <div class="file-submission-section">
+            <h3><i class="fas fa-paperclip"></i> Submitted File</h3>
+            <div class="file-submission-info">
+                @if($result->file_path)
+                    <div class="file-item">
+                        <i class="fas fa-file"></i>
+                        <div class="file-details">
+                            <strong>Uploaded File</strong>
+                            <p>{{ basename($result->file_path) }}</p>
+                        </div>
+                        <a href="{{ Storage::url($result->file_path) }}" target="_blank" class="btn btn-outline btn-sm">
+                            <i class="fas fa-download"></i> Download
+                        </a>
+                    </div>
+                @endif
+                @if($result->file_link)
+                    <div class="file-item">
+                        <i class="fas fa-link"></i>
+                        <div class="file-details">
+                            <strong>File Link</strong>
+                            <p>{{ $result->file_link }}</p>
+                        </div>
+                        <a href="{{ $result->file_link }}" target="_blank" class="btn btn-outline btn-sm">
+                            <i class="fas fa-external-link-alt"></i> Open Link
+                        </a>
+                    </div>
+                @endif
+            </div>
+        </div>
+        @endif
+
         <div class="result-actions">
-            @if($result->status === 'passed')
+            @if($result->status === 'Pass')
                 <a href="{{ route('trainee.certificates.view', $result->id) }}" class="btn btn-primary btn-lg">
                     <i class="fas fa-certificate"></i> View Certificate
                 </a>

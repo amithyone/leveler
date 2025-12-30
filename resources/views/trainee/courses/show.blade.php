@@ -34,7 +34,7 @@
                     <i class="fas fa-percentage"></i>
                     <div>
                         <strong>Passing Score</strong>
-                        <p>70%</p>
+                        <p>{{ $course->passing_score ?? 70 }}%</p>
                     </div>
                 </div>
             </div>
@@ -72,7 +72,7 @@
         <div class="info-content">
             <h3>Previous Attempt</h3>
             <p>You scored {{ number_format($latestResult->percentage, 1) }}% on {{ $latestResult->completed_at->format('F d, Y') }}</p>
-            <p class="note">You need 70% to pass. You can retake the assessment to improve your score.</p>
+            <p class="note">You need {{ $course->passing_score ?? 70 }}% to pass. You can retake the assessment to improve your score.</p>
             <div class="info-actions">
                 <a href="{{ route('trainee.assessment.start', $course->id) }}" class="btn btn-primary">
                     <i class="fas fa-redo"></i> Retake Assessment
@@ -90,7 +90,7 @@
         </div>
         <div class="action-content">
             <h3>Ready to Start?</h3>
-            <p>This assessment contains {{ $course->questionPools->count() }} questions. You need to score at least 70% to pass and earn your certificate.</p>
+            <p>This assessment contains {{ $course->questionPools->count() }} questions. You need to score at least {{ $course->passing_score ?? 70 }}% to pass and earn your certificate.</p>
             <ul class="assessment-rules">
                 <li><i class="fas fa-check"></i> Read each question carefully</li>
                 <li><i class="fas fa-check"></i> Select the best answer</li>

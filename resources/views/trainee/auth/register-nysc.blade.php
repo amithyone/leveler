@@ -179,6 +179,23 @@
                     <small class="form-text">Include country code (e.g., 234 for Nigeria)</small>
                 </div>
 
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="password">
+                            <i class="fas fa-lock"></i> Password <span class="required">*</span>
+                        </label>
+                        <input type="password" id="password" name="password" required placeholder="Enter your password (min 6 characters)">
+                        <small class="form-text">Choose a secure password</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password_confirmation">
+                            <i class="fas fa-lock"></i> Confirm Password <span class="required">*</span>
+                        </label>
+                        <input type="password" id="password_confirmation" name="password_confirmation" required placeholder="Confirm your password">
+                    </div>
+                </div>
+
                 <div class="course-selection">
                     <label style="font-weight: bold; margin-bottom: 1rem; display: block;">
                         <i class="fas fa-book"></i> Select Course(s) 

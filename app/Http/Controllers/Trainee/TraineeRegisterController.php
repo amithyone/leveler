@@ -91,6 +91,7 @@ class TraineeRegisterController extends Controller
             'full_name' => 'required|string|max:255',
             'state_code' => 'required|string|max:10',
             'whatsapp_number' => 'required|string|max:20',
+            'password' => 'required|string|min:6|confirmed',
             'courses' => "required|array|min:{$minCourses}|max:{$maxCourses}",
             'courses.*' => 'required|exists:courses,id',
         ]);
@@ -103,8 +104,8 @@ class TraineeRegisterController extends Controller
             $counter++;
         }
 
-        // Generate password
-        $password = 'Leveler' . rand(1000, 9999);
+        // Use password from form input
+        $password = $request->password;
 
         // Create user account
         $user = User::create([
@@ -150,8 +151,7 @@ class TraineeRegisterController extends Controller
         $request->session()->regenerate();
 
         return redirect()->route('trainee.payments.create')
-            ->with('success', 'Registration successful! Please proceed to make payment for your selected courses.')
-            ->with('password_info', 'Your password is: ' . $password . ' (Please save this)');
+            ->with('success', 'Registration successful! Please proceed to make payment for your selected courses.');
     }
 
     /**

@@ -104,11 +104,13 @@
                 </div>
                 @endif
 
-                @if($hasAccess && $course->training_link)
+                @if($hasAccess && ($course->training_link || $course->whatsapp_link))
                 <div class="course-section training-link-section">
-                    <h2><i class="fas fa-video"></i> Training Materials</h2>
-                    <p>Access your training materials and resources for this course.</p>
-                    <div class="training-link-card">
+                    <h2><i class="fas fa-video"></i> Course Resources</h2>
+                    <p>Access your training materials and join the course community.</p>
+                    
+                    @if($course->training_link)
+                    <div class="training-link-card" style="margin-bottom: 20px;">
                         <div class="training-link-content">
                             <i class="fas fa-link"></i>
                             <div>
@@ -120,6 +122,22 @@
                             <i class="fas fa-external-link-alt"></i> Access Training
                         </a>
                     </div>
+                    @endif
+                    
+                    @if($course->whatsapp_link)
+                    <div class="training-link-card" style="background: linear-gradient(135deg, #25D366 0%, #128C7E 100%); border-color: #25D366;">
+                        <div class="training-link-content">
+                            <i class="fab fa-whatsapp" style="color: white;"></i>
+                            <div style="color: white;">
+                                <strong>WhatsApp Group</strong>
+                                <p>Join the course WhatsApp group for discussions and updates</p>
+                            </div>
+                        </div>
+                        <a href="{{ $course->whatsapp_link }}" target="_blank" class="btn btn-lg" style="background: white; color: #25D366; border: none;" rel="noopener noreferrer">
+                            <i class="fab fa-whatsapp"></i> Join Group
+                        </a>
+                    </div>
+                    @endif
                 </div>
                 @endif
 

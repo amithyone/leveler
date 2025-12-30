@@ -132,7 +132,21 @@
                 <div class="payment-label">Package Type</div>
                 <div class="payment-value">
                     <span class="badge badge-info">
-                        {{ $trainee->package_type === 'package' ? '4 Courses Package' : 'Single Course' }}
+                        @if($trainee->package_type === 'A')
+                            Package A (1 Course)
+                        @elseif($trainee->package_type === 'B')
+                            Package B (2-3 Courses)
+                        @elseif($trainee->package_type === 'C')
+                            Package C (4-6 Courses)
+                        @elseif($trainee->package_type === 'D')
+                            Package D (7-9 Courses)
+                        @elseif($trainee->package_type === 'package')
+                            4 Courses Package
+                        @elseif($trainee->package_type === 'single')
+                            Single Course
+                        @else
+                            {{ $trainee->package_type }}
+                        @endif
                     </span>
                 </div>
             </div>
@@ -200,7 +214,23 @@
                             <td>
                                 @if($payment->package_type)
                                     <span class="badge badge-info" style="font-size: 11px;">
-                                        {{ $payment->package_type === 'package' ? '4 Courses' : '1 Course' }}
+                                        @php
+                                            $pkgType = $payment->package_type;
+                                            if (strpos($pkgType, 'nysc_package_') === 0) {
+                                                $pkgLetter = strtoupper(str_replace('nysc_package_', '', $pkgType));
+                                                if ($pkgLetter === 'A') echo 'Package A';
+                                                elseif ($pkgLetter === 'B') echo 'Package B';
+                                                elseif ($pkgLetter === 'C') echo 'Package C';
+                                                elseif ($pkgLetter === 'D') echo 'Package D';
+                                                else echo $pkgType;
+                                            } elseif ($pkgType === 'package') {
+                                                echo '4 Courses';
+                                            } elseif ($pkgType === 'single') {
+                                                echo '1 Course';
+                                            } else {
+                                                echo $pkgType;
+                                            }
+                                        @endphp
                                     </span>
                                 @endif
                             </td>

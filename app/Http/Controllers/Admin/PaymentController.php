@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Payment;
 use App\Models\Trainee;
+use App\Models\Course;
+use Illuminate\Support\Facades\Log;
 
 class PaymentController extends Controller
 {
@@ -54,9 +56,13 @@ class PaymentController extends Controller
 
         $payment = Payment::create($request->all());
 
-        // If payment is completed, activate the trainee
+        // If payment is completed, activate the trainee and grant course access
         if ($payment->status === 'Completed') {
-            $payment->trainee->update(['status' => 'Active']);
+            $trainee = $payment->trainee;
+            $trainee->update(['status' => 'Active']);
+            
+            // Grant course access based on payment
+            $this->grantCourseAccess($trainee, $payment);
         }
 
         return redirect()->route('admin.payments.index')->with('success', 'Payment recorded successfully');
@@ -87,9 +93,13 @@ class PaymentController extends Controller
 
         $payment->update($request->all());
 
-        // If payment status changed to Completed, activate the trainee
+        // If payment status changed to Completed, activate the trainee and grant course access
         if ($payment->status === 'Completed' && $oldStatus !== 'Completed') {
-            $payment->trainee->update(['status' => 'Active']);
+            $trainee = $payment->trainee;
+            $trainee->update(['status' => 'Active']);
+            
+            // Grant course access based on payment
+            $this->grantCourseAccess($trainee, $payment);
         }
 
         // If payment status changed from Completed to something else, check if trainee has other completed payments
@@ -117,5 +127,53 @@ class PaymentController extends Controller
         }
 
         return redirect()->route('admin.payments.index')->with('success', 'Payment deleted successfully');
+    }
+
+    /**
+     * Grant course access to trainee based on payment
+     */
+    private function grantCourseAccess(Trainee $trainee, Payment $payment)
+    {
+        $courseAccessCount = $payment->course_access_count ?? 1;
+        
+        if ($courseAccessCount <= 0) {
+            Log::warning('Admin Payment: No course access count specified', [
+                'payment_id' => $payment->id,
+                'trainee_id' => $trainee->id
+            ]);
+            return;
+        }
+        
+        // Get available active courses
+        $availableCourses = Course::where('status', 'Active')
+            ->orderBy('id')
+            ->get();
+
+        // Get courses trainee already has access to
+        $existingAccess = $trainee->accessibleCourses()->pluck('courses.id')->toArray();
+
+        // Filter out courses trainee already has access to
+        $coursesToGrant = $availableCourses->whereNotIn('id', $existingAccess)
+            ->take($courseAccessCount)
+            ->pluck('id')
+            ->toArray();
+
+        if (count($coursesToGrant) > 0) {
+            $trainee->grantCourseAccess($coursesToGrant, $payment->id);
+            
+            Log::info('Admin Payment: Course access granted', [
+                'trainee_id' => $trainee->id,
+                'payment_id' => $payment->id,
+                'courses_granted' => count($coursesToGrant),
+                'course_ids' => $coursesToGrant,
+            ]);
+        } else {
+            Log::warning('Admin Payment: No courses available to grant', [
+                'trainee_id' => $trainee->id,
+                'payment_id' => $payment->id,
+                'requested_count' => $courseAccessCount,
+                'existing_access_count' => count($existingAccess),
+            ]);
+        }
     }
 }

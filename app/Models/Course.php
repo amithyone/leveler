@@ -17,6 +17,7 @@ class Course extends Model
         'assessment_questions_count',
         'passing_score',
         'training_link',
+        'whatsapp_link',
         'status',
     ];
 

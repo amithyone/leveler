@@ -187,6 +187,26 @@
 
             <div class="form-row">
                 <div class="form-group">
+                    <label for="whatsapp_link">
+                        <i class="fab fa-whatsapp"></i> WhatsApp Group Link
+                    </label>
+                    <input 
+                        type="url" 
+                        id="whatsapp_link" 
+                        name="whatsapp_link" 
+                        class="form-control @error('whatsapp_link') error @enderror"
+                        value="{{ old('whatsapp_link', $course->whatsapp_link) }}"
+                        placeholder="https://chat.whatsapp.com/..."
+                    >
+                    @error('whatsapp_link')
+                        <span class="error-message">{{ $message }}</span>
+                    @enderror
+                    <small class="form-help">WhatsApp group link visible only to trainees who have paid for this course</small>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
                     <label for="status">
                         <i class="fas fa-toggle-on"></i> Status <span class="required">*</span>
                     </label>

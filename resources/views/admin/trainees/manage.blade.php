@@ -199,7 +199,21 @@
                         <td>
                             @if($trainee->package_type)
                                 <span class="badge badge-info" style="font-size: 11px;">
-                                    {{ $trainee->package_type === 'package' ? '4 Courses' : '1 Course' }}
+                                    @if($trainee->package_type === 'A')
+                                        Package A
+                                    @elseif($trainee->package_type === 'B')
+                                        Package B
+                                    @elseif($trainee->package_type === 'C')
+                                        Package C
+                                    @elseif($trainee->package_type === 'D')
+                                        Package D
+                                    @elseif($trainee->package_type === 'package')
+                                        4 Courses
+                                    @elseif($trainee->package_type === 'single')
+                                        1 Course
+                                    @else
+                                        {{ $trainee->package_type }}
+                                    @endif
                                 </span>
                             @else
                                 <span class="text-muted" style="font-size: 11px;">-</span>

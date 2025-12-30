@@ -89,12 +89,13 @@ class CourseController extends Controller
             'assessment_questions_count' => 'nullable|integer|min:1',
             'passing_score' => 'required|integer|min:0|max:100',
             'training_link' => 'nullable|url|max:500',
+            'whatsapp_link' => 'nullable|url|max:500',
             'status' => 'required|in:Active,Inactive',
         ]);
 
         $course = Course::findOrFail($id);
         $course->update($request->only([
-            'title', 'code', 'description', 'duration_hours', 'assessment_questions_count', 'passing_score', 'training_link', 'status'
+            'title', 'code', 'description', 'duration_hours', 'assessment_questions_count', 'passing_score', 'training_link', 'whatsapp_link', 'status'
         ]));
 
         return redirect()->route('admin.courses.view')

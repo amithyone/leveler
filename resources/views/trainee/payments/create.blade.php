@@ -38,21 +38,60 @@
             
             <div class="form-group">
                 <label>
-                    <i class="fas fa-money-bill-wave"></i> Payment Amount
+                    <i class="fas fa-money-bill-wave"></i> Payment Amount <span class="required">*</span>
                 </label>
-                <div class="payment-amount-display" style="background: #f8f9fa; padding: 1.5rem; border-radius: 8px; text-align: center;">
-                    <div style="font-size: 2.5rem; font-weight: 700; color: #667eea; margin-bottom: 0.5rem;">
-                        ₦{{ isset($packageInfo) ? number_format($packageInfo['type'] === 'A' ? 10000 : 10000) : '10,000' }}
+                @if(isset($packageInfo) && $packageInfo['type'] === 'A')
+                    <div class="payment-amount-input-group">
+                        <input 
+                            type="number" 
+                            id="full_payment_amount" 
+                            name="full_payment_amount" 
+                            class="form-control payment-amount-input"
+                            value="10000"
+                            min="10000"
+                            step="100"
+                            required
+                            onchange="updatePaymentAmount()"
+                            style="font-size: 1.5rem; font-weight: 600; text-align: center; padding: 1rem;"
+                        >
+                        <div style="text-align: center; margin-top: 0.5rem;">
+                            <p style="margin: 0; color: #666; font-size: 0.9rem;">
+                                Minimum payment: ₦10,000
+                                @if($packageInfo['total_amount'] > 10000)
+                                    <br>Total package amount: ₦{{ number_format($packageInfo['total_amount']) }}
+                                @endif
+                            </p>
+                        </div>
                     </div>
-                    @if(isset($packageInfo) && $packageInfo['type'] === 'A')
-                        <p style="margin: 0; color: #666;">Full payment for Package A</p>
-                    @elseif(isset($packageInfo))
+                @elseif(isset($packageInfo))
+                    <div class="payment-amount-display" style="background: #f8f9fa; padding: 1.5rem; border-radius: 8px; text-align: center;">
+                        <div style="font-size: 2.5rem; font-weight: 700; color: #667eea; margin-bottom: 0.5rem;">
+                            ₦{{ number_format(10000) }}
+                        </div>
                         <p style="margin: 0; color: #666;">Initial deposit for Package {{ $packageInfo['type'] }}</p>
                         <p style="margin: 0.5rem 0 0 0; color: #666; font-size: 0.9rem;">
                             Remaining: ₦{{ number_format($packageInfo['total_amount'] - 10000) }}
                         </p>
-                    @endif
-                </div>
+                    </div>
+                @else
+                    <div class="payment-amount-input-group">
+                        <input 
+                            type="number" 
+                            id="full_payment_amount" 
+                            name="full_payment_amount" 
+                            class="form-control payment-amount-input"
+                            value="10000"
+                            min="10000"
+                            step="100"
+                            required
+                            onchange="updatePaymentAmount()"
+                            style="font-size: 1.5rem; font-weight: 600; text-align: center; padding: 1rem;"
+                        >
+                        <div style="text-align: center; margin-top: 0.5rem;">
+                            <p style="margin: 0; color: #666; font-size: 0.9rem;">Minimum payment: ₦10,000</p>
+                        </div>
+                    </div>
+                @endif
             </div>
 
             <div class="form-group">
@@ -181,11 +220,31 @@
 </div>
 
 <script>
+function updatePaymentAmount() {
+    const fullPaymentInput = document.getElementById('full_payment_amount');
+    if (fullPaymentInput) {
+        const amount = parseFloat(fullPaymentInput.value) || 10000;
+        if (amount < 10000) {
+            fullPaymentInput.value = 10000;
+            alert('Minimum payment amount is ₦10,000');
+        }
+        document.getElementById('amount').value = fullPaymentInput.value;
+    }
+}
+
 function selectPackage(type, amount, courseCount) {
     const paymentType = document.querySelector('input[name="payment_type"]:checked')?.value || 'full';
     
     if (paymentType === 'full') {
-        document.getElementById('amount').value = amount;
+        const fullPaymentInput = document.getElementById('full_payment_amount');
+        if (fullPaymentInput) {
+            // For full payment, set minimum to 10,000 but allow user to adjust
+            fullPaymentInput.value = Math.max(10000, amount);
+            fullPaymentInput.min = 10000;
+            updatePaymentAmount();
+        } else {
+            document.getElementById('amount').value = amount;
+        }
     } else {
         // For installments, use the installment amount input if set, otherwise default
         const installmentInput = document.getElementById('installment_amount');

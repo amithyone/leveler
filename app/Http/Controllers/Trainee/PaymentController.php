@@ -119,13 +119,22 @@ class PaymentController extends Controller
         
         $request->validate([
             'amount' => 'required|numeric|min:100',
+            'full_payment_amount' => 'nullable|numeric|min:10000',
             'payment_method' => 'required|in:payvibe,manual',
             'payment_receipt' => 'required_if:payment_method,manual|file|mimes:jpeg,jpg,png,pdf|max:5120',
             'payment_reference' => 'nullable|string|max:255',
         ]);
 
         try {
-            $amount = $request->amount;
+            // Use full_payment_amount if provided (for full payment), otherwise use amount
+            $amount = $request->full_payment_amount ?? $request->amount;
+            
+            // Ensure minimum 10,000 for full payment
+            if ($request->has('full_payment_amount') && $amount < 10000) {
+                return redirect()->back()
+                    ->withInput()
+                    ->with('error', 'Minimum payment amount is ₦10,000');
+            }
             
             // Handle manual payment
             if ($paymentMethod === 'manual') {

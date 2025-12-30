@@ -101,6 +101,20 @@ class HomeController extends Controller
         return view('frontend.legal', compact('page'));
     }
 
+    public function courseDetails($id)
+    {
+        $course = Course::find($id);
+        
+        if (!$course || $course->status !== 'Active') {
+            abort(404);
+        }
+
+        // Load related schedules
+        $schedules = $course->schedules()->where('status', '!=', 'Cancelled')->orderBy('start_date')->get();
+        
+        return view('frontend.course-details', compact('course', 'schedules'));
+    }
+
     public function showPage($slug)
     {
         $page = Page::findBySlug($slug);

@@ -86,12 +86,13 @@ class CourseController extends Controller
             'code' => 'required|string|max:10|unique:courses,code,' . $id,
             'description' => 'nullable|string',
             'duration_hours' => 'nullable|numeric|min:0',
+            'assessment_questions_count' => 'nullable|integer|min:1',
             'status' => 'required|in:Active,Inactive',
         ]);
 
         $course = Course::findOrFail($id);
         $course->update($request->only([
-            'title', 'code', 'description', 'duration_hours', 'status'
+            'title', 'code', 'description', 'duration_hours', 'assessment_questions_count', 'status'
         ]));
 
         return redirect()->route('admin.courses.view')

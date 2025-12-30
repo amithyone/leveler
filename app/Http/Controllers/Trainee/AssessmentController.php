@@ -33,7 +33,7 @@ class AssessmentController extends Controller
         // Check if trainee has already passed
         $hasPassed = Result::where('trainee_id', $trainee->id)
             ->where('course_id', $courseId)
-            ->where('status', 'passed')
+            ->where('status', 'Pass')
             ->exists();
 
         if ($hasPassed) {
@@ -41,12 +41,23 @@ class AssessmentController extends Controller
                 ->with('info', 'You have already passed this assessment.');
         }
 
-        $questions = $course->questionPools()->inRandomOrder()->get();
-
-        if ($questions->isEmpty()) {
+        // Get all questions from pool
+        $allQuestions = $course->questionPools;
+        
+        if ($allQuestions->isEmpty()) {
             return redirect()->route('trainee.courses.show', $courseId)
                 ->with('error', 'No questions available for this course.');
         }
+
+        // Determine how many questions to ask
+        $totalQuestionsInPool = $allQuestions->count();
+        $questionsToAsk = $course->assessment_questions_count ?? $totalQuestionsInPool;
+        
+        // Ensure we don't ask more questions than available
+        $questionsToAsk = min($questionsToAsk, $totalQuestionsInPool);
+        
+        // Randomly select questions
+        $questions = $allQuestions->shuffle()->take($questionsToAsk);
 
         return view('trainee.assessment.start', compact('course', 'questions'));
     }
@@ -68,13 +79,21 @@ class AssessmentController extends Controller
             'answers.*' => 'required',
         ]);
 
-        $questions = $course->questionPools;
+        // Get the questions that were actually asked (from the submitted answers)
+        $questionIds = array_keys($request->answers);
+        $questions = QuestionPool::whereIn('id', $questionIds)
+            ->where('course_id', $courseId)
+            ->get()
+            ->keyBy('id');
+        
         $score = 0;
         $totalQuestions = $questions->count();
         $totalPoints = 0;
         $correctAnswers = [];
+        $questionsAskedIds = [];
 
         foreach ($questions as $question) {
+            $questionsAskedIds[] = $question->id;
             $questionPoints = $question->points ?? 1;
             $totalPoints += $questionPoints;
             
@@ -91,7 +110,7 @@ class AssessmentController extends Controller
 
         $percentage = $totalPoints > 0 ? ($score / $totalPoints) * 100 : 0;
         $passingScore = 70; // 70% passing score
-        $status = $percentage >= $passingScore ? 'passed' : 'failed';
+        $status = $percentage >= $passingScore ? 'Pass' : 'Fail';
 
         // Save result
         $result = Result::create([
@@ -99,6 +118,7 @@ class AssessmentController extends Controller
             'course_id' => $courseId,
             'score' => $score,
             'total_questions' => $totalQuestions,
+            'questions_asked' => $questionsAskedIds,
             'percentage' => round($percentage, 2),
             'status' => $status,
             'completed_at' => now(),

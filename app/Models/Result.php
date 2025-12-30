@@ -14,6 +14,7 @@ class Result extends Model
         'course_id',
         'score',
         'total_questions',
+        'questions_asked',
         'percentage',
         'status',
         'completed_at',
@@ -22,6 +23,7 @@ class Result extends Model
     protected $casts = [
         'completed_at' => 'datetime',
         'percentage' => 'decimal:2',
+        'questions_asked' => 'array',
     ];
 
     public function trainee()

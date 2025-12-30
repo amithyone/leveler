@@ -120,6 +120,30 @@
                 </div>
 
                 <div class="form-group">
+                    <label for="assessment_questions_count">
+                        <i class="fas fa-question-circle"></i> Assessment Questions Count
+                    </label>
+                    <input 
+                        type="number" 
+                        id="assessment_questions_count" 
+                        name="assessment_questions_count" 
+                        class="form-control @error('assessment_questions_count') error @enderror"
+                        value="{{ old('assessment_questions_count', $course->assessment_questions_count) }}"
+                        min="1"
+                        placeholder="e.g., 50"
+                    >
+                    @error('assessment_questions_count')
+                        <span class="error-message">{{ $message }}</span>
+                    @enderror
+                    <small class="form-help">Number of questions to randomly select from pool for assessment (leave empty to use all questions)</small>
+                    <div style="margin-top: 5px; padding: 8px; background: #f0f7ff; border-radius: 4px; font-size: 12px; color: #0066cc;">
+                        <strong>Total questions in pool:</strong> {{ $course->questionPools()->count() }}
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
                     <label for="status">
                         <i class="fas fa-toggle-on"></i> Status <span class="required">*</span>
                     </label>

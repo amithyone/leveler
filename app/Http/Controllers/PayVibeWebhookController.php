@@ -121,19 +121,48 @@ class PayVibeWebhookController extends Controller
     {
         $courseAccessCount = $payment->course_access_count;
         
-        // Get available active courses
-        $availableCourses = Course::where('status', 'Active')
-            ->orderBy('id')
-            ->get();
-
         // Get courses trainee already has access to
         $existingAccess = $trainee->accessibleCourses()->pluck('courses.id')->toArray();
 
-        // Filter out courses trainee already has access to
-        $coursesToGrant = $availableCourses->whereNotIn('id', $existingAccess)
-            ->take($courseAccessCount)
-            ->pluck('id')
-            ->toArray();
+        // Priority 1: Use selected_courses from trainee registration if available
+        $coursesToGrant = [];
+        if ($trainee->selected_courses && count($trainee->selected_courses) > 0) {
+            // Filter to only include courses that are active and not already granted
+            $selectedCourseIds = is_array($trainee->selected_courses) ? $trainee->selected_courses : [];
+            $availableSelectedCourses = Course::where('status', 'Active')
+                ->whereIn('id', $selectedCourseIds)
+                ->pluck('id')
+                ->toArray();
+            
+            // Filter out courses trainee already has access to
+            $coursesToGrant = array_values(array_diff($availableSelectedCourses, $existingAccess));
+            
+            Log::info('PayVibeWebhook: Using selected courses from registration', [
+                'trainee_id' => $trainee->id,
+                'selected_courses' => $selectedCourseIds,
+                'available_selected' => $availableSelectedCourses,
+                'courses_to_grant' => $coursesToGrant,
+            ]);
+        }
+        
+        // Priority 2: Fallback to first N courses if no selected_courses (backward compatibility)
+        if (empty($coursesToGrant)) {
+            $availableCourses = Course::where('status', 'Active')
+                ->orderBy('id')
+                ->get();
+
+            // Filter out courses trainee already has access to
+            $coursesToGrant = $availableCourses->whereNotIn('id', $existingAccess)
+                ->take($courseAccessCount)
+                ->pluck('id')
+                ->toArray();
+            
+            Log::info('PayVibeWebhook: Using fallback course selection', [
+                'trainee_id' => $trainee->id,
+                'course_access_count' => $courseAccessCount,
+                'courses_to_grant' => $coursesToGrant,
+            ]);
+        }
 
         if (count($coursesToGrant) > 0) {
             $trainee->grantCourseAccess($coursesToGrant, $payment->id);
@@ -150,6 +179,7 @@ class PayVibeWebhookController extends Controller
                 'payment_id' => $payment->id,
                 'requested_count' => $courseAccessCount,
                 'existing_access_count' => count($existingAccess),
+                'has_selected_courses' => !empty($trainee->selected_courses),
             ]);
         }
     }

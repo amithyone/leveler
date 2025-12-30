@@ -134,16 +134,6 @@ class PaymentController extends Controller
      */
     private function grantCourseAccess(Trainee $trainee, Payment $payment)
     {
-        $courseAccessCount = $payment->course_access_count ?? 1;
-        
-        if ($courseAccessCount <= 0) {
-            Log::warning('Admin Payment: No course access count specified', [
-                'payment_id' => $payment->id,
-                'trainee_id' => $trainee->id
-            ]);
-            return;
-        }
-        
         // Get courses trainee already has access to
         $existingAccess = $trainee->accessibleCourses()->pluck('courses.id')->toArray();
 
@@ -162,6 +152,7 @@ class PaymentController extends Controller
             
             Log::info('Admin Payment: Using selected courses from registration', [
                 'trainee_id' => $trainee->id,
+                'payment_id' => $payment->id,
                 'selected_courses' => $selectedCourseIds,
                 'available_selected' => $availableSelectedCourses,
                 'courses_to_grant' => $coursesToGrant,
@@ -170,6 +161,17 @@ class PaymentController extends Controller
         
         // Priority 2: Fallback to first N courses if no selected_courses (backward compatibility)
         if (empty($coursesToGrant)) {
+            $courseAccessCount = $payment->course_access_count ?? 1;
+            
+            if ($courseAccessCount <= 0) {
+                Log::warning('Admin Payment: No course access count specified and no selected courses', [
+                    'payment_id' => $payment->id,
+                    'trainee_id' => $trainee->id,
+                    'has_selected_courses' => !empty($trainee->selected_courses),
+                ]);
+                return;
+            }
+            
             $availableCourses = Course::where('status', 'Active')
                 ->orderBy('id')
                 ->get();
@@ -182,6 +184,7 @@ class PaymentController extends Controller
             
             Log::info('Admin Payment: Using fallback course selection', [
                 'trainee_id' => $trainee->id,
+                'payment_id' => $payment->id,
                 'course_access_count' => $courseAccessCount,
                 'courses_to_grant' => $coursesToGrant,
             ]);
@@ -200,9 +203,10 @@ class PaymentController extends Controller
             Log::warning('Admin Payment: No courses available to grant', [
                 'trainee_id' => $trainee->id,
                 'payment_id' => $payment->id,
-                'requested_count' => $courseAccessCount,
+                'course_access_count' => $payment->course_access_count ?? 'not set',
                 'existing_access_count' => count($existingAccess),
                 'has_selected_courses' => !empty($trainee->selected_courses),
+                'selected_courses_count' => $trainee->selected_courses ? count($trainee->selected_courses) : 0,
             ]);
         }
     }

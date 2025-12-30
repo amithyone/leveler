@@ -189,11 +189,11 @@
                     @php
                         $contactPage = \App\Models\Page::findBySlug('contact');
                         $contactDetails = $contactPage->contact_details ?? [];
-                        $address = $contactDetails['address'] ?? 'Nigeria';
-                        $addressLine2 = $contactDetails['address_line2'] ?? 'Plot 559c, Capital Str., A11, Garki, Abuja';
-                        $phone = $contactDetails['phone'] ?? '(+234) 806-141-3675';
+                        $address = $contactDetails['address'] ?? '';
+                        $addressLine2 = $contactDetails['address_line2'] ?? '';
+                        $phone = $contactDetails['phone'] ?? '';
                         $email = $contactDetails['email'] ?? '';
-                        $workingHours = $contactDetails['working_hours'] ?? 'Mon - Fri: 9.00 to 17.00';
+                        $workingHours = $contactDetails['working_hours'] ?? '';
                     @endphp
                     
                     @if($address || $addressLine2)

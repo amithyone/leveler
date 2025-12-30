@@ -149,6 +149,11 @@ class Trainee extends Authenticatable
      */
     public function hasAccessToCourse($courseId)
     {
+        // Admins have access to all courses for testing purposes
+        if ($this->user && $this->user->isAdmin()) {
+            return true;
+        }
+        
         return $this->accessibleCourses()->where('courses.id', $courseId)->exists();
     }
 

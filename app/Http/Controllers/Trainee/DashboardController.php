@@ -15,9 +15,26 @@ class DashboardController extends Controller
     {
         $user = Auth::user();
         $trainee = TraineeHelper::getCurrentTrainee();
+        $isAdmin = $user && $user->isAdmin();
         
-        // If user doesn't have a trainee record yet, show enrollment message
-        if (!$trainee) {
+        // Admins can access all courses - create trainee record if needed
+        if ($isAdmin && !$trainee) {
+            $trainee = \App\Models\Trainee::firstOrCreate(
+                ['user_id' => $user->id],
+                [
+                    'surname' => 'Admin',
+                    'first_name' => $user->name,
+                    'gender' => 'M',
+                    'username' => 'admin_' . $user->id,
+                    'password' => $user->password,
+                    'phone_number' => '',
+                    'status' => 'Active',
+                ]
+            );
+        }
+        
+        // If user doesn't have a trainee record yet and is not admin, show enrollment message
+        if (!$trainee && !$isAdmin) {
             return view('trainee.dashboard', [
                 'trainee' => null,
                 'user' => $user,
@@ -35,14 +52,14 @@ class DashboardController extends Controller
         
         $stats = [
             'total_courses' => Course::where('status', 'Active')->count(),
-            'enrolled_courses' => $trainee->accessibleCourses()->count(),
+            'enrolled_courses' => $isAdmin ? Course::where('status', 'Active')->count() : $trainee->accessibleCourses()->count(),
             'completed_courses' => Result::where('trainee_id', $trainee->id)
-                ->where('status', 'passed')
+                ->where('status', 'Pass')
                 ->distinct('course_id')
                 ->count(),
             'total_assessments' => Result::where('trainee_id', $trainee->id)->count(),
             'certificates' => Result::where('trainee_id', $trainee->id)
-                ->where('status', 'passed')
+                ->where('status', 'Pass')
                 ->with('course')
                 ->get(),
         ];
@@ -58,10 +75,10 @@ class DashboardController extends Controller
                 $query->where('trainee_id', $trainee->id);
             }])
             ->get()
-            ->map(function($course) use ($trainee) {
+            ->map(function($course) use ($trainee, $isAdmin) {
                 $course->has_taken = $course->results->isNotEmpty();
-                $course->has_passed = $course->results->where('status', 'passed')->isNotEmpty();
-                $course->has_access = $trainee->hasAccessToCourse($course->id);
+                $course->has_passed = $course->results->where('status', 'Pass')->isNotEmpty();
+                $course->has_access = $isAdmin || $trainee->hasAccessToCourse($course->id);
                 return $course;
             });
 

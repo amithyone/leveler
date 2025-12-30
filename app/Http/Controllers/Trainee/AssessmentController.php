@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Course;
 use App\Models\QuestionPool;
 use App\Models\Result;
+use App\Models\Trainee;
 use App\Helpers\TraineeHelper;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -15,20 +16,44 @@ class AssessmentController extends Controller
     public function start($courseId)
     {
         $user = Auth::user();
-        $trainee = TraineeHelper::getCurrentTrainee();
         
-        if (!$trainee) {
-            return redirect()->route('trainee.payments.create')
-                ->with('info', 'Please select a course package to become a trainee and take assessments.');
+        // Admins can access all courses for testing
+        $isAdmin = $user && $user->isAdmin();
+        
+        if ($isAdmin) {
+            // Get or create a trainee record for admin (for result tracking)
+            $trainee = TraineeHelper::getCurrentTrainee();
+            if (!$trainee) {
+                // Create a temporary trainee record for admin testing
+                $trainee = Trainee::firstOrCreate(
+                    ['user_id' => $user->id],
+                    [
+                        'surname' => 'Admin',
+                        'first_name' => $user->name,
+                        'gender' => 'M',
+                        'username' => 'admin_' . $user->id,
+                        'password' => $user->password,
+                        'phone_number' => '',
+                        'status' => 'Active',
+                    ]
+                );
+            }
+        } else {
+            $trainee = TraineeHelper::getCurrentTrainee();
+            
+            if (!$trainee) {
+                return redirect()->route('trainee.payments.create')
+                    ->with('info', 'Please select a course package to become a trainee and take assessments.');
+            }
+
+            // Check if trainee has access to this course
+            if (!$trainee->hasAccessToCourse($courseId)) {
+                return redirect()->route('trainee.courses.index')
+                    ->with('error', 'You do not have access to this course. Please make a payment to gain access.');
+            }
         }
         
         $course = Course::with('questionPools')->findOrFail($courseId);
-
-        // Check if trainee has access to this course
-        if (!$trainee->hasAccessToCourse($courseId)) {
-            return redirect()->route('trainee.courses.index')
-                ->with('error', 'You do not have access to this course. Please make a payment to gain access.');
-        }
 
         // Check if trainee has already passed
         $hasPassed = Result::where('trainee_id', $trainee->id)
@@ -65,11 +90,32 @@ class AssessmentController extends Controller
     public function submit(Request $request, $courseId)
     {
         $user = Auth::user();
-        $trainee = TraineeHelper::getCurrentTrainee();
         
-        if (!$trainee) {
-            return redirect()->route('trainee.payments.create')
-                ->with('info', 'Please select a course package to become a trainee and take assessments.');
+        // Admins can access all courses for testing
+        if ($user && $user->isAdmin()) {
+            $trainee = TraineeHelper::getCurrentTrainee();
+            if (!$trainee) {
+                // Create a temporary trainee record for admin testing
+                $trainee = Trainee::firstOrCreate(
+                    ['user_id' => $user->id],
+                    [
+                        'surname' => 'Admin',
+                        'first_name' => $user->name,
+                        'gender' => 'M',
+                        'username' => 'admin_' . $user->id,
+                        'password' => $user->password,
+                        'phone_number' => '',
+                        'status' => 'Active',
+                    ]
+                );
+            }
+        } else {
+            $trainee = TraineeHelper::getCurrentTrainee();
+            
+            if (!$trainee) {
+                return redirect()->route('trainee.payments.create')
+                    ->with('info', 'Please select a course package to become a trainee and take assessments.');
+            }
         }
         
         $course = Course::with('questionPools')->findOrFail($courseId);

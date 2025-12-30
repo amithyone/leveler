@@ -29,7 +29,9 @@
             <span class="course-code">{{ $course->code }}</span>
         </div>
         
-        <p class="course-description">{{ $course->description }}</p>
+        @if($course->description)
+        <p class="course-description">{{ \Illuminate\Support\Str::limit($course->description, 150, '...') }}</p>
+        @endif
         
         <div class="course-meta">
             <div class="meta-item">

@@ -21,11 +21,29 @@
 
                 <div class="legal-section">
                     <h3>Company Information</h3>
+                    @php
+                        $contactPage = \App\Models\Page::findBySlug('contact');
+                        $contactDetails = $contactPage->contact_details ?? [];
+                        $address = $contactDetails['address'] ?? '';
+                        $addressLine2 = $contactDetails['address_line2'] ?? '';
+                        $phone = $contactDetails['phone'] ?? '';
+                        $email = $contactDetails['email'] ?? '';
+                    @endphp
                     <p><strong>Company Name:</strong> Leveler</p>
                     <p><strong>Business Type:</strong> Development and Management Consulting Company</p>
-                    <p><strong>Address:</strong> Plot 559c, Capital Street (NCWS House), Garki, Abuja, Nigeria</p>
-                    <p><strong>Phone:</strong> (+234) 806-141-3675</p>
-                    <p><strong>Email:</strong> info@leveler.com</p>
+                    @if($address || $addressLine2)
+                        <p><strong>Address:</strong> 
+                            @if($address){{ $address }}@endif
+                            @if($address && $addressLine2), @endif
+                            @if($addressLine2){{ $addressLine2 }}@endif
+                        </p>
+                    @endif
+                    @if($phone)
+                        <p><strong>Phone:</strong> {{ $phone }}</p>
+                    @endif
+                    @if($email)
+                        <p><strong>Email:</strong> {{ $email }}</p>
+                    @endif
                 </div>
 
                 <div class="legal-section">

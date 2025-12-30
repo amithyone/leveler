@@ -181,6 +181,51 @@
             @endif
         </div>
 
+        <!-- Selected Courses -->
+        @if($trainee->accessibleCourses->count() > 0)
+        <div class="content-section" style="margin-top: 30px;">
+            <div class="section-header">
+                <h2 class="section-title">
+                    <i class="fas fa-book"></i> Selected Courses
+                </h2>
+                <span class="badge badge-info">{{ $trainee->accessibleCourses->count() }} Course(s)</span>
+            </div>
+
+            <div class="courses-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; margin-top: 20px;">
+                @foreach($trainee->accessibleCourses as $course)
+                <div class="course-card" style="background: white; border: 1px solid #e0e0e0; border-radius: 8px; padding: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 15px;">
+                        <div>
+                            <h4 style="margin: 0 0 5px 0; color: #333; font-size: 16px;">{{ $course->title }}</h4>
+                            <p style="margin: 0; color: #667eea; font-weight: 600; font-size: 12px;">{{ $course->code }}</p>
+                        </div>
+                        <span class="badge badge-success" style="font-size: 10px;">Active</span>
+                    </div>
+                    @if($course->pivot->granted_at)
+                    <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid #e0e0e0;">
+                        <small style="color: #666;">
+                            <i class="fas fa-calendar"></i> Granted: {{ \Carbon\Carbon::parse($course->pivot->granted_at)->format('M d, Y') }}
+                        </small>
+                    </div>
+                    @endif
+                </div>
+                @endforeach
+            </div>
+        </div>
+        @else
+        <div class="content-section" style="margin-top: 30px;">
+            <div class="section-header">
+                <h2 class="section-title">
+                    <i class="fas fa-book"></i> Selected Courses
+                </h2>
+            </div>
+            <div style="padding: 20px; text-align: center; color: #666;">
+                <i class="fas fa-info-circle" style="font-size: 48px; color: #ccc; margin-bottom: 10px;"></i>
+                <p>No courses have been granted access yet.</p>
+            </div>
+        </div>
+        @endif
+
         <!-- Payment History -->
         @if($trainee->payments->count() > 0)
         <div style="margin-top: 30px;">

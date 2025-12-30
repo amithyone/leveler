@@ -11,14 +11,31 @@ class TraineeController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Trainee::query();
+        $query = Trainee::with(['payments', 'accessibleCourses']);
 
         // Search by surname
         if ($request->has('search') && $request->search) {
-            $query->where('surname', 'like', '%' . $request->search . '%');
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('surname', 'like', '%' . $search . '%')
+                  ->orWhere('first_name', 'like', '%' . $search . '%')
+                  ->orWhere('username', 'like', '%' . $search . '%')
+                  ->orWhere('phone_number', 'like', '%' . $search . '%');
+            });
         }
 
         $trainees = $query->orderBy('surname')->orderBy('first_name')->paginate(50);
+
+        // Add payment and access info to each trainee
+        $trainees->getCollection()->transform(function($trainee) {
+            $trainee->has_payment = $trainee->hasCompletedPayment();
+            $trainee->total_paid_amount = $trainee->getTotalPaid();
+            $trainee->payment_progress = $trainee->getPaymentProgress();
+            $trainee->remaining_balance = $trainee->getRemainingBalance();
+            $trainee->package_type = $trainee->getCurrentPackageType();
+            $trainee->accessible_courses_count = $trainee->accessibleCourses()->count();
+            return $trainee;
+        });
 
         return view('admin.trainees.index', compact('trainees'));
     }

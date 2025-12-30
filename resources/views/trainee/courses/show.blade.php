@@ -23,6 +23,7 @@
                         <p>{{ $course->duration_hours }} Hours</p>
                     </div>
                 </div>
+                @if($course->questionPools->count() > 0)
                 <div class="info-item">
                     <i class="fas fa-question-circle"></i>
                     <div>
@@ -37,6 +38,15 @@
                         <p>{{ $course->passing_score ?? 70 }}%</p>
                     </div>
                 </div>
+                @else
+                <div class="info-item">
+                    <i class="fas fa-file-upload"></i>
+                    <div>
+                        <strong>Submission Type</strong>
+                        <p>File Upload Required</p>
+                    </div>
+                </div>
+                @endif
             </div>
         </div>
 
@@ -84,24 +94,45 @@
         </div>
     </div>
     @else
-    <div class="action-card">
-        <div class="action-icon">
-            <i class="fas fa-play-circle"></i>
+        @if($course->questionPools->count() > 0)
+        <div class="action-card">
+            <div class="action-icon">
+                <i class="fas fa-play-circle"></i>
+            </div>
+            <div class="action-content">
+                <h3>Ready to Start?</h3>
+                <p>This assessment contains {{ $course->questionPools->count() }} questions. You need to score at least {{ $course->passing_score ?? 70 }}% to pass and earn your certificate.</p>
+                <ul class="assessment-rules">
+                    <li><i class="fas fa-check"></i> Read each question carefully</li>
+                    <li><i class="fas fa-check"></i> Select the best answer</li>
+                    <li><i class="fas fa-check"></i> Review your answers before submitting</li>
+                    <li><i class="fas fa-check"></i> You can retake if you don't pass</li>
+                </ul>
+                <a href="{{ route('trainee.assessment.start', $course->id) }}" class="btn btn-primary btn-lg">
+                    <i class="fas fa-play"></i> Start Assessment
+                </a>
+            </div>
         </div>
-        <div class="action-content">
-            <h3>Ready to Start?</h3>
-            <p>This assessment contains {{ $course->questionPools->count() }} questions. You need to score at least {{ $course->passing_score ?? 70 }}% to pass and earn your certificate.</p>
-            <ul class="assessment-rules">
-                <li><i class="fas fa-check"></i> Read each question carefully</li>
-                <li><i class="fas fa-check"></i> Select the best answer</li>
-                <li><i class="fas fa-check"></i> Review your answers before submitting</li>
-                <li><i class="fas fa-check"></i> You can retake if you don't pass</li>
-            </ul>
-            <a href="{{ route('trainee.assessment.start', $course->id) }}" class="btn btn-primary btn-lg">
-                <i class="fas fa-play"></i> Start Assessment
-            </a>
+        @else
+        <div class="action-card">
+            <div class="action-icon">
+                <i class="fas fa-upload"></i>
+            </div>
+            <div class="action-content">
+                <h3>Submit Your Work</h3>
+                <p>This course requires file submission. Please upload your work or provide a file sharing link.</p>
+                <ul class="assessment-rules">
+                    <li><i class="fas fa-check"></i> Upload your completed work file</li>
+                    <li><i class="fas fa-check"></i> Or share via transfernow.net and paste the link</li>
+                    <li><i class="fas fa-check"></i> Accepted formats: PDF, DOC, DOCX, TXT, JPG, PNG, ZIP, RAR</li>
+                    <li><i class="fas fa-check"></i> Maximum file size: 10MB</li>
+                </ul>
+                <a href="{{ route('trainee.assessment.start', $course->id) }}" class="btn btn-primary btn-lg">
+                    <i class="fas fa-upload"></i> Submit File
+                </a>
+            </div>
         </div>
-    </div>
+        @endif
     @endif
 </div>
 @endsection

@@ -28,6 +28,7 @@
             @endif
         </div>
 
+        @if($result->total_questions > 0)
         <div class="result-score">
             <div class="score-circle {{ $result->status === 'Pass' ? 'score-passed' : 'score-failed' }}">
                 <div class="score-value">{{ number_format($result->percentage, 1) }}%</div>
@@ -53,6 +54,22 @@
                 <span class="detail-value">{{ $result->completed_at->format('F d, Y h:i A') }}</span>
             </div>
         </div>
+        @else
+        <div class="result-details">
+            <div class="detail-item">
+                <span class="detail-label">Submission Type</span>
+                <span class="detail-value">File Submission</span>
+            </div>
+            <div class="detail-item">
+                <span class="detail-label">Status</span>
+                <span class="detail-value">{{ $result->status }}</span>
+            </div>
+            <div class="detail-item">
+                <span class="detail-label">Date Completed</span>
+                <span class="detail-value">{{ $result->completed_at->format('F d, Y h:i A') }}</span>
+            </div>
+        </div>
+        @endif
 
         @if($result->file_path || $result->file_link)
         <div class="file-submission-section">

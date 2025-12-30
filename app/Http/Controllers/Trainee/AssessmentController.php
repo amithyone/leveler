@@ -70,9 +70,9 @@ class AssessmentController extends Controller
         // Get all questions from pool
         $allQuestions = $course->questionPools;
         
+        // If course has no questions, allow file upload only
         if ($allQuestions->isEmpty()) {
-            return redirect()->route('trainee.courses.show', $courseId)
-                ->with('error', 'No questions available for this course.');
+            return view('trainee.assessment.file-only', compact('course'));
         }
 
         // Determine how many questions to ask
@@ -121,45 +121,67 @@ class AssessmentController extends Controller
         
         $course = Course::with('questionPools')->findOrFail($courseId);
 
-        $request->validate([
-            'answers' => 'required|array',
-            'answers.*' => 'required',
-            'assessment_file' => 'nullable|file|max:10240|mimes:pdf,doc,docx,txt,jpg,jpeg,png,zip,rar',
-            'file_link' => 'nullable|url|max:500',
-        ]);
+        // Check if course has questions
+        $allQuestions = $course->questionPools;
+        $hasQuestions = $allQuestions->isNotEmpty();
+        
+        if ($hasQuestions) {
+            $request->validate([
+                'answers' => 'required|array',
+                'answers.*' => 'required',
+                'assessment_file' => 'nullable|file|max:10240|mimes:pdf,doc,docx,txt,jpg,jpeg,png,zip,rar',
+                'file_link' => 'nullable|url|max:500',
+            ]);
+        } else {
+            // For courses without questions, file upload or link is required
+            $request->validate([
+                'assessment_file' => 'required_without:file_link|file|max:10240|mimes:pdf,doc,docx,txt,jpg,jpeg,png,zip,rar',
+                'file_link' => 'required_without:assessment_file|url|max:500',
+            ]);
+        }
 
-        // Get the questions that were actually asked (from the submitted answers)
-        $questionIds = array_keys($request->answers);
-        $questions = QuestionPool::whereIn('id', $questionIds)
-            ->where('course_id', $courseId)
-            ->get()
-            ->keyBy('id');
+        // Check if course has questions
+        $allQuestions = $course->questionPools;
+        $hasQuestions = $allQuestions->isNotEmpty();
         
         $score = 0;
-        $totalQuestions = $questions->count();
+        $totalQuestions = 0;
         $totalPoints = 0;
         $correctAnswers = [];
         $questionsAskedIds = [];
+        $percentage = 0;
+        $status = 'Pass'; // Default to Pass for file-only submissions
 
-        foreach ($questions as $question) {
-            $questionsAskedIds[] = $question->id;
-            $questionPoints = $question->points ?? 1;
-            $totalPoints += $questionPoints;
+        if ($hasQuestions) {
+            // Get the questions that were actually asked (from the submitted answers)
+            $questionIds = array_keys($request->answers ?? []);
+            $questions = QuestionPool::whereIn('id', $questionIds)
+                ->where('course_id', $courseId)
+                ->get()
+                ->keyBy('id');
             
-            $userAnswer = $request->answers[$question->id] ?? null;
-            $correctAnswer = $question->correct_answer;
+            $totalQuestions = $questions->count();
 
-            if ($userAnswer == $correctAnswer) {
-                $score += $questionPoints;
-                $correctAnswers[$question->id] = true;
-            } else {
-                $correctAnswers[$question->id] = false;
+            foreach ($questions as $question) {
+                $questionsAskedIds[] = $question->id;
+                $questionPoints = $question->points ?? 1;
+                $totalPoints += $questionPoints;
+                
+                $userAnswer = $request->answers[$question->id] ?? null;
+                $correctAnswer = $question->correct_answer;
+
+                if ($userAnswer == $correctAnswer) {
+                    $score += $questionPoints;
+                    $correctAnswers[$question->id] = true;
+                } else {
+                    $correctAnswers[$question->id] = false;
+                }
             }
-        }
 
-        $percentage = $totalPoints > 0 ? ($score / $totalPoints) * 100 : 0;
-        $passingScore = $course->passing_score ?? 70; // Use course-specific passing score or default to 70%
-        $status = $percentage >= $passingScore ? 'Pass' : 'Fail';
+            $percentage = $totalPoints > 0 ? ($score / $totalPoints) * 100 : 0;
+            $passingScore = $course->passing_score ?? 70; // Use course-specific passing score or default to 70%
+            $status = $percentage >= $passingScore ? 'Pass' : 'Fail';
+        }
 
         // Handle file upload
         $filePath = null;
@@ -172,13 +194,19 @@ class AssessmentController extends Controller
         // Get file link if provided
         $fileLink = $request->input('file_link');
 
+        // For file-only submissions (no questions), set percentage to 100% and status to Pass
+        if (!$hasQuestions) {
+            $percentage = 100;
+            $status = 'Pass';
+        }
+
         // Save result
         $result = Result::create([
             'trainee_id' => $trainee->id,
             'course_id' => $courseId,
             'score' => $score,
             'total_questions' => $totalQuestions,
-            'questions_asked' => $questionsAskedIds,
+            'questions_asked' => $hasQuestions ? $questionsAskedIds : null,
             'file_path' => $filePath,
             'file_link' => $fileLink,
             'percentage' => round($percentage, 2),
@@ -186,10 +214,15 @@ class AssessmentController extends Controller
             'completed_at' => now(),
         ]);
 
-        return redirect()->route('trainee.assessment.result', $result->id)
-            ->with('result', $result)
-            ->with('correctAnswers', $correctAnswers)
-            ->with('questions', $questions);
+        $redirect = redirect()->route('trainee.assessment.result', $result->id)
+            ->with('result', $result);
+            
+        if ($hasQuestions) {
+            $redirect->with('correctAnswers', $correctAnswers)
+                     ->with('questions', $questions);
+        }
+        
+        return $redirect;
     }
 
     public function result($resultId)

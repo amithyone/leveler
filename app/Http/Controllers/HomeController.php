@@ -112,7 +112,23 @@ class HomeController extends Controller
         // Load related schedules
         $schedules = $course->schedules()->where('status', '!=', 'Cancelled')->orderBy('start_date')->get();
         
-        return view('frontend.course-details', compact('course', 'schedules'));
+        // Check if user has access to this course (for training link visibility)
+        $hasAccess = false;
+        $trainee = null;
+        
+        if (auth()->check()) {
+            $user = auth()->user();
+            $trainee = \App\Helpers\TraineeHelper::getCurrentTrainee();
+            
+            // Admins have access to all courses
+            if ($user->isAdmin()) {
+                $hasAccess = true;
+            } elseif ($trainee) {
+                $hasAccess = $trainee->hasAccessToCourse($course->id);
+            }
+        }
+        
+        return view('frontend.course-details', compact('course', 'schedules', 'hasAccess', 'trainee'));
     }
 
     public function showPage($slug)

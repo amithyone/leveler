@@ -104,6 +104,25 @@
                 </div>
                 @endif
 
+                @if($hasAccess && $course->training_link)
+                <div class="course-section training-link-section">
+                    <h2><i class="fas fa-video"></i> Training Materials</h2>
+                    <p>Access your training materials and resources for this course.</p>
+                    <div class="training-link-card">
+                        <div class="training-link-content">
+                            <i class="fas fa-link"></i>
+                            <div>
+                                <strong>Training Link</strong>
+                                <p>Click below to access your training materials</p>
+                            </div>
+                        </div>
+                        <a href="{{ $course->training_link }}" target="_blank" class="btn btn-primary btn-lg" rel="noopener noreferrer">
+                            <i class="fas fa-external-link-alt"></i> Access Training
+                        </a>
+                    </div>
+                </div>
+                @endif
+
                 <div class="course-section">
                     <h2>Ready to Get Started?</h2>
                     <p>Register now to enroll in this course and start your learning journey.</p>
@@ -418,6 +437,50 @@
     text-align: center;
 }
 
+.training-link-section {
+    background: linear-gradient(135deg, #f0f4ff 0%, #e0e7ff 100%);
+    padding: 30px;
+    border-radius: 12px;
+    border: 2px solid #667eea;
+}
+
+.training-link-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    background: white;
+    padding: 25px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    flex-wrap: wrap;
+}
+
+.training-link-content {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    flex: 1;
+}
+
+.training-link-content i {
+    font-size: 32px;
+    color: #667eea;
+}
+
+.training-link-content strong {
+    display: block;
+    font-size: 18px;
+    color: #333;
+    margin-bottom: 5px;
+}
+
+.training-link-content p {
+    margin: 0;
+    color: #666;
+    font-size: 14px;
+}
+
 @media (max-width: 968px) {
     .course-details-layout {
         grid-template-columns: 1fr;
@@ -425,6 +488,20 @@
     
     .course-details-sidebar {
         order: -1;
+    }
+    
+    .training-link-card {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .training-link-content {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .training-link-card .btn {
+        width: 100%;
     }
 }
 </style>

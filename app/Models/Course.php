@@ -16,6 +16,7 @@ class Course extends Model
         'duration_hours',
         'assessment_questions_count',
         'passing_score',
+        'training_link',
         'status',
     ];
 

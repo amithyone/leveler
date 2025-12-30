@@ -223,15 +223,6 @@
                                 value="{{ $course->id }}" 
                                 class="course-checkbox" 
                                 onchange="updateCourseSelection()"
-                                @if(isset($package))
-                                    @if($package['type'] === 'A' && $loop->index >= 1)
-                                        disabled
-                                    @elseif($package['type'] === 'B' && $loop->index >= 3)
-                                        disabled
-                                    @elseif($package['type'] === 'C' && $loop->index >= 6)
-                                        disabled
-                                    @endif
-                                @endif
                             >
                             <label for="course_{{ $course->id }}" class="course-label">
                                 <div class="course-title">{{ $course->title }}</div>
@@ -295,13 +286,17 @@
             document.getElementById('selectedCount').textContent = selectedCount;
             
             // Disable/enable checkboxes based on limits
-            const allCheckboxes = document.querySelectorAll('.course-checkbox:not(:disabled)');
+            const allCheckboxes = document.querySelectorAll('.course-checkbox');
             allCheckboxes.forEach(checkbox => {
                 if (!checkbox.checked) {
                     if (selectedCount >= maxCourses) {
                         checkbox.disabled = true;
+                        checkbox.parentElement.querySelector('.course-label').style.opacity = '0.5';
+                        checkbox.parentElement.querySelector('.course-label').style.cursor = 'not-allowed';
                     } else {
                         checkbox.disabled = false;
+                        checkbox.parentElement.querySelector('.course-label').style.opacity = '1';
+                        checkbox.parentElement.querySelector('.course-label').style.cursor = 'pointer';
                     }
                 }
             });
@@ -327,6 +322,11 @@
 
         // Initialize on page load
         document.addEventListener('DOMContentLoaded', function() {
+            // Enable all checkboxes initially (in case any were disabled)
+            const allCheckboxes = document.querySelectorAll('.course-checkbox');
+            allCheckboxes.forEach(checkbox => {
+                checkbox.disabled = false;
+            });
             updateCourseSelection();
         });
     </script>

@@ -24,8 +24,9 @@ class TraineeForgotPasswordController extends Controller
     {
         $request->validate(['email' => 'required|email']);
 
-        // Use the default password broker which works with User model
-        $status = Password::sendResetLink(
+        // Use the 'users' password broker (which uses User model)
+        // The User model has sendPasswordResetNotification that uses TraineePasswordResetNotification
+        $status = Password::broker('users')->sendResetLink(
             $request->only('email')
         );
 

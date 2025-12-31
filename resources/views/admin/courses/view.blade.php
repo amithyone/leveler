@@ -158,6 +158,25 @@
                                    title="Edit Course">
                                     <i class="fas fa-pencil-alt"></i>
                                 </a>
+                                @if($course->enrolled_trainees == 0 && $course->total_results == 0)
+                                <form action="{{ route('admin.courses.destroy', $course->id) }}" 
+                                      method="POST" 
+                                      style="display: inline;"
+                                      onsubmit="return confirm('Are you sure you want to delete this course? This will also delete all associated questions. This action cannot be undone.');">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" 
+                                            class="action-btn action-btn-danger" 
+                                            title="Delete Course">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </form>
+                                @else
+                                <span class="action-btn action-btn-disabled" 
+                                      title="Cannot delete: Course has enrollments or results">
+                                    <i class="fas fa-trash"></i>
+                                </span>
+                                @endif
                             </div>
                         </td>
                     </tr>
@@ -330,6 +349,29 @@
     background: #667eea;
     color: white;
     transform: translateY(-2px);
+}
+
+.action-btn-danger {
+    background: #fee2e2;
+    color: #dc2626;
+}
+
+.action-btn-danger:hover {
+    background: #ef4444;
+    color: white;
+}
+
+.action-btn-disabled {
+    background: #f3f4f6;
+    color: #9ca3af;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.action-btn-disabled:hover {
+    background: #f3f4f6;
+    color: #9ca3af;
+    transform: none;
 }
 
 .badge {

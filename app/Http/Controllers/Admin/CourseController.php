@@ -132,5 +132,36 @@ class CourseController extends Controller
         return redirect()->route('admin.courses.view')
             ->with('success', 'Course updated successfully!');
     }
+
+    /**
+     * Delete a course
+     */
+    public function destroy($id)
+    {
+        $course = Course::findOrFail($id);
+        
+        // Check if course has any enrollments or results
+        $enrollmentsCount = $course->accessibleTrainees()->count();
+        $resultsCount = $course->results()->count();
+        $questionsCount = $course->questionPools()->count();
+        
+        if ($enrollmentsCount > 0 || $resultsCount > 0) {
+            return redirect()->route('admin.courses.view')
+                ->with('error', 'Cannot delete course. It has ' . 
+                    ($enrollmentsCount > 0 ? $enrollmentsCount . ' enrolled trainee(s)' : '') .
+                    ($enrollmentsCount > 0 && $resultsCount > 0 ? ' and ' : '') .
+                    ($resultsCount > 0 ? $resultsCount . ' result(s)' : '') . 
+                    '. Please remove all enrollments and results first.');
+        }
+        
+        // Delete associated question pools (cascade should handle this, but being explicit)
+        $course->questionPools()->delete();
+        
+        // Delete the course
+        $course->delete();
+        
+        return redirect()->route('admin.courses.view')
+            ->with('success', 'Course deleted successfully!');
+    }
 }
 

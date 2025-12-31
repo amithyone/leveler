@@ -141,6 +141,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
     Route::get('/courses/{id}', [CourseController::class, 'show'])->name('courses.show');
     Route::get('/courses/{id}/edit', [CourseController::class, 'edit'])->name('courses.edit');
     Route::put('/courses/{id}', [CourseController::class, 'update'])->name('courses.update');
+    Route::delete('/courses/{id}', [CourseController::class, 'destroy'])->name('courses.destroy');
     
     // Results
     Route::get('/results', [ResultController::class, 'index'])->name('results.index');

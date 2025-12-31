@@ -214,7 +214,7 @@ class MailController extends Controller
     /**
      * View email
      */
-    public function view($id)
+    public function view(Request $request, $id)
     {
         if (!function_exists('imap_open')) {
             return view('admin.mail.view', [
@@ -225,6 +225,7 @@ class MailController extends Controller
 
         $email = null;
         $error = null;
+        $folder = $request->get('folder', 'INBOX');
 
         try {
             $mailbox = @imap_open(
@@ -234,6 +235,10 @@ class MailController extends Controller
             );
 
             if ($mailbox) {
+                // Select the correct folder
+                $folderPath = "{{$this->imapHost}:{$this->imapPort}/imap/notls/novalidate-cert}{$folder}";
+                @imap_reopen($mailbox, $folderPath);
+                
                 $header = imap_headerinfo($mailbox, $id);
                 
                 if ($header) {

@@ -15,8 +15,8 @@
                     <i class="fas fa-trash"></i> Delete
                 </button>
             </form>
-            <a href="{{ route('admin.mail.index') }}" class="btn btn-secondary">
-                <i class="fas fa-arrow-left"></i> Back to Inbox
+            <a href="{{ route('admin.mail.index', ['folder' => $folder ?? 'INBOX']) }}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Back to {{ $folder ?? 'INBOX' }}
             </a>
         </div>
     </div>

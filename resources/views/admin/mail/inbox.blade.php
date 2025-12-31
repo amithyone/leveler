@@ -63,7 +63,7 @@
                         <div class="mail-checkbox">
                             <input type="checkbox" value="{{ $email['number'] }}">
                         </div>
-                        <a href="{{ route('admin.mail.view', $email['number']) }}" class="mail-link">
+                        <a href="{{ route('admin.mail.view', ['id' => $email['number'], 'folder' => $folder]) }}" class="mail-link">
                             <div class="mail-from">
                                 <strong>{{ $email['from_name'] ?: $email['from'] }}</strong>
                                 <span class="mail-address">{{ $email['from'] }}</span>

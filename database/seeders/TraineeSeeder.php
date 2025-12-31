@@ -37,7 +37,10 @@ class TraineeSeeder extends Seeder
         ];
 
         foreach ($trainees as $trainee) {
-            Trainee::create($trainee);
+            Trainee::updateOrCreate(
+                ['username' => $trainee['username']],
+                $trainee
+            );
         }
     }
 }

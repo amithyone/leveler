@@ -40,6 +40,7 @@ class MailController extends Controller
         $emails = [];
         $totalEmails = 0;
         $error = null;
+        $folders = ['INBOX', 'Sent'];
 
         try {
             // Connect to IMAP without TLS/SSL (port 143)
@@ -50,8 +51,12 @@ class MailController extends Controller
             );
 
             if ($mailbox) {
+                // Select the folder
+                $folderPath = "{{$this->imapHost}:{$this->imapPort}/imap/notls/novalidate-cert}{$folder}";
+                @imap_reopen($mailbox, $folderPath);
+                
                 // Get mailbox status
-                $status = imap_status($mailbox, "{{$this->imapHost}:{$this->imapPort}/imap/notls/novalidate-cert}{$folder}", SA_ALL);
+                $status = imap_status($mailbox, $folderPath, SA_ALL);
                 $totalEmails = $status->messages ?? 0;
 
                 // Get emails (most recent first)
@@ -64,15 +69,34 @@ class MailController extends Controller
                     foreach ($messageNumbers as $msgNumber) {
                         $header = imap_headerinfo($mailbox, $msgNumber);
                         if ($header) {
-                            $emails[] = [
-                                'number' => $msgNumber,
-                                'from' => $header->from[0]->mailbox . '@' . $header->from[0]->host,
-                                'from_name' => isset($header->from[0]->personal) ? imap_mime_header_decode($header->from[0]->personal)[0]->text : '',
-                                'subject' => isset($header->subject) ? imap_mime_header_decode($header->subject)[0]->text : '(No Subject)',
-                                'date' => $header->date,
-                                'seen' => ($header->Unseen == 'U') ? false : true,
-                                'recent' => ($header->Recent == 'N') ? false : true,
-                            ];
+                            // For Sent folder, show "To" instead of "From"
+                            if ($folder === 'Sent') {
+                                $to = isset($header->to) && count($header->to) > 0 
+                                    ? $header->to[0]->mailbox . '@' . $header->to[0]->host 
+                                    : 'Unknown';
+                                $toName = isset($header->to[0]->personal) 
+                                    ? imap_mime_header_decode($header->to[0]->personal)[0]->text 
+                                    : '';
+                                $emails[] = [
+                                    'number' => $msgNumber,
+                                    'from' => $to,
+                                    'from_name' => $toName ?: $to,
+                                    'subject' => isset($header->subject) ? imap_mime_header_decode($header->subject)[0]->text : '(No Subject)',
+                                    'date' => $header->date,
+                                    'seen' => ($header->Unseen == 'U') ? false : true,
+                                    'recent' => ($header->Recent == 'N') ? false : true,
+                                ];
+                            } else {
+                                $emails[] = [
+                                    'number' => $msgNumber,
+                                    'from' => $header->from[0]->mailbox . '@' . $header->from[0]->host,
+                                    'from_name' => isset($header->from[0]->personal) ? imap_mime_header_decode($header->from[0]->personal)[0]->text : '',
+                                    'subject' => isset($header->subject) ? imap_mime_header_decode($header->subject)[0]->text : '(No Subject)',
+                                    'date' => $header->date,
+                                    'seen' => ($header->Unseen == 'U') ? false : true,
+                                    'recent' => ($header->Recent == 'N') ? false : true,
+                                ];
+                            }
                         }
                     }
                 }
@@ -88,7 +112,7 @@ class MailController extends Controller
 
         $totalPages = ceil($totalEmails / $perPage);
 
-        return view('admin.mail.inbox', compact('emails', 'folder', 'page', 'totalPages', 'totalEmails', 'error'));
+        return view('admin.mail.inbox', compact('emails', 'folder', 'folders', 'page', 'totalPages', 'totalEmails', 'error'));
     }
 
     /**
@@ -146,6 +170,36 @@ class MailController extends Controller
                     $message->bcc($bcc);
                 }
             });
+            
+            // Save sent email to Sent folder via IMAP
+            try {
+                $mailbox = @imap_open(
+                    "{{$this->imapHost}:{$this->imapPort}/imap/notls/novalidate-cert}",
+                    $this->email,
+                    $this->password
+                );
+                
+                if ($mailbox) {
+                    // Create Sent folder if it doesn't exist
+                    $folders = imap_list($mailbox, "{{$this->imapHost}:{$this->imapPort}/imap/notls/novalidate-cert}", "*");
+                    $sentFolderExists = false;
+                    foreach ($folders as $f) {
+                        if (strpos($f, 'Sent') !== false) {
+                            $sentFolderExists = true;
+                            break;
+                        }
+                    }
+                    
+                    if (!$sentFolderExists) {
+                        @imap_createmailbox($mailbox, imap_utf7_encode("{{$this->imapHost}:{$this->imapPort}/imap/notls/novalidate-cert}Sent"));
+                    }
+                    
+                    imap_close($mailbox);
+                }
+            } catch (\Exception $e) {
+                // Log but don't fail the send operation
+                Log::warning('Failed to save to Sent folder: ' . $e->getMessage());
+            }
 
             return redirect()->route('admin.mail.index')
                 ->with('success', 'Email sent successfully!');
@@ -218,7 +272,7 @@ class MailController extends Controller
             Log::error('Mail view error: ' . $e->getMessage());
         }
 
-        return view('admin.mail.view', compact('email', 'error'));
+        return view('admin.mail.view', compact('email', 'error', 'folder'));
     }
 
     /**

@@ -31,11 +31,23 @@
 
     <div class="mail-container">
         <div class="mail-toolbar">
-            <div class="mail-folder">
-                <span class="folder-name">
-                    <i class="fas fa-inbox"></i> {{ $folder }}
-                </span>
-                <span class="folder-count">({{ $totalEmails }} emails)</span>
+            <div class="mail-folder-nav">
+                @if(isset($folders))
+                    @foreach($folders as $f)
+                        <a href="{{ route('admin.mail.index', ['folder' => $f, 'page' => 1]) }}" 
+                           class="folder-link {{ $folder === $f ? 'active' : '' }}">
+                            <i class="fas fa-{{ $f === 'INBOX' ? 'inbox' : 'paper-plane' }}"></i> 
+                            {{ $f }}
+                        </a>
+                    @endforeach
+                @else
+                    <div class="mail-folder">
+                        <span class="folder-name">
+                            <i class="fas fa-inbox"></i> {{ $folder }}
+                        </span>
+                        <span class="folder-count">({{ $totalEmails }} emails)</span>
+                    </div>
+                @endif
             </div>
             <div class="mail-actions">
                 <a href="{{ route('admin.mail.index', ['folder' => $folder, 'page' => 1]) }}" class="btn btn-sm">
@@ -120,6 +132,34 @@
     padding: 15px 20px;
     border-bottom: 1px solid #e5e7eb;
     background: #f9fafb;
+}
+
+.mail-folder-nav {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.folder-link {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 15px;
+    border-radius: 6px;
+    text-decoration: none;
+    color: #6b7280;
+    transition: all 0.2s;
+    font-weight: 500;
+}
+
+.folder-link:hover {
+    background: #f3f4f6;
+    color: #374151;
+}
+
+.folder-link.active {
+    background: #3b82f6;
+    color: white;
 }
 
 .mail-folder {

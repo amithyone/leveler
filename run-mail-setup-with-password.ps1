@@ -20,8 +20,8 @@ Write-Host "Connecting to server and running setup..." -ForegroundColor Yellow
 ssh "$serverUser@$serverIP" $command
 
 if ($LASTEXITCODE -eq 0) {
-    Write-Host "`n✓ Mail server setup completed!" -ForegroundColor Green
+    Write-Host "`nMail server setup completed!" -ForegroundColor Green
 } else {
-    Write-Host "`n✗ Setup failed. Check the output above." -ForegroundColor Red
+    Write-Host "`nSetup failed. Check the output above." -ForegroundColor Red
 }
 

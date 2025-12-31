@@ -198,6 +198,12 @@
                         <span>Partners Management</span>
                         <i class="fas fa-chevron-right nav-arrow"></i>
                     </a>
+
+                    <a href="{{ route('admin.mail.index') }}" class="nav-item {{ request()->routeIs('admin.mail.*') ? 'active' : '' }}">
+                        <i class="fas fa-envelope"></i>
+                        <span>Mail</span>
+                        <i class="fas fa-chevron-right nav-arrow"></i>
+                    </a>
                 </nav>
             </aside>
 

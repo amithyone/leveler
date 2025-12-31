@@ -21,6 +21,7 @@ use App\Http\Controllers\Admin\ManualPaymentController;
 use App\Http\Controllers\Admin\PageController;
 use App\Http\Controllers\Admin\PartnerController;
 use App\Http\Controllers\Admin\BlogController as AdminBlogController;
+use App\Http\Controllers\Admin\MailController;
 use App\Http\Controllers\Trainee\TraineeAuthController;
 use App\Http\Controllers\Trainee\TraineeRegisterController;
 use App\Http\Controllers\Trainee\TraineeForgotPasswordController;
@@ -178,6 +179,13 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
     Route::get('/payments/{id}/edit', [PaymentController::class, 'edit'])->name('payments.edit');
     Route::put('/payments/{id}', [PaymentController::class, 'update'])->name('payments.update');
     Route::delete('/payments/{id}', [PaymentController::class, 'destroy'])->name('payments.destroy');
+    
+    // Mail
+    Route::get('/mail', [MailController::class, 'index'])->name('mail.index');
+    Route::get('/mail/compose', [MailController::class, 'compose'])->name('mail.compose');
+    Route::post('/mail/send', [MailController::class, 'send'])->name('mail.send');
+    Route::get('/mail/{id}', [MailController::class, 'view'])->name('mail.view');
+    Route::delete('/mail/{id}', [MailController::class, 'delete'])->name('mail.delete');
 });
 
 // Trainee Routes

@@ -3,7 +3,6 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Mail\MailManager;
 use Symfony\Component\Mailer\Transport\Smtp\EsmtpTransport;
 use Symfony\Component\Mailer\Transport\Smtp\Stream\SocketStream;
@@ -25,31 +24,52 @@ class AppServiceProvider extends ServiceProvider
     {
         // Configure SMTP stream options after mail manager is resolved
         $this->app->afterResolving('mail.manager', function (MailManager $manager) {
-            $manager->extend('smtp', function ($config) use ($manager) {
-                // Create transport using the manager's method
-                $transport = $manager->createSymfonyTransport($config);
+            // Store original createSmtpTransport method
+            $originalCreateSmtp = \Closure::bind(function ($config) {
+                $factory = new \Symfony\Component\Mailer\Transport\Smtp\EsmtpTransportFactory;
                 
-                // Configure stream options if it's an EsmtpTransport
-                if ($transport instanceof EsmtpTransport) {
-                    $stream = $transport->getStream();
-                    
-                    if ($stream instanceof SocketStream) {
-                        // Get existing stream options
-                        $streamOptions = $stream->getStreamOptions();
-                        
-                        // Add SSL options to disable certificate verification for local mail server
-                        $streamOptions['ssl'] = array_merge($streamOptions['ssl'] ?? [], [
-                            'allow_self_signed' => true,
-                            'verify_peer' => false,
-                            'verify_peer_name' => false,
-                        ]);
-                        
-                        // Set the updated stream options
-                        $stream->setStreamOptions($streamOptions);
+                $scheme = $config['scheme'] ?? null;
+                if (!$scheme) {
+                    $scheme = !empty($config['encryption']) && $config['encryption'] === 'tls'
+                        ? (($config['port'] == 465) ? 'smtps' : 'smtp')
+                        : '';
+                }
+                
+                $transport = $factory->create(new \Symfony\Component\Mailer\Transport\Dsn(
+                    $scheme,
+                    $config['host'],
+                    $config['username'] ?? null,
+                    $config['password'] ?? null,
+                    $config['port'] ?? null,
+                    $config
+                ));
+                
+                // Configure stream options
+                $stream = $transport->getStream();
+                if ($stream instanceof SocketStream) {
+                    if (isset($config['source_ip'])) {
+                        $stream->setSourceIp($config['source_ip']);
                     }
+                    if (isset($config['timeout'])) {
+                        $stream->setTimeout($config['timeout']);
+                    }
+                    
+                    // Add SSL options to disable certificate verification for local mail server
+                    $streamOptions = $stream->getStreamOptions();
+                    $streamOptions['ssl'] = array_merge($streamOptions['ssl'] ?? [], [
+                        'allow_self_signed' => true,
+                        'verify_peer' => false,
+                        'verify_peer_name' => false,
+                    ]);
+                    $stream->setStreamOptions($streamOptions);
                 }
                 
                 return $transport;
+            }, $manager, MailManager::class);
+            
+            // Replace the createSmtpTransport method
+            $manager->extend('smtp', function ($config) use ($originalCreateSmtp) {
+                return $originalCreateSmtp($config);
             });
         });
     }

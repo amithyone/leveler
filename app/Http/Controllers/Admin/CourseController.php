@@ -68,6 +68,39 @@ class CourseController extends Controller
     }
 
     /**
+     * Show create form
+     */
+    public function create()
+    {
+        return view('admin.courses.create');
+    }
+
+    /**
+     * Store new course
+     */
+    public function store(Request $request)
+    {
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'code' => 'required|string|max:10|unique:courses,code',
+            'description' => 'nullable|string',
+            'duration_hours' => 'nullable|numeric|min:0',
+            'assessment_questions_count' => 'nullable|integer|min:1',
+            'passing_score' => 'required|integer|min:0|max:100',
+            'training_link' => 'nullable|url|max:500',
+            'whatsapp_link' => 'nullable|url|max:500',
+            'status' => 'required|in:Active,Inactive',
+        ]);
+
+        Course::create($request->only([
+            'title', 'code', 'description', 'duration_hours', 'assessment_questions_count', 'passing_score', 'training_link', 'whatsapp_link', 'status'
+        ]));
+
+        return redirect()->route('admin.courses.view')
+            ->with('success', 'Course created successfully!');
+    }
+
+    /**
      * Show edit form
      */
     public function edit($id)

@@ -7,7 +7,10 @@
 
 <div class="page-content">
     <div class="content-section">
-        <p>Courses management page.</p>
+        <p>Redirecting to courses view...</p>
+        <script>
+            window.location.href = "{{ route('admin.courses.view') }}";
+        </script>
     </div>
 </div>
 @endsection

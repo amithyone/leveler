@@ -8,7 +8,10 @@
             <p style="margin: 0; color: #666;">Manage and view all available courses</p>
         </div>
         <div style="display: flex; gap: 10px;">
-            <button class="btn btn-primary" onclick="window.location.reload()">
+            <a href="{{ route('admin.courses.create') }}" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Add New Course
+            </a>
+            <button class="btn btn-secondary" onclick="window.location.reload()">
                 <i class="fas fa-sync-alt"></i> Refresh
             </button>
         </div>

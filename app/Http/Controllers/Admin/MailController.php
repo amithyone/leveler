@@ -13,7 +13,7 @@ class MailController extends Controller
     private $imapHost = 'localhost';
     private $imapPort = 143;
     private $smtpHost = 'localhost';
-    private $smtpPort = 587;
+    private $smtpPort = 25;
     private $email = 'mail@levelercc.com';
     private $password = '00000000';
 
@@ -42,16 +42,16 @@ class MailController extends Controller
         $error = null;
 
         try {
-            // Connect to IMAP
+            // Connect to IMAP without TLS/SSL (port 143)
             $mailbox = @imap_open(
-                "{{$this->imapHost}:{$this->imapPort}/imap/novalidate-cert}",
+                "{{$this->imapHost}:{$this->imapPort}/imap/notls/novalidate-cert}",
                 $this->email,
                 $this->password
             );
 
             if ($mailbox) {
                 // Get mailbox status
-                $status = imap_status($mailbox, "{{$this->imapHost}:{$this->imapPort}/imap/novalidate-cert}{$folder}", SA_ALL);
+                $status = imap_status($mailbox, "{{$this->imapHost}:{$this->imapPort}/imap/notls/novalidate-cert}{$folder}", SA_ALL);
                 $totalEmails = $status->messages ?? 0;
 
                 // Get emails (most recent first)
@@ -122,7 +122,7 @@ class MailController extends Controller
             Config::set('mail.mailers.smtp.port', $this->smtpPort);
             Config::set('mail.mailers.smtp.username', $this->email);
             Config::set('mail.mailers.smtp.password', $this->password);
-            Config::set('mail.mailers.smtp.encryption', 'tls');
+            Config::set('mail.mailers.smtp.encryption', null);
             Config::set('mail.from.address', $this->email);
             Config::set('mail.from.name', 'Leveler Mail');
 
@@ -174,7 +174,7 @@ class MailController extends Controller
 
         try {
             $mailbox = @imap_open(
-                "{{$this->imapHost}:{$this->imapPort}/imap/novalidate-cert}",
+                "{{$this->imapHost}:{$this->imapPort}/imap/notls/novalidate-cert}",
                 $this->email,
                 $this->password
             );
@@ -233,7 +233,7 @@ class MailController extends Controller
 
         try {
             $mailbox = @imap_open(
-                "{{$this->imapHost}:{$this->imapPort}/imap/novalidate-cert}",
+                "{{$this->imapHost}:{$this->imapPort}/imap/notls/novalidate-cert}",
                 $this->email,
                 $this->password
             );

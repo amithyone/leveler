@@ -314,11 +314,29 @@ class MailController extends Controller
             );
 
             if ($mailbox) {
+                // List all folders to find the correct folder name
+                $allFolders = imap_list($mailbox, "{{$this->imapHost}:{$this->imapPort}/imap/notls/novalidate-cert}", "*");
+                $actualFolderName = $folder;
+                
+                // Find the actual folder name (handle case-insensitive and dot-prefixed)
+                foreach ($allFolders as $f) {
+                    if (preg_match('/\{[^}]+\}(.+)$/', $f, $matches)) {
+                        $folderName = imap_utf7_decode($matches[1]);
+                        $displayName = ltrim($folderName, '.');
+                        if (strcasecmp($folderName, $folder) === 0 || 
+                            strcasecmp($folderName, '.' . $folder) === 0 ||
+                            strcasecmp($displayName, $folder) === 0) {
+                            $actualFolderName = $folderName;
+                            break;
+                        }
+                    }
+                }
+                
                 // Select the correct folder
-                $folderPath = "{{$this->imapHost}:{$this->imapPort}/imap/notls/novalidate-cert}{$folder}";
+                $folderPath = "{{$this->imapHost}:{$this->imapPort}/imap/notls/novalidate-cert}{$actualFolderName}";
                 @imap_reopen($mailbox, $folderPath);
                 
-                $header = imap_headerinfo($mailbox, $id);
+                $header = @imap_headerinfo($mailbox, $id);
                 
                 if ($header) {
                     $body = imap_body($mailbox, $id);
@@ -327,18 +345,29 @@ class MailController extends Controller
                     $structure = imap_fetchstructure($mailbox, $id);
                     $htmlBody = $this->getMessageBody($mailbox, $id, $structure);
                     
+                    // Safely extract email data
+                    $fromEmail = '';
+                    $fromName = '';
+                    if (isset($header->from[0])) {
+                        $fromEmail = ($header->from[0]->mailbox ?? '') . '@' . ($header->from[0]->host ?? '');
+                        if (isset($header->from[0]->personal)) {
+                            $decodedPersonal = @imap_mime_header_decode($header->from[0]->personal);
+                            $fromName = $decodedPersonal && isset($decodedPersonal[0]) ? $decodedPersonal[0]->text : '';
+                        }
+                    }
+                    
                     $email = [
                         'number' => $id,
-                        'from' => $header->from[0]->mailbox . '@' . $header->from[0]->host,
-                        'from_name' => isset($header->from[0]->personal) ? imap_mime_header_decode($header->from[0]->personal)[0]->text : '',
+                        'from' => $fromEmail,
+                        'from_name' => $fromName,
                         'to' => isset($header->to) ? array_map(function($to) {
-                            return $to->mailbox . '@' . $to->host;
-                        }, $header->to) : [],
+                            return ($to->mailbox ?? '') . '@' . ($to->host ?? '');
+                        }, is_array($header->to) ? $header->to : [$header->to]) : [],
                         'cc' => isset($header->cc) ? array_map(function($cc) {
-                            return $cc->mailbox . '@' . $cc->host;
-                        }, $header->cc) : [],
-                        'subject' => isset($header->subject) ? imap_mime_header_decode($header->subject)[0]->text : '(No Subject)',
-                        'date' => $header->date,
+                            return ($cc->mailbox ?? '') . '@' . ($cc->host ?? '');
+                        }, is_array($header->cc) ? $header->cc : [$header->cc]) : [],
+                        'subject' => isset($header->subject) ? (@imap_mime_header_decode($header->subject)[0]->text ?? $header->subject) : '(No Subject)',
+                        'date' => $header->date ?? date('r'),
                         'body' => $htmlBody ?: $body,
                         'attachments' => $this->getAttachments($mailbox, $id, $structure),
                     ];

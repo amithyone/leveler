@@ -13,7 +13,7 @@ class MailController extends Controller
     private $imapHost = 'localhost';
     private $imapPort = 143;
     private $smtpHost = 'localhost';
-    private $smtpPort = 25;
+    private $smtpPort = 587; // Use port 587 with STARTTLS for encryption
     private $email = 'mail@levelercc.com';
     private $password = '00000000';
 
@@ -146,7 +146,7 @@ class MailController extends Controller
             Config::set('mail.mailers.smtp.port', $this->smtpPort);
             Config::set('mail.mailers.smtp.username', $this->email);
             Config::set('mail.mailers.smtp.password', $this->password);
-            Config::set('mail.mailers.smtp.encryption', null);
+            Config::set('mail.mailers.smtp.encryption', 'tls'); // Enable TLS encryption
             Config::set('mail.from.address', $this->email);
             Config::set('mail.from.name', 'Leveler Mail');
 

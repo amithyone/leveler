@@ -152,15 +152,15 @@
         
         <p>If you have any questions about this payment or your course access, please contact our support team.</p>
         
-        <p>Thank you for choosing Leveler!</p>
+        <p>Thank you for choosing LevelerCC!</p>
         
         <p>Best regards,<br>
-        <strong>The Leveler Team</strong></p>
+        <strong>The LevelerCC Team</strong></p>
     </div>
     
     <div class="footer">
         <p>This is an automated email. Please do not reply to this message.</p>
-        <p>&copy; {{ date('Y') }} Leveler. All rights reserved.</p>
+        <p>&copy; {{ date('Y') }} LevelerCC. All rights reserved.</p>
     </div>
 </body>
 </html>

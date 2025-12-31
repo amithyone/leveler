@@ -72,7 +72,7 @@ class TraineePasswordResetNotification extends Notification
                 ->action('Reset Password', $url)
                 ->line('This password reset link will expire in 60 minutes.')
                 ->line('If you did not request a password reset, no further action is required.')
-                ->salutation('Best regards, Leveler Team');
+                ->salutation('Best regards, LevelerCC Team');
 
             Log::info('MailMessage created successfully', [
                 'email' => $notifiable->email ?? 'N/A',

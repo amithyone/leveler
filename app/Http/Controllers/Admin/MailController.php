@@ -117,8 +117,13 @@ class MailController extends Controller
                             
                             $header = @imap_headerinfo($mailbox, $msgNumber);
                             if ($header) {
-                            // For Sent folder, show "To" instead of "From"
-                            if ($folder === 'Sent') {
+                                // For Sent folder, show "To" instead of "From"
+                                // Check both the requested folder and actual folder name
+                                $isSentFolder = strcasecmp($folder, 'Sent') === 0 || 
+                                               strcasecmp($actualFolderName, 'Sent') === 0 || 
+                                               strcasecmp($actualFolderName, '.Sent') === 0;
+                                
+                                if ($isSentFolder) {
                                 $to = isset($header->to) && count($header->to) > 0 
                                     ? $header->to[0]->mailbox . '@' . $header->to[0]->host 
                                     : 'Unknown';

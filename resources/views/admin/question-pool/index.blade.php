@@ -2,8 +2,15 @@
 
 @section('content')
 <div class="page-header">
-    <h1 class="page-title"><i class="fas fa-question-circle"></i> Question Pool</h1>
-    <p style="margin: 0; color: #666;">Select a course to view and manage questions</p>
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
+        <div>
+            <h1 class="page-title"><i class="fas fa-question-circle"></i> Question Pool</h1>
+            <p style="margin: 0; color: #666;">Select a course to view and manage questions</p>
+        </div>
+        <a href="{{ route('admin.question-pool.create') }}" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Add Question
+        </a>
+    </div>
 </div>
 
 <div class="page-content">

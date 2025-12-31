@@ -122,6 +122,8 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
     
     // Question Pool
     Route::get('/question-pool', [QuestionPoolController::class, 'index'])->name('question-pool.index');
+    Route::get('/question-pool/create', [QuestionPoolController::class, 'create'])->name('question-pool.create');
+    Route::post('/question-pool', [QuestionPoolController::class, 'store'])->name('question-pool.store');
     Route::get('/question-pool/course/{courseId}', [QuestionPoolController::class, 'showCourseQuestions'])->name('question-pool.course');
     Route::get('/question-pool/{id}/edit', [QuestionPoolController::class, 'edit'])->name('question-pool.edit');
     Route::put('/question-pool/{id}', [QuestionPoolController::class, 'update'])->name('question-pool.update');

@@ -19,9 +19,9 @@
             <a href="{{ route('admin.courses.show', $course->id) }}" class="btn btn-secondary">
                 <i class="fas fa-info-circle"></i> Course Details
             </a>
-            <button class="btn btn-primary" onclick="alert('Add question feature - Coming soon!')">
+            <a href="{{ route('admin.question-pool.create', ['course' => $course->id]) }}" class="btn btn-primary">
                 <i class="fas fa-plus"></i> Add Question
-            </button>
+            </a>
         </div>
     </div>
 </div>
@@ -123,9 +123,9 @@
             <i class="fas fa-question-circle" style="font-size: 64px; color: #ccc; margin-bottom: 20px;"></i>
             <h3>No Questions Found</h3>
             <p>This course doesn't have any questions yet.</p>
-            <button class="btn btn-primary" onclick="alert('Add question feature - Coming soon!')">
+            <a href="{{ route('admin.question-pool.create', ['course' => $course->id]) }}" class="btn btn-primary">
                 <i class="fas fa-plus"></i> Add First Question
-            </button>
+            </a>
         </div>
         @endif
     </div>

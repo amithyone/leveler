@@ -167,7 +167,7 @@
                     <label for="state_code">
                         <i class="fas fa-map-marker-alt"></i> State Code <span class="required">*</span>
                     </label>
-                    <input type="text" id="state_code" name="state_code" value="{{ old('state_code') }}" required placeholder="e.g., AB, LA, FCT" maxlength="10">
+                    <input type="text" id="state_code" name="state_code" value="{{ old('state_code') }}" required placeholder="e.g., AB, LA, FCT" maxlength="12">
                     <small class="form-text">Your NYSC state code</small>
                 </div>
 

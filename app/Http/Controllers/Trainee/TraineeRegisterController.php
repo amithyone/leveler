@@ -89,7 +89,7 @@ class TraineeRegisterController extends Controller
 
         $request->validate([
             'full_name' => 'required|string|max:255',
-            'state_code' => 'required|string|max:10',
+            'state_code' => 'required|string|max:12',
             'whatsapp_number' => 'required|string|max:20',
             'password' => 'required|string|min:6|confirmed',
             'courses' => "required|array|min:{$minCourses}|max:{$maxCourses}",

@@ -91,6 +91,7 @@ class TraineeRegisterController extends Controller
 
         $request->validate([
             'full_name' => 'required|string|max:255',
+            'email' => 'required|email|max:255|unique:users,email',
             'state_code' => 'required|string|max:12',
             'whatsapp_number' => 'required|string|max:20',
             'password' => 'required|string|min:6|confirmed',
@@ -98,13 +99,8 @@ class TraineeRegisterController extends Controller
             'courses.*' => 'required|exists:courses,id',
         ]);
 
-        // Generate email from name (for NYSC, email is optional)
-        $email = strtolower(str_replace(' ', '', $request->full_name)) . '@nysc.leveler.com';
-        $counter = 1;
-        while (User::where('email', $email)->exists()) {
-            $email = strtolower(str_replace(' ', '', $request->full_name)) . $counter . '@nysc.leveler.com';
-            $counter++;
-        }
+        // Use email from form input
+        $email = $request->email;
 
         // Use password from form input
         $password = $request->password;
@@ -121,6 +117,7 @@ class TraineeRegisterController extends Controller
         // Create trainee record immediately with course selections
         $trainee = Trainee::create([
             'user_id' => $user->id,
+            'email' => $email,
             'surname' => strtoupper($request->full_name), // For NYSC, use full name as surname
             'first_name' => '',
             'middle_name' => null,
@@ -190,6 +187,7 @@ class TraineeRegisterController extends Controller
         // Create trainee record immediately with course selections
         $trainee = Trainee::create([
             'user_id' => $user->id,
+            'email' => $request->email,
             'surname' => strtoupper($request->full_name), // Use full name as surname
             'first_name' => '',
             'middle_name' => null,

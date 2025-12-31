@@ -12,6 +12,7 @@ class Trainee extends Authenticatable
 
     protected $fillable = [
         'user_id',
+        'email',
         'surname',
         'first_name',
         'middle_name',

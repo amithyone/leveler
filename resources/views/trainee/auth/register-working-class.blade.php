@@ -106,6 +106,7 @@
                         <i class="fas fa-user"></i> Full Name <span class="required">*</span>
                     </label>
                     <input type="text" id="full_name" name="full_name" value="{{ old('full_name') }}" required autofocus placeholder="Enter your full name">
+                    <small class="form-text">Fill as your name should appear on your certificates</small>
                 </div>
 
                 <div class="form-group">

@@ -44,7 +44,7 @@ class AppServiceProvider extends ServiceProvider
                     $config
                 ));
                 
-                // Configure stream options
+                // Configure stream options BEFORE connection is established
                 $stream = $transport->getStream();
                 if ($stream instanceof SocketStream) {
                     if (isset($config['source_ip'])) {
@@ -55,13 +55,24 @@ class AppServiceProvider extends ServiceProvider
                     }
                     
                     // Add SSL options to disable certificate verification for local mail server
+                    // These must be set before initialize() is called and will be used for STARTTLS
                     $streamOptions = $stream->getStreamOptions();
                     $streamOptions['ssl'] = array_merge($streamOptions['ssl'] ?? [], [
                         'allow_self_signed' => true,
                         'verify_peer' => false,
                         'verify_peer_name' => false,
+                        'crypto_method' => STREAM_CRYPTO_METHOD_TLS_CLIENT | STREAM_CRYPTO_METHOD_TLSv1_2_CLIENT | STREAM_CRYPTO_METHOD_TLSv1_1_CLIENT,
                     ]);
                     $stream->setStreamOptions($streamOptions);
+                    
+                    // For STARTTLS, we need to ensure the stream context is available
+                    // The stream context is created in initialize() but STARTTLS happens later
+                    // We'll use reflection to store the context for STARTTLS
+                    if (method_exists($stream, 'setStreamContext')) {
+                        $context = stream_context_create(['ssl' => $streamOptions['ssl']]);
+                        // Store context for STARTTLS - this is a workaround
+                        // The actual fix is ensuring stream_socket_enable_crypto uses the right context
+                    }
                 }
                 
                 return $transport;

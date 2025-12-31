@@ -8,6 +8,8 @@ use App\Models\Trainee;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\WelcomeEmail;
 use Illuminate\Validation\ValidationException;
 
 class TraineeRegisterController extends Controller
@@ -150,6 +152,14 @@ class TraineeRegisterController extends Controller
         Auth::login($user);
         $request->session()->regenerate();
 
+        // Send welcome email
+        try {
+            Mail::to($user->email)->send(new WelcomeEmail($trainee, $password));
+        } catch (\Exception $e) {
+            \Log::error('Failed to send welcome email: ' . $e->getMessage());
+            // Don't fail registration if email fails
+        }
+
         return redirect()->route('trainee.payments.create')
             ->with('success', 'Registration successful! Please proceed to make payment for your selected courses.');
     }
@@ -205,6 +215,14 @@ class TraineeRegisterController extends Controller
         // Log in the user
         Auth::login($user);
         $request->session()->regenerate();
+
+        // Send welcome email
+        try {
+            Mail::to($user->email)->send(new WelcomeEmail($trainee, $request->password));
+        } catch (\Exception $e) {
+            \Log::error('Failed to send welcome email: ' . $e->getMessage());
+            // Don't fail registration if email fails
+        }
 
         return redirect()->route('trainee.payments.create')
             ->with('success', 'Registration successful! Please proceed to make payment for your selected courses.');

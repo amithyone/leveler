@@ -8,6 +8,8 @@ use App\Models\Payment;
 use App\Models\Trainee;
 use App\Models\Course;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\PaymentReceiptEmail;
 
 class PaymentController extends Controller
 {
@@ -63,6 +65,16 @@ class PaymentController extends Controller
             
             // Grant course access based on payment
             $this->grantCourseAccess($trainee, $payment);
+            
+            // Send payment receipt email
+            if ($trainee->user && $trainee->user->email) {
+                try {
+                    Mail::to($trainee->user->email)->send(new PaymentReceiptEmail($payment, $trainee));
+                } catch (\Exception $e) {
+                    Log::error('Failed to send payment receipt email: ' . $e->getMessage());
+                    // Don't fail payment update if email fails
+                }
+            }
         }
 
         return redirect()->route('admin.payments.index')->with('success', 'Payment recorded successfully');
@@ -100,6 +112,16 @@ class PaymentController extends Controller
             
             // Grant course access based on payment
             $this->grantCourseAccess($trainee, $payment);
+            
+            // Send payment receipt email
+            if ($trainee->user && $trainee->user->email) {
+                try {
+                    Mail::to($trainee->user->email)->send(new PaymentReceiptEmail($payment, $trainee));
+                } catch (\Exception $e) {
+                    Log::error('Failed to send payment receipt email: ' . $e->getMessage());
+                    // Don't fail payment update if email fails
+                }
+            }
         }
 
         // If payment status changed from Completed to something else, check if trainee has other completed payments

@@ -4,9 +4,11 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use App\Models\Payment;
 use App\Models\Trainee;
 use App\Models\Course;
+use App\Mail\PaymentReceiptEmail;
 
 class PayVibeWebhookController extends Controller
 {
@@ -83,6 +85,16 @@ class PayVibeWebhookController extends Controller
                     // Grant course access based on payment package (even for installments)
                     if ($payment->course_access_count > 0) {
                         $this->grantCourseAccess($trainee, $payment);
+                    }
+
+                    // Send payment receipt email
+                    if ($trainee->user && $trainee->user->email) {
+                        try {
+                            Mail::to($trainee->user->email)->send(new PaymentReceiptEmail($payment, $trainee));
+                        } catch (\Exception $e) {
+                            Log::error('PayVibeWebhook: Failed to send payment receipt email: ' . $e->getMessage());
+                            // Don't fail webhook if email fails
+                        }
                     }
 
                     Log::info('PayVibeWebhook: Payment processed successfully', [

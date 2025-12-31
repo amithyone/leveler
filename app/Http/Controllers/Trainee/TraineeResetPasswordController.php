@@ -40,6 +40,13 @@ class TraineeResetPasswordController extends Controller
                 $user->forceFill([
                     'password' => Hash::make($request->password),
                 ])->save();
+                
+                // Also update trainee password if trainee exists
+                if ($user->trainee) {
+                    $user->trainee->update([
+                        'password' => $request->password // Store plain text for backward compatibility
+                    ]);
+                }
             }
         );
 

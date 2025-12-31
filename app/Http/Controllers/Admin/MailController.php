@@ -87,16 +87,36 @@ class MailController extends Controller
                     $status = imap_status($mailbox, $folderPath, SA_ALL);
                     $totalEmails = $status->messages ?? 0;
 
-                // Get emails (most recent first)
-                $start = max(1, $totalEmails - ($page * $perPage) + 1);
-                $end = max(1, $totalEmails - (($page - 1) * $perPage) + 1);
-
-                if ($start <= $end && $totalEmails > 0) {
-                    $messageNumbers = range($end, $start);
-                    
-                    foreach ($messageNumbers as $msgNumber) {
-                        $header = imap_headerinfo($mailbox, $msgNumber);
-                        if ($header) {
+                    // Get emails (most recent first)
+                    // IMAP message numbers are 1-based and sequential
+                    if ($totalEmails > 0) {
+                        // Calculate the range correctly
+                        $start = max(1, $totalEmails - ($page * $perPage) + 1);
+                        $end = max(1, $totalEmails - (($page - 1) * $perPage));
+                        
+                        // Ensure start <= end
+                        if ($start > $end) {
+                            $temp = $start;
+                            $start = $end;
+                            $end = $temp;
+                        }
+                        
+                        // Get message numbers in reverse order (newest first)
+                        $messageNumbers = [];
+                        for ($i = $end; $i >= $start; $i--) {
+                            if ($i >= 1 && $i <= $totalEmails) {
+                                $messageNumbers[] = $i;
+                            }
+                        }
+                        
+                        foreach ($messageNumbers as $msgNumber) {
+                            // Verify message exists before accessing
+                            if ($msgNumber < 1 || $msgNumber > $totalEmails) {
+                                continue;
+                            }
+                            
+                            $header = @imap_headerinfo($mailbox, $msgNumber);
+                            if ($header) {
                             // For Sent folder, show "To" instead of "From"
                             if ($folder === 'Sent') {
                                 $to = isset($header->to) && count($header->to) > 0 

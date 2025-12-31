@@ -40,7 +40,7 @@ class MailController extends Controller
         $emails = [];
         $totalEmails = 0;
         $error = null;
-        $folders = ['INBOX', 'Sent'];
+        $availableFolders = ['INBOX'];
 
         try {
             // Connect to IMAP without TLS/SSL (port 143)

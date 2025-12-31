@@ -7,6 +7,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Facades\Log;
 
 class TraineePasswordResetNotification extends Notification
 {
@@ -20,6 +21,10 @@ class TraineePasswordResetNotification extends Notification
     public function __construct($token)
     {
         $this->token = $token;
+        Log::info('TraineePasswordResetNotification created', [
+            'token_length' => strlen($token),
+            'token_preview' => substr($token, 0, 10) . '...',
+        ]);
     }
 
     /**
@@ -29,6 +34,11 @@ class TraineePasswordResetNotification extends Notification
      */
     public function via(object $notifiable): array
     {
+        Log::info('TraineePasswordResetNotification::via called', [
+            'notifiable_type' => get_class($notifiable),
+            'notifiable_email' => $notifiable->email ?? 'N/A',
+            'notifiable_id' => $notifiable->id ?? 'N/A',
+        ]);
         return ['mail'];
     }
 
@@ -37,18 +47,45 @@ class TraineePasswordResetNotification extends Notification
      */
     public function toMail(object $notifiable): MailMessage
     {
+        Log::info('TraineePasswordResetNotification::toMail called', [
+            'notifiable_email' => $notifiable->email ?? 'N/A',
+            'notifiable_id' => $notifiable->id ?? 'N/A',
+            'notifiable_name' => $notifiable->name ?? 'N/A',
+        ]);
+
         $url = url(route('trainee.password.reset', [
             'token' => $this->token,
             'email' => $notifiable->email
         ], false));
 
-        return (new MailMessage)
-            ->subject('Reset Your Password - Leveler Training Platform')
-            ->greeting('Hello ' . ($notifiable->name ?? 'Trainee') . '!')
-            ->line('You are receiving this email because we received a password reset request for your account.')
-            ->action('Reset Password', $url)
-            ->line('This password reset link will expire in 60 minutes.')
-            ->line('If you did not request a password reset, no further action is required.')
-            ->salutation('Best regards, Leveler Team');
+        Log::info('Password reset URL generated', [
+            'email' => $notifiable->email ?? 'N/A',
+            'url' => $url,
+            'route_name' => 'trainee.password.reset',
+        ]);
+
+        try {
+            $mailMessage = (new MailMessage)
+                ->subject('Reset Your Password - Leveler Training Platform')
+                ->greeting('Hello ' . ($notifiable->name ?? 'Trainee') . '!')
+                ->line('You are receiving this email because we received a password reset request for your account.')
+                ->action('Reset Password', $url)
+                ->line('This password reset link will expire in 60 minutes.')
+                ->line('If you did not request a password reset, no further action is required.')
+                ->salutation('Best regards, Leveler Team');
+
+            Log::info('MailMessage created successfully', [
+                'email' => $notifiable->email ?? 'N/A',
+            ]);
+
+            return $mailMessage;
+        } catch (\Exception $e) {
+            Log::error('Error creating MailMessage', [
+                'email' => $notifiable->email ?? 'N/A',
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+            throw $e;
+        }
     }
 }

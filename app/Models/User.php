@@ -78,6 +78,28 @@ class User extends Authenticatable
      */
     public function sendPasswordResetNotification($token)
     {
-        $this->notify(new TraineePasswordResetNotification($token));
+        \Log::info('User::sendPasswordResetNotification called', [
+            'user_id' => $this->id,
+            'email' => $this->email,
+            'name' => $this->name,
+            'token_length' => strlen($token),
+            'token_preview' => substr($token, 0, 10) . '...',
+        ]);
+
+        try {
+            $this->notify(new TraineePasswordResetNotification($token));
+            \Log::info('Password reset notification sent successfully', [
+                'user_id' => $this->id,
+                'email' => $this->email,
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Failed to send password reset notification', [
+                'user_id' => $this->id,
+                'email' => $this->email,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+            throw $e;
+        }
     }
 }

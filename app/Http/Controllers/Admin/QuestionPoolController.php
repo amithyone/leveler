@@ -72,8 +72,11 @@ class QuestionPoolController extends Controller
             'option_b' => 'required_if:type,multiple_choice|string|nullable',
             'option_c' => 'required_if:type,multiple_choice|string|nullable',
             'option_d' => 'required_if:type,multiple_choice|string|nullable',
-            'correct_answer' => 'required|string',
+            'correct_answer' => 'required|string|min:1',
             'points' => 'required|integer|min:1',
+        ], [
+            'correct_answer.required' => 'Please provide a correct answer.',
+            'correct_answer.min' => 'The correct answer cannot be empty.',
         ]);
 
         // Build options array based on question type
@@ -127,8 +130,11 @@ class QuestionPoolController extends Controller
             'option_b' => 'required_if:type,multiple_choice|string|nullable',
             'option_c' => 'required_if:type,multiple_choice|string|nullable',
             'option_d' => 'required_if:type,multiple_choice|string|nullable',
-            'correct_answer' => 'required|string',
+            'correct_answer' => 'required|string|min:1',
             'points' => 'required|integer|min:1',
+        ], [
+            'correct_answer.required' => 'Please provide a correct answer.',
+            'correct_answer.min' => 'The correct answer cannot be empty.',
         ]);
 
         // Build options array based on question type

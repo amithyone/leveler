@@ -102,7 +102,7 @@
             <div id="trueFalseOptions" style="display: {{ old('type', $question->type) === 'true_false' ? 'block' : 'none' }};">
                 <div class="form-group">
                     <label for="correct_answer_tf">Correct Answer <span class="required">*</span></label>
-                    <select name="correct_answer" id="correct_answer_tf" class="form-control">
+                    <select name="correct_answer" id="correct_answer_tf" class="form-control" required>
                         <option value="A" {{ old('correct_answer', $question->correct_answer) === 'A' ? 'selected' : '' }}>True</option>
                         <option value="B" {{ old('correct_answer', $question->correct_answer) === 'B' ? 'selected' : '' }}>False</option>
                     </select>
@@ -112,8 +112,8 @@
             <!-- Essay Options -->
             <div id="essayOptions" style="display: {{ old('type', $question->type) === 'essay' ? 'block' : 'none' }};">
                 <div class="form-group">
-                    <label for="correct_answer_essay">Expected Answer / Key Points</label>
-                    <textarea name="correct_answer" id="correct_answer_essay" rows="6" class="form-control">{{ old('correct_answer', $question->correct_answer) }}</textarea>
+                    <label for="correct_answer_essay">Expected Answer / Key Points <span class="required">*</span></label>
+                    <textarea name="correct_answer" id="correct_answer_essay" rows="6" class="form-control" required>{{ old('correct_answer', $question->correct_answer) }}</textarea>
                     <small style="color: #666; margin-top: 5px; display: block;">Provide key points or expected answer for essay questions</small>
                 </div>
             </div>
@@ -288,26 +288,69 @@ document.addEventListener('DOMContentLoaded', function() {
         trueFalseDiv.style.display = 'none';
         essayDiv.style.display = 'none';
         
-        // Show relevant option div
+        // Reset required attributes
+        if (correctAnswerSelect) {
+            correctAnswerSelect.required = false;
+            correctAnswerSelect.style.display = 'block';
+        }
+        if (correctAnswerTf) {
+            correctAnswerTf.required = false;
+            correctAnswerTf.style.display = 'block';
+        }
+        if (correctAnswerEssay) {
+            correctAnswerEssay.required = false;
+            correctAnswerEssay.style.display = 'block';
+        }
+        
+        // Show relevant option div and set required
         if (type === 'multiple_choice') {
             multipleChoiceDiv.style.display = 'block';
-            if (correctAnswerSelect) correctAnswerSelect.required = true;
-            if (correctAnswerTf) correctAnswerTf.required = false;
-            if (correctAnswerEssay) correctAnswerEssay.required = false;
+            if (correctAnswerSelect) {
+                correctAnswerSelect.required = true;
+                correctAnswerSelect.style.display = 'block';
+            }
+            if (correctAnswerTf) correctAnswerTf.style.display = 'none';
+            if (correctAnswerEssay) correctAnswerEssay.style.display = 'none';
         } else if (type === 'true_false') {
             trueFalseDiv.style.display = 'block';
-            if (correctAnswerSelect) correctAnswerSelect.required = false;
-            if (correctAnswerTf) correctAnswerTf.required = true;
-            if (correctAnswerEssay) correctAnswerEssay.required = false;
+            if (correctAnswerSelect) correctAnswerSelect.style.display = 'none';
+            if (correctAnswerTf) {
+                correctAnswerTf.required = true;
+                correctAnswerTf.style.display = 'block';
+            }
+            if (correctAnswerEssay) correctAnswerEssay.style.display = 'none';
         } else if (type === 'essay') {
             essayDiv.style.display = 'block';
-            if (correctAnswerSelect) correctAnswerSelect.required = false;
-            if (correctAnswerTf) correctAnswerTf.required = false;
-            if (correctAnswerEssay) correctAnswerEssay.required = false;
+            if (correctAnswerSelect) correctAnswerSelect.style.display = 'none';
+            if (correctAnswerTf) correctAnswerTf.style.display = 'none';
+            if (correctAnswerEssay) {
+                correctAnswerEssay.required = true;
+                correctAnswerEssay.style.display = 'block';
+            }
         }
     }
 
     typeSelect.addEventListener('change', toggleOptions);
+    
+    // Form submission handler - ensure only visible correct_answer field is submitted
+    document.getElementById('questionForm').addEventListener('submit', function(e) {
+        const type = typeSelect.value;
+        
+        // Remove name attribute from hidden fields to prevent submission
+        if (type === 'multiple_choice') {
+            if (correctAnswerTf) correctAnswerTf.removeAttribute('name');
+            if (correctAnswerEssay) correctAnswerEssay.removeAttribute('name');
+            if (correctAnswerSelect) correctAnswerSelect.setAttribute('name', 'correct_answer');
+        } else if (type === 'true_false') {
+            if (correctAnswerSelect) correctAnswerSelect.removeAttribute('name');
+            if (correctAnswerEssay) correctAnswerEssay.removeAttribute('name');
+            if (correctAnswerTf) correctAnswerTf.setAttribute('name', 'correct_answer');
+        } else if (type === 'essay') {
+            if (correctAnswerSelect) correctAnswerSelect.removeAttribute('name');
+            if (correctAnswerTf) correctAnswerTf.removeAttribute('name');
+            if (correctAnswerEssay) correctAnswerEssay.setAttribute('name', 'correct_answer');
+        }
+    });
     
     // Initial toggle on page load
     toggleOptions();

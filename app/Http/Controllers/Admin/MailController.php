@@ -51,13 +51,41 @@ class MailController extends Controller
             );
 
             if ($mailbox) {
-                // Select the folder
-                $folderPath = "{{$this->imapHost}:{$this->imapPort}/imap/notls/novalidate-cert}{$folder}";
-                @imap_reopen($mailbox, $folderPath);
+                // List all folders to find available folders and correct folder name
+                $allFolders = imap_list($mailbox, "{{$this->imapHost}:{$this->imapPort}/imap/notls/novalidate-cert}", "*");
+                $actualFolderName = $folder;
                 
-                // Get mailbox status
-                $status = imap_status($mailbox, $folderPath, SA_ALL);
-                $totalEmails = $status->messages ?? 0;
+                // Extract available folder names
+                foreach ($allFolders as $f) {
+                    if (preg_match('/\{[^}]+\}(.+)$/', $f, $matches)) {
+                        $folderName = imap_utf7_decode($matches[1]);
+                        // Remove dot prefix for display
+                        $displayName = ltrim($folderName, '.');
+                        if (!in_array($displayName, $availableFolders)) {
+                            $availableFolders[] = $displayName;
+                        }
+                        
+                        // Find the actual folder name (handle case sensitivity and dot-prefixed folders)
+                        if (strcasecmp($folderName, $folder) === 0 || 
+                            strcasecmp($folderName, '.' . $folder) === 0 ||
+                            strcasecmp('.' . $folderName, $folder) === 0 ||
+                            strcasecmp($displayName, $folder) === 0) {
+                            $actualFolderName = $folderName;
+                        }
+                    }
+                }
+                
+                // Select the folder
+                $folderPath = "{{$this->imapHost}:{$this->imapPort}/imap/notls/novalidate-cert}{$actualFolderName}";
+                $reopened = @imap_reopen($mailbox, $folderPath);
+                
+                if (!$reopened) {
+                    $error = 'Failed to open folder: ' . imap_last_error();
+                    imap_close($mailbox);
+                } else {
+                    // Get mailbox status
+                    $status = imap_status($mailbox, $folderPath, SA_ALL);
+                    $totalEmails = $status->messages ?? 0;
 
                 // Get emails (most recent first)
                 $start = max(1, $totalEmails - ($page * $perPage) + 1);
@@ -101,7 +129,8 @@ class MailController extends Controller
                     }
                 }
 
-                imap_close($mailbox);
+                    imap_close($mailbox);
+                }
             } else {
                 $error = 'Failed to connect to mail server: ' . imap_last_error();
             }
@@ -111,6 +140,9 @@ class MailController extends Controller
         }
 
         $totalPages = ceil($totalEmails / $perPage);
+        
+        // Use available folders if we have them, otherwise default
+        $folders = !empty($availableFolders) ? $availableFolders : ['INBOX', 'Sent'];
 
         return view('admin.mail.inbox', compact('emails', 'folder', 'folders', 'page', 'totalPages', 'totalEmails', 'error'));
     }
@@ -156,7 +188,7 @@ class MailController extends Controller
             $cc = $request->cc;
             $bcc = $request->bcc;
 
-            Mail::send([], [], function ($message) use ($to, $subject, $body, $cc, $bcc) {
+            $sentMessage = Mail::send([], [], function ($message) use ($to, $subject, $body, $cc, $bcc) {
                 $message->from($this->email, 'Leveler Mail')
                     ->to($to)
                     ->subject($subject)
@@ -183,15 +215,37 @@ class MailController extends Controller
                     // Create Sent folder if it doesn't exist
                     $folders = imap_list($mailbox, "{{$this->imapHost}:{$this->imapPort}/imap/notls/novalidate-cert}", "*");
                     $sentFolderExists = false;
+                    $sentFolderName = 'Sent';
                     foreach ($folders as $f) {
-                        if (strpos($f, 'Sent') !== false) {
+                        $decodedFolder = imap_utf7_decode($f);
+                        if (stripos($decodedFolder, 'Sent') !== false || stripos($f, 'Sent') !== false) {
                             $sentFolderExists = true;
+                            // Extract folder name
+                            if (preg_match('/\{[^}]+\}(.+)$/', $f, $matches)) {
+                                $sentFolderName = imap_utf7_decode($matches[1]);
+                            }
                             break;
                         }
                     }
                     
                     if (!$sentFolderExists) {
-                        @imap_createmailbox($mailbox, imap_utf7_encode("{{$this->imapHost}:{$this->imapPort}/imap/notls/novalidate-cert}Sent"));
+                        $sentFolderPath = "{{$this->imapHost}:{$this->imapPort}/imap/notls/novalidate-cert}Sent";
+                        @imap_createmailbox($mailbox, imap_utf7_encode($sentFolderPath));
+                    }
+                    
+                    // Get the sent message content and save it to Sent folder
+                    if ($sentMessage && $sentMessage->getSymfonySentMessage()) {
+                        $originalMessage = $sentMessage->getSymfonySentMessage()->getOriginalMessage();
+                        
+                        // Convert message to string
+                        $messageString = '';
+                        foreach ($originalMessage->toIterable() as $chunk) {
+                            $messageString .= $chunk;
+                        }
+                        
+                        // Append to Sent folder
+                        $sentFolderPath = "{{$this->imapHost}:{$this->imapPort}/imap/notls/novalidate-cert}Sent";
+                        @imap_append($mailbox, imap_utf7_encode($sentFolderPath), $messageString);
                     }
                     
                     imap_close($mailbox);

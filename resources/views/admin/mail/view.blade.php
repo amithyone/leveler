@@ -5,16 +5,19 @@
     <div class="header-content">
         <h1 class="page-title">View Email</h1>
         <div class="header-actions">
-            <a href="{{ route('admin.mail.compose', ['to' => $email['from'] ?? '', 'subject' => 'Re: ' . ($email['subject'] ?? '')]) }}" class="btn btn-primary">
-                <i class="fas fa-reply"></i> Reply
-            </a>
-            <form action="{{ route('admin.mail.delete', $email['number']) }}" method="POST" class="delete-form">
-                @csrf
-                @method('DELETE')
-                <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this email?')">
-                    <i class="fas fa-trash"></i> Delete
-                </button>
-            </form>
+            @if($email)
+                <a href="{{ route('admin.mail.compose', ['to' => $email['from'] ?? '', 'subject' => 'Re: ' . ($email['subject'] ?? '')]) }}" class="btn btn-primary">
+                    <i class="fas fa-reply"></i> Reply
+                </a>
+                <form action="{{ route('admin.mail.delete', $email['number']) }}" method="POST" class="delete-form">
+                    @csrf
+                    @method('DELETE')
+                    <input type="hidden" name="folder" value="{{ $folder ?? 'INBOX' }}">
+                    <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this email?')">
+                        <i class="fas fa-trash"></i> Delete
+                    </button>
+                </form>
+            @endif
             <a href="{{ route('admin.mail.index', ['folder' => $folder ?? 'INBOX']) }}" class="btn btn-secondary">
                 <i class="fas fa-arrow-left"></i> Back to {{ $folder ?? 'INBOX' }}
             </a>

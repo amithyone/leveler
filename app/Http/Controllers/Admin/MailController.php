@@ -362,12 +362,14 @@ class MailController extends Controller
     /**
      * Delete email
      */
-    public function delete($id)
+    public function delete(Request $request, $id)
     {
         if (!function_exists('imap_open')) {
             return redirect()->route('admin.mail.index')
                 ->with('error', 'PHP IMAP extension is not installed.');
         }
+
+        $folder = $request->get('folder', 'INBOX');
 
         try {
             $mailbox = @imap_open(
@@ -377,19 +379,41 @@ class MailController extends Controller
             );
 
             if ($mailbox) {
+                // List all folders to find the correct folder name
+                $allFolders = imap_list($mailbox, "{{$this->imapHost}:{$this->imapPort}/imap/notls/novalidate-cert}", "*");
+                $actualFolderName = $folder;
+                
+                // Find the actual folder name
+                foreach ($allFolders as $f) {
+                    if (preg_match('/\{[^}]+\}(.+)$/', $f, $matches)) {
+                        $folderName = imap_utf7_decode($matches[1]);
+                        $displayName = ltrim($folderName, '.');
+                        if (strcasecmp($folderName, $folder) === 0 || 
+                            strcasecmp($folderName, '.' . $folder) === 0 ||
+                            strcasecmp($displayName, $folder) === 0) {
+                            $actualFolderName = $folderName;
+                            break;
+                        }
+                    }
+                }
+                
+                // Select the correct folder
+                $folderPath = "{{$this->imapHost}:{$this->imapPort}/imap/notls/novalidate-cert}{$actualFolderName}";
+                @imap_reopen($mailbox, $folderPath);
+                
                 imap_delete($mailbox, $id);
                 imap_expunge($mailbox);
                 imap_close($mailbox);
                 
-                return redirect()->route('admin.mail.index')
+                return redirect()->route('admin.mail.index', ['folder' => $folder])
                     ->with('success', 'Email deleted successfully!');
             } else {
-                return redirect()->route('admin.mail.index')
+                return redirect()->route('admin.mail.index', ['folder' => $folder])
                     ->with('error', 'Failed to connect to mail server');
             }
         } catch (\Exception $e) {
             Log::error('Mail delete error: ' . $e->getMessage());
-            return redirect()->route('admin.mail.index')
+            return redirect()->route('admin.mail.index', ['folder' => $folder])
                 ->with('error', 'Failed to delete email: ' . $e->getMessage());
         }
     }

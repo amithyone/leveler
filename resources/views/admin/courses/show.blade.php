@@ -52,16 +52,6 @@
                 </div>
             </div>
 
-            <div class="info-item">
-                <label>Duration:</label>
-                <div class="info-value">
-                    @if($course->duration_hours)
-                        {{ number_format($course->duration_hours, 1) }} hours
-                    @else
-                        <span class="text-muted">Not set</span>
-                    @endif
-                </div>
-            </div>
 
             <div class="info-item full-width">
                 <label>Description:</label>

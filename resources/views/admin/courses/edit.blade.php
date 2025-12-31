@@ -100,26 +100,6 @@
 
             <div class="form-row">
                 <div class="form-group">
-                    <label for="duration_hours">
-                        <i class="fas fa-clock"></i> Duration (Hours)
-                    </label>
-                    <input 
-                        type="number" 
-                        id="duration_hours" 
-                        name="duration_hours" 
-                        class="form-control @error('duration_hours') error @enderror"
-                        value="{{ old('duration_hours', $course->duration_hours) }}"
-                        step="0.1"
-                        min="0"
-                        placeholder="e.g., 1.5"
-                    >
-                    @error('duration_hours')
-                        <span class="error-message">{{ $message }}</span>
-                    @enderror
-                    <small class="form-help">Course duration in hours</small>
-                </div>
-
-                <div class="form-group">
                     <label for="assessment_questions_count">
                         <i class="fas fa-question-circle"></i> Assessment Questions Count
                     </label>

@@ -87,7 +87,6 @@
                         <th>Course Name</th>
                         <th>Number of Questions</th>
                         <th>Assessment Duration</th>
-                        <th>Duration (Hours)</th>
                         <th>Enrolled Trainees</th>
                         <th>Total Results</th>
                         <th>Status</th>
@@ -121,13 +120,6 @@
                                     <i class="fas fa-clock"></i>
                                     {{ $course->estimated_duration }} mins
                                 </span>
-                            @else
-                                <span class="text-muted">-</span>
-                            @endif
-                        </td>
-                        <td>
-                            @if($course->duration_hours)
-                                <span>{{ number_format($course->duration_hours, 1) }} hrs</span>
                             @else
                                 <span class="text-muted">-</span>
                             @endif
@@ -171,7 +163,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="10" style="text-align: center; padding: 40px;">
+                        <td colspan="9" style="text-align: center; padding: 40px;">
                             <div class="empty-state">
                                 <i class="fas fa-book-open" style="font-size: 48px; color: #ccc; margin-bottom: 15px;"></i>
                                 <p>No courses found.</p>

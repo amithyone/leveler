@@ -84,7 +84,6 @@ class CourseController extends Controller
             'title' => 'required|string|max:255',
             'code' => 'required|string|max:10|unique:courses,code',
             'description' => 'nullable|string',
-            'duration_hours' => 'nullable|numeric|min:0',
             'assessment_questions_count' => 'nullable|integer|min:1',
             'passing_score' => 'required|integer|min:0|max:100',
             'training_link' => 'nullable|url|max:500',
@@ -93,7 +92,7 @@ class CourseController extends Controller
         ]);
 
         Course::create($request->only([
-            'title', 'code', 'description', 'duration_hours', 'assessment_questions_count', 'passing_score', 'training_link', 'whatsapp_link', 'status'
+            'title', 'code', 'description', 'assessment_questions_count', 'passing_score', 'training_link', 'whatsapp_link', 'status'
         ]));
 
         return redirect()->route('admin.courses.view')
@@ -118,7 +117,6 @@ class CourseController extends Controller
             'title' => 'required|string|max:255',
             'code' => 'required|string|max:10|unique:courses,code,' . $id,
             'description' => 'nullable|string',
-            'duration_hours' => 'nullable|numeric|min:0',
             'assessment_questions_count' => 'nullable|integer|min:1',
             'passing_score' => 'required|integer|min:0|max:100',
             'training_link' => 'nullable|url|max:500',
@@ -128,7 +126,7 @@ class CourseController extends Controller
 
         $course = Course::findOrFail($id);
         $course->update($request->only([
-            'title', 'code', 'description', 'duration_hours', 'assessment_questions_count', 'passing_score', 'training_link', 'whatsapp_link', 'status'
+            'title', 'code', 'description', 'assessment_questions_count', 'passing_score', 'training_link', 'whatsapp_link', 'status'
         ]));
 
         return redirect()->route('admin.courses.view')

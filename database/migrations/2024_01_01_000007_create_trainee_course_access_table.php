@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('trainee_id')->constrained()->onDelete('cascade');
             $table->foreignId('course_id')->constrained()->onDelete('cascade');
-            $table->foreignId('payment_id')->nullable()->constrained('payments')->onDelete('set null');
+            $table->unsignedBigInteger('payment_id')->nullable();
             $table->timestamp('granted_at')->nullable();
             $table->timestamps();
 

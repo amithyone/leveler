@@ -213,11 +213,15 @@ class MailController extends Controller
             $cc = $request->cc;
             $bcc = $request->bcc;
 
-            $sentMessage = Mail::send([], [], function ($message) use ($to, $subject, $body, $cc, $bcc) {
+            // Add email signature with logo to the body
+            $signature = view('emails.partials.signature')->render();
+            $bodyWithSignature = $body . $signature;
+            
+            $sentMessage = Mail::send([], [], function ($message) use ($to, $subject, $bodyWithSignature, $cc, $bcc) {
                 $message->from($this->email, 'Leveler Mail')
                     ->to($to)
                     ->subject($subject)
-                    ->html($body);
+                    ->html($bodyWithSignature);
                 
                 if ($cc) {
                     $message->cc($cc);

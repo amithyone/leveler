@@ -65,14 +65,13 @@ class TraineePasswordResetNotification extends Notification
         ]);
 
         try {
+            // Use custom view with logo signature
             $mailMessage = (new MailMessage)
                 ->subject('Reset Your Password - Leveler Training Platform')
-                ->greeting('Hello ' . ($notifiable->name ?? 'Trainee') . '!')
-                ->line('You are receiving this email because we received a password reset request for your account.')
-                ->action('Reset Password', $url)
-                ->line('This password reset link will expire in 60 minutes.')
-                ->line('If you did not request a password reset, no further action is required.')
-                ->salutation('Best regards, LevelerCC Team');
+                ->view('emails.password-reset', [
+                    'name' => $notifiable->name ?? 'Trainee',
+                    'url' => $url,
+                ]);
 
             Log::info('MailMessage created successfully', [
                 'email' => $notifiable->email ?? 'N/A',

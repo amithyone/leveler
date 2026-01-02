@@ -91,13 +91,8 @@
         
         <p>If you have any questions or need assistance, please don't hesitate to contact our support team.</p>
         
-        <p>Best regards,<br>
-        <strong>The LevelerCC Team</strong></p>
     </div>
     
-    <div class="footer">
-        <p>This is an automated email. Please do not reply to this message.</p>
-        <p>&copy; {{ date('Y') }} LevelerCC. All rights reserved.</p>
-    </div>
+    @include('emails.partials.signature')
 </body>
 </html>

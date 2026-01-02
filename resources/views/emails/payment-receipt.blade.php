@@ -154,13 +154,8 @@
         
         <p>Thank you for choosing LevelerCC!</p>
         
-        <p>Best regards,<br>
-        <strong>The LevelerCC Team</strong></p>
     </div>
     
-    <div class="footer">
-        <p>This is an automated email. Please do not reply to this message.</p>
-        <p>&copy; {{ date('Y') }} LevelerCC. All rights reserved.</p>
-    </div>
+    @include('emails.partials.signature')
 </body>
 </html>

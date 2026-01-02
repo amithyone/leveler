@@ -35,7 +35,7 @@
     @endif
 
     <div class="content-section">
-        <form method="POST" action="{{ route('admin.courses.store') }}" class="course-form">
+        <form method="POST" action="{{ route('admin.courses.store') }}" class="course-form" enctype="multipart/form-data">
             @csrf
 
             <div class="form-group">
@@ -92,6 +92,27 @@
                     <span class="error-message">{{ $message }}</span>
                 @enderror
                 <small class="form-help">Brief description of the course content and objectives</small>
+            </div>
+
+            <div class="form-group">
+                <label for="image">
+                    <i class="fas fa-image"></i> Course Image
+                </label>
+                <input 
+                    type="file" 
+                    id="image" 
+                    name="image" 
+                    class="form-control @error('image') error @enderror"
+                    accept="image/*"
+                    onchange="previewImage(this)"
+                >
+                @error('image')
+                    <span class="error-message">{{ $message }}</span>
+                @enderror
+                <small class="form-help">Upload a course image (JPEG, PNG, GIF, WebP - Max: 5MB)</small>
+                <div id="image-preview" style="margin-top: 15px; display: none;">
+                    <img id="preview-img" src="" alt="Preview" style="max-width: 300px; max-height: 200px; border-radius: 8px; border: 2px solid #e0e0e0;">
+                </div>
             </div>
 
             <div class="form-row">
@@ -293,4 +314,24 @@ textarea.form-control {
     }
 }
 </style>
+
+<script>
+function previewImage(input) {
+    const preview = document.getElementById('image-preview');
+    const previewImg = document.getElementById('preview-img');
+    
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        
+        reader.onload = function(e) {
+            previewImg.src = e.target.result;
+            preview.style.display = 'block';
+        }
+        
+        reader.readAsDataURL(input.files[0]);
+    } else {
+        preview.style.display = 'none';
+    }
+}
+</script>
 @endsection

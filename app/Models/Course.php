@@ -19,6 +19,7 @@ class Course extends Model
         'training_link',
         'whatsapp_link',
         'status',
+        'image',
     ];
 
     public function schedules()

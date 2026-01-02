@@ -43,6 +43,15 @@
                 <div class="info-value">{{ $course->title }}</div>
             </div>
 
+            @if($course->image)
+            <div class="info-item full-width">
+                <label>Course Image:</label>
+                <div class="info-value">
+                    <img src="{{ asset('storage/' . $course->image) }}" alt="{{ $course->title }}" style="max-width: 100%; max-height: 400px; border-radius: 8px; border: 2px solid #e0e0e0;">
+                </div>
+            </div>
+            @endif
+
             <div class="info-item">
                 <label>Status:</label>
                 <div class="info-value">

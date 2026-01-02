@@ -7,6 +7,7 @@ use App\Models\Course;
 use App\Models\QuestionPool;
 use App\Models\Result;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class CourseController extends Controller
 {
@@ -89,11 +90,22 @@ class CourseController extends Controller
             'training_link' => 'nullable|url|max:500',
             'whatsapp_link' => 'nullable|url|max:500',
             'status' => 'required|in:Active,Inactive',
+            'image' => 'nullable|image|mimes:jpeg,jpg,png,gif,webp|max:5120',
         ]);
 
-        Course::create($request->only([
+        $data = $request->only([
             'title', 'code', 'description', 'assessment_questions_count', 'passing_score', 'training_link', 'whatsapp_link', 'status'
-        ]));
+        ]);
+
+        // Handle image upload
+        if ($request->hasFile('image')) {
+            $image = $request->file('image');
+            $imageName = time() . '_' . uniqid() . '.' . $image->getClientOriginalExtension();
+            $imagePath = $image->storeAs('courses', $imageName, 'public');
+            $data['image'] = $imagePath;
+        }
+
+        Course::create($data);
 
         return redirect()->route('admin.courses.view')
             ->with('success', 'Course created successfully!');
@@ -122,12 +134,28 @@ class CourseController extends Controller
             'training_link' => 'nullable|url|max:500',
             'whatsapp_link' => 'nullable|url|max:500',
             'status' => 'required|in:Active,Inactive',
+            'image' => 'nullable|image|mimes:jpeg,jpg,png,gif,webp|max:5120',
         ]);
 
         $course = Course::findOrFail($id);
-        $course->update($request->only([
+        $data = $request->only([
             'title', 'code', 'description', 'assessment_questions_count', 'passing_score', 'training_link', 'whatsapp_link', 'status'
-        ]));
+        ]);
+
+        // Handle image upload
+        if ($request->hasFile('image')) {
+            // Delete old image if exists
+            if ($course->image && Storage::disk('public')->exists($course->image)) {
+                Storage::disk('public')->delete($course->image);
+            }
+            
+            $image = $request->file('image');
+            $imageName = time() . '_' . uniqid() . '.' . $image->getClientOriginalExtension();
+            $imagePath = $image->storeAs('courses', $imageName, 'public');
+            $data['image'] = $imagePath;
+        }
+
+        $course->update($data);
 
         return redirect()->route('admin.courses.view')
             ->with('success', 'Course updated successfully!');

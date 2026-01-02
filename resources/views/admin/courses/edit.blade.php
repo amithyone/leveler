@@ -143,7 +143,7 @@
                     @error('assessment_questions_count')
                         <span class="error-message">{{ $message }}</span>
                     @enderror
-                    <small class="form-help">Number of questions to randomly select from pool for assessment (leave empty to use all questions)</small>
+                    <small class="form-help">Number of questions to randomly select from pool for assessment (default: 50 if not specified)</small>
                     <div style="margin-top: 5px; padding: 8px; background: #f0f7ff; border-radius: 4px; font-size: 12px; color: #0066cc;">
                         <strong>Total questions in pool:</strong> {{ $course->questionPools()->count() }}
                     </div>

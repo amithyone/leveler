@@ -77,12 +77,15 @@ class AssessmentController extends Controller
 
         // Determine how many questions to ask
         $totalQuestionsInPool = $allQuestions->count();
-        $questionsToAsk = $course->assessment_questions_count ?? $totalQuestionsInPool;
+        // Default to 50 questions if not specified, but don't exceed available questions
+        $defaultQuestions = 50;
+        $questionsToAsk = $course->assessment_questions_count ?? $defaultQuestions;
         
         // Ensure we don't ask more questions than available
         $questionsToAsk = min($questionsToAsk, $totalQuestionsInPool);
         
-        // Randomly select questions
+        // Randomly select questions - shuffle() ensures different questions each time a trainee takes the assessment
+        // Each call to shuffle() creates a new random order, so every assessment attempt gets different questions
         $questions = $allQuestions->shuffle()->take($questionsToAsk);
 
         return view('trainee.assessment.start', compact('course', 'questions'));

@@ -105,6 +105,11 @@ class CourseController extends Controller
             $data['image'] = $imagePath;
         }
 
+        // Set default assessment_questions_count to 50 if not provided
+        if (!isset($data['assessment_questions_count']) || empty($data['assessment_questions_count'])) {
+            $data['assessment_questions_count'] = 50;
+        }
+        
         Course::create($data);
 
         return redirect()->route('admin.courses.view')
